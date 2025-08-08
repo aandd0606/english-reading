@@ -1,0 +1,1028 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japan Travel English Reading Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f0f5ff;
+    }
+    .highlight-1 { background-color: rgba(255, 182, 193, 0.3); }
+    .highlight-2 { background-color: rgba(173, 216, 230, 0.3); }
+    .highlight-3 { background-color: rgba(152, 251, 152, 0.3); }
+    .highlight-4 { background-color: rgba(255, 218, 185, 0.3); }
+    .highlight-5 { background-color: rgba(221, 160, 221, 0.3); }
+    
+    .explanation-1 { border-left: 4px solid #ffb6c1; }
+    .explanation-2 { border-left: 4px solid #add8e6; }
+    .explanation-3 { border-left: 4px solid #98fb98; }
+    .explanation-4 { border-left: 4px solid #ffdab9; }
+    .explanation-5 { border-left: 4px solid #dda0dd; }
+    
+    .tab-active {
+      background-color: #4338ca;
+      color: white;
+    }
+    
+    .tabs-container {
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: thin;
+    }
+    
+    .questions-container {
+      height: 600px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    
+    @media (max-width: 768px) {
+      .quiz-container {
+        flex-direction: column;
+      }
+      .passage-section, .questions-section {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <h1 class="text-3xl font-bold text-center text-indigo-800 mb-6">日本旅遊英語閱讀測驗</h1>
+    
+    <div class="tabs-container mb-6 border-b border-gray-200">
+      <div class="tabs flex">
+        <!-- Tabs will be generated here -->
+      </div>
+    </div>
+    
+    <div class="quiz-container flex flex-wrap md:flex-nowrap gap-6">
+      <div class="passage-section w-full md:w-1/2 bg-white rounded-lg shadow-md p-6">
+        <h2 class="passage-title text-2xl font-bold mb-4 text-indigo-700"></h2>
+        <div class="passage-container text-lg leading-relaxed"></div>
+      </div>
+      
+      <div class="questions-section w-full md:w-1/2 bg-white rounded-lg shadow-md p-6">
+        <div class="questions-container space-y-6 pr-2"></div>
+        
+        <div class="mt-8 flex justify-between items-center sticky bottom-0 bg-white pt-4">
+          <button id="submit-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition">
+            提交答案
+          </button>
+          <div id="score-display" class="hidden text-xl font-bold"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        title: "Tokyo Adventure",
+        passage: "Tokyo is the big city in Japan. Many people live and work here. You can see tall buildings and busy streets. Tokyo Tower is very high and looks like the Eiffel Tower. In Shibuya, there is a famous crossing where many people walk at the same time. The food in Tokyo is very good. You can eat sushi, ramen, and many other things. At night, the city has many bright lights.",
+        questions: [
+          {
+            question: "What is Tokyo?",
+            options: ["A small town", "A big city", "A mountain", "A river"],
+            answer: 1,
+            explanation: "The passage states 'Tokyo is the big city in Japan'，文章開頭就明確指出東京是日本的大城市。"
+          },
+          {
+            question: "What does Tokyo Tower look like?",
+            options: ["A tree", "A boat", "The Eiffel Tower", "A bridge"],
+            answer: 2,
+            explanation: "According to the passage, 'Tokyo Tower is very high and looks like the Eiffel Tower'，文章中提到東京鐵塔看起來像艾菲爾鐵塔。"
+          },
+          {
+            question: "What is famous in Shibuya?",
+            options: ["A temple", "A crossing", "A museum", "A park"],
+            answer: 1,
+            explanation: "The passage mentions 'In Shibuya, there is a famous crossing where many people walk at the same time'，文章提到澀谷有一個著名的十字路口，很多人同時穿越。"
+          },
+          {
+            question: "What can you eat in Tokyo?",
+            options: ["Only sushi", "Only ramen", "Sushi, ramen, and other foods", "No food"],
+            answer: 2,
+            explanation: "The passage says 'You can eat sushi, ramen, and many other things'，文章提到在東京可以吃壽司、拉麵和許多其他食物。"
+          },
+          {
+            question: "How is Tokyo at night?",
+            options: ["Very dark", "Has bright lights", "Very quiet", "Very cold"],
+            answer: 1,
+            explanation: "The passage states 'At night, the city has many bright lights'，文章最後提到晚上城市有很多明亮的燈光。"
+          }
+        ]
+      },
+      {
+        title: "Kyoto's Beauty",
+        passage: "Kyoto was the old capital of Japan. It has many old temples and beautiful gardens. In spring, you can see cherry blossoms in many places. Fushimi Inari Shrine has thousands of red gates that make a path up a mountain. The Gion area is where you might see geisha walking. Kyoto is famous for its green tea and traditional sweets. Many people wear kimono when they visit the old streets.",
+        questions: [
+          {
+            question: "What was Kyoto in the past?",
+            options: ["A village", "A mountain", "The capital of Japan", "An island"],
+            answer: 2,
+            explanation: "The passage states 'Kyoto was the old capital of Japan'，文章開頭提到京都是日本的舊都。"
+          },
+          {
+            question: "What can you see in spring in Kyoto?",
+            options: ["Snow", "Cherry blossoms", "Leaves falling", "Fish"],
+            answer: 1,
+            explanation: "According to the passage, 'In spring, you can see cherry blossoms in many places'，文章提到春天在京都很多地方可以看到櫻花。"
+          },
+          {
+            question: "What does Fushimi Inari Shrine have?",
+            options: ["Blue doors", "Green windows", "Red gates", "Yellow walls"],
+            answer: 2,
+            explanation: "The passage mentions 'Fushimi Inari Shrine has thousands of red gates that make a path up a mountain'，文章提到伏見稻荷神社有數千個紅色鳥居形成一條通往山上的路徑。"
+          },
+          {
+            question: "Where might you see geisha?",
+            options: ["Tokyo Tower", "Gion area", "The airport", "The beach"],
+            answer: 1,
+            explanation: "The passage says 'The Gion area is where you might see geisha walking'，文章提到祇園區是可能看到藝妓走路的地方。"
+          },
+          {
+            question: "What do many people wear when visiting old streets in Kyoto?",
+            options: ["Kimono", "Jeans", "Suits", "Swimsuits"],
+            answer: 0,
+            explanation: "The passage states 'Many people wear kimono when they visit the old streets'，文章最後提到許多人參觀古老街道時會穿和服。"
+          }
+        ]
+      },
+      {
+        title: "Osaka Fun",
+        passage: "Osaka is known for good food and friendly people. The city has a famous castle with beautiful gardens around it. Dotonbori is a busy street with many restaurants and bright signs. People in Osaka love to eat and often say 'kuidaore' which means 'eat until you drop'. Takoyaki, ball-shaped food with octopus inside, is a must-try food here. Osaka also has a big aquarium where you can see whale sharks.",
+        questions: [
+          {
+            question: "What is Osaka known for?",
+            options: ["Mountains and rivers", "Good food and friendly people", "Cold weather", "Old temples"],
+            answer: 1,
+            explanation: "The passage states 'Osaka is known for good food and friendly people'，文章開頭提到大阪以美食和友善的人而聞名。"
+          },
+          {
+            question: "What is Dotonbori?",
+            options: ["A temple", "A mountain", "A busy street with restaurants", "A quiet park"],
+            answer: 2,
+            explanation: "According to the passage, 'Dotonbori is a busy street with many restaurants and bright signs'，文章提到道頓堀是一條有許多餐廳和明亮招牌的繁忙街道。"
+          },
+          {
+            question: "What does 'kuidaore' mean?",
+            options: ["Sleep well", "Eat until you drop", "Walk slowly", "Sing loudly"],
+            answer: 1,
+            explanation: "The passage mentions 'People in Osaka love to eat and often say 'kuidaore' which means 'eat until you drop''，文章提到大阪人喜歡吃東西，常說「kuidaore」，意思是「吃到倒下」。"
+          },
+          {
+            question: "What is inside takoyaki?",
+            options: ["Cheese", "Chicken", "Octopus", "Vegetables"],
+            answer: 2,
+            explanation: "The passage says 'Takoyaki, ball-shaped food with octopus inside, is a must-try food here'，文章提到章魚燒是球形食物，裡面有章魚，是必嚐的食物。"
+          },
+          {
+            question: "What can you see at Osaka's aquarium?",
+            options: ["Whale sharks", "Lions", "Birds", "Monkeys"],
+            answer: 0,
+            explanation: "The passage states 'Osaka also has a big aquarium where you can see whale sharks'，文章最後提到大阪有一個大水族館，可以看到鯨鯊。"
+          }
+        ]
+      },
+      {
+        title: "Fukui's Treasures",
+        passage: "Fukui is a quiet place with beautiful nature. It has a famous old temple called Eiheiji, where monks live and train. The Dinosaur Museum in Fukui is one of the best in the world. Many dinosaur bones were found in this area. The beaches in Fukui have clear blue water. People like to eat fresh fish and crab from the sea here. In winter, Fukui gets a lot of snow, and the mountains look very beautiful.",
+        questions: [
+          {
+            question: "What kind of place is Fukui?",
+            options: ["A busy city", "A quiet place with beautiful nature", "A desert", "An island"],
+            answer: 1,
+            explanation: "The passage states 'Fukui is a quiet place with beautiful nature'，文章開頭提到福井是一個安靜且有美麗自然風光的地方。"
+          },
+          {
+            question: "What is Eiheiji?",
+            options: ["A restaurant", "A museum", "An old temple", "A shopping mall"],
+            answer: 2,
+            explanation: "According to the passage, 'It has a famous old temple called Eiheiji, where monks live and train'，文章提到福井有一座著名的古寺叫永平寺，僧侶在那裡生活和修行。"
+          },
+          {
+            question: "What is special about the Dinosaur Museum in Fukui?",
+            options: ["It's very small", "It's one of the best in the world", "It's very old", "It's very expensive"],
+            answer: 1,
+            explanation: "The passage mentions 'The Dinosaur Museum in Fukui is one of the best in the world'，文章提到福井的恐龍博物館是世界上最好的之一。"
+          },
+          {
+            question: "What do people like to eat in Fukui?",
+            options: ["Only vegetables", "Fresh fish and crab", "Only rice", "Only fruit"],
+            answer: 1,
+            explanation: "The passage says 'People like to eat fresh fish and crab from the sea here'，文章提到人們喜歡在這裡吃來自海洋的新鮮魚和蟹。"
+          },
+          {
+            question: "What happens in Fukui during winter?",
+            options: ["It gets very hot", "It gets a lot of snow", "It has many visitors", "It has many festivals"],
+            answer: 1,
+            explanation: "The passage states 'In winter, Fukui gets a lot of snow, and the mountains look very beautiful'，文章最後提到冬天福井會下很多雪，山看起來非常美麗。"
+          }
+        ]
+      },
+      {
+        title: "Karuizawa Retreat",
+        passage: "Karuizawa is a mountain town where many people go to escape the summer heat. It is cooler than Tokyo and has many trees. The town has a famous shopping street with many small shops. Many rich people and famous people have houses in Karuizawa. There is a beautiful waterfall called Shiraito Falls nearby. In autumn, the leaves change color and look very pretty. People can play golf, hike, and enjoy hot springs here.",
+        questions: [
+          {
+            question: "Why do people go to Karuizawa in summer?",
+            options: ["To see the snow", "To escape the heat", "To go to the beach", "To see cherry blossoms"],
+            answer: 1,
+            explanation: "The passage states 'Karuizawa is a mountain town where many people go to escape the summer heat'，文章開頭提到輕井澤是一個山城，許多人去那裡避暑。"
+          },
+          {
+            question: "How is Karuizawa's temperature compared to Tokyo?",
+            options: ["Hotter", "The same", "Cooler", "We don't know"],
+            answer: 2,
+            explanation: "According to the passage, 'It is cooler than Tokyo and has many trees'，文章提到輕井澤比東京涼爽，且有很多樹木。"
+          },
+          {
+            question: "What kind of people have houses in Karuizawa?",
+            options: ["Only students", "Only farmers", "Rich and famous people", "Only old people"],
+            answer: 2,
+            explanation: "The passage mentions 'Many rich people and famous people have houses in Karuizawa'，文章提到許多富人和名人在輕井澤有房子。"
+          },
+          {
+            question: "What is Shiraito Falls?",
+            options: ["A mountain", "A waterfall", "A temple", "A restaurant"],
+            answer: 1,
+            explanation: "The passage says 'There is a beautiful waterfall called Shiraito Falls nearby'，文章提到附近有一個美麗的瀑布叫白絲瀑布。"
+          },
+          {
+            question: "What can people do in Karuizawa?",
+            options: ["Only sleep", "Play golf, hike, and enjoy hot springs", "Only eat", "Only shop"],
+            answer: 1,
+            explanation: "The passage states 'People can play golf, hike, and enjoy hot springs here'，文章最後提到人們可以在這裡打高爾夫、徒步旅行和享受溫泉。"
+          }
+        ]
+      },
+      {
+        title: "Tokyo's Gardens",
+        passage: "Tokyo has many beautiful gardens where people can relax. Shinjuku Gyoen is a big garden with three different styles: Japanese, English, and French. In spring, it is one of the best places to see cherry blossoms. Rikugien Garden has a big pond and small hills. It looks very beautiful in autumn when the leaves turn red and orange. Hama Rikyu Gardens is next to Tokyo Bay and has seawater ponds that change with the tides. These gardens are quiet places in the busy city.",
+        questions: [
+          {
+            question: "What can people do in Tokyo's gardens?",
+            options: ["Shop", "Work", "Relax", "Drive cars"],
+            answer: 2,
+            explanation: "The passage states 'Tokyo has many beautiful gardens where people can relax'，文章開頭提到東京有許多美麗的花園，人們可以在那裡放鬆。"
+          },
+          {
+            question: "How many styles does Shinjuku Gyoen have?",
+            options: ["One", "Two", "Three", "Four"],
+            answer: 2,
+            explanation: "According to the passage, 'Shinjuku Gyoen is a big garden with three different styles: Japanese, English, and French'，文章提到新宿御苑是一個有三種不同風格的大花園：日式、英式和法式。"
+          },
+          {
+            question: "When is Shinjuku Gyoen best for viewing cherry blossoms?",
+            options: ["Spring", "Summer", "Autumn", "Winter"],
+            answer: 0,
+            explanation: "The passage mentions 'In spring, it is one of the best places to see cherry blossoms'，文章提到春天，新宿御苑是觀賞櫻花的最佳地點之一。"
+          },
+          {
+            question: "What does Rikugien Garden have?",
+            options: ["A big pond and small hills", "Tall buildings", "Many shops", "A zoo"],
+            answer: 0,
+            explanation: "The passage says 'Rikugien Garden has a big pond and small hills'，文章提到六義園有一個大池塘和小山丘。"
+          },
+          {
+            question: "What is special about Hama Rikyu Gardens?",
+            options: ["It has many animals", "It has seawater ponds that change with the tides", "It is very new", "It is very small"],
+            answer: 1,
+            explanation: "The passage states 'Hama Rikyu Gardens is next to Tokyo Bay and has seawater ponds that change with the tides'，文章提到濱離宮恩賜庭園靠近東京灣，有隨潮汐變化的海水池塘。"
+          }
+        ]
+      },
+      {
+        title: "Kyoto's Seasons",
+        passage: "Kyoto is beautiful in all four seasons. In spring, cherry blossoms make the city pink and white. Many people have parties under the trees. Summer brings green leaves and the sound of cicadas. The Gion Festival happens in July with big floats and music. Autumn is famous for red maple leaves at temples like Tofukuji. In winter, sometimes snow falls on the Golden Pavilion, making it look like a picture. Each season in Kyoto has its own special beauty.",
+        questions: [
+          {
+            question: "What colors are cherry blossoms in Kyoto?",
+            options: ["Blue and green", "Pink and white", "Yellow and orange", "Purple and red"],
+            answer: 1,
+            explanation: "The passage states 'In spring, cherry blossoms make the city pink and white'，文章提到春天，櫻花使城市變成粉色和白色。"
+          },
+          {
+            question: "What do people do under cherry blossom trees?",
+            options: ["Sleep", "Have parties", "Study", "Play sports"],
+            answer: 1,
+            explanation: "According to the passage, 'Many people have parties under the trees'，文章提到許多人在樹下舉行聚會。"
+          },
+          {
+            question: "When does the Gion Festival happen?",
+            options: ["January", "April", "July", "December"],
+            answer: 2,
+            explanation: "The passage mentions 'The Gion Festival happens in July with big floats and music'，文章提到祇園祭在七月舉行，有大型花車和音樂。"
+          },
+          {
+            question: "What is Kyoto famous for in autumn?",
+            options: ["Cherry blossoms", "Red maple leaves", "Snow", "Hot weather"],
+            answer: 1,
+            explanation: "The passage says 'Autumn is famous for red maple leaves at temples like Tofukuji'，文章提到秋天以東福寺等寺廟的紅色楓葉而聞名。"
+          },
+          {
+            question: "What happens to the Golden Pavilion in winter?",
+            options: ["It closes", "It gets very hot", "Sometimes snow falls on it", "It changes color"],
+            answer: 2,
+            explanation: "The passage states 'In winter, sometimes snow falls on the Golden Pavilion, making it look like a picture'，文章提到冬天，有時雪落在金閣寺上，使它看起來像一幅畫。"
+          }
+        ]
+      },
+      {
+        title: "Osaka's Street Food",
+        passage: "Osaka is called 'Japan's kitchen' because it has so much good food. People in Osaka love to eat on the street while walking. Takoyaki are small balls with octopus inside, cooked on special hot plates. Okonomiyaki is like a pancake with many things inside, such as cabbage and meat. Kushikatsu are fried meat and vegetables on sticks. There is a special sauce, but you cannot dip twice! At night, the food streets are very bright and busy with many happy people eating.",
+        questions: [
+          {
+            question: "What is Osaka called?",
+            options: ["Japan's bedroom", "Japan's kitchen", "Japan's garden", "Japan's office"],
+            answer: 1,
+            explanation: "The passage states 'Osaka is called 'Japan's kitchen' because it has so much good food'，文章開頭提到大阪被稱為「日本的廚房」，因為它有很多美食。"
+          },
+          {
+            question: "What is inside takoyaki?",
+            options: ["Cheese", "Fish", "Octopus", "Chicken"],
+            answer: 2,
+            explanation: "According to the passage, 'Takoyaki are small balls with octopus inside, cooked on special hot plates'，文章提到章魚燒是小球，裡面有章魚，在特殊的熱盤上烹飪。"
+          },
+          {
+            question: "What is okonomiyaki like?",
+            options: ["A soup", "A pancake", "A sandwich", "A salad"],
+            answer: 1,
+            explanation: "The passage mentions 'Okonomiyaki is like a pancake with many things inside, such as cabbage and meat'，文章提到大阪燒像是一種煎餅，裡面有很多東西，如捲心菜和肉。"
+          },
+          {
+            question: "What are kushikatsu?",
+            options: ["Raw fish", "Fried meat and vegetables on sticks", "Sweet cakes", "Cold noodles"],
+            answer: 1,
+            explanation: "The passage says 'Kushikatsu are fried meat and vegetables on sticks'，文章提到串炸是炸肉和蔬菜放在棍子上。"
+          },
+          {
+            question: "What rule must you follow with kushikatsu sauce?",
+            options: ["You must eat it all", "You cannot dip twice", "You must share it", "You must make it yourself"],
+            answer: 1,
+            explanation: "The passage states 'There is a special sauce, but you cannot dip twice!'，文章提到有一種特殊的醬料，但你不能蘸兩次！"
+          }
+        ]
+      },
+      {
+        title: "Fukui's Coast",
+        passage: "Fukui has a beautiful coast along the Sea of Japan. Tojinbo is a place with high cliffs where the waves hit the rocks. It is a good place to watch the sunset. Fukui has many fishing villages where people catch fresh fish and crabs. The beaches have soft sand and clear water. In summer, people swim and play in the sea. There are also many small islands that you can see from the coast. Some people take boats to visit these islands.",
+        questions: [
+          {
+            question: "Where is Fukui's coast located?",
+            options: ["Along the Pacific Ocean", "Along the Sea of Japan", "Along a river", "Along a lake"],
+            answer: 1,
+            explanation: "The passage states 'Fukui has a beautiful coast along the Sea of Japan'，文章開頭提到福井有一個美麗的海岸線沿著日本海。"
+          },
+          {
+            question: "What is Tojinbo?",
+            options: ["A mountain", "A temple", "A place with high cliffs", "A restaurant"],
+            answer: 2,
+            explanation: "According to the passage, 'Tojinbo is a place with high cliffs where the waves hit the rocks'，文章提到東尋坊是一個有高懸崖的地方，浪打在岩石上。"
+          },
+          {
+            question: "What do people catch in Fukui's fishing villages?",
+            options: ["Fresh fish and crabs", "Birds", "Deer", "Butterflies"],
+            answer: 0,
+            explanation: "The passage mentions 'Fukui has many fishing villages where people catch fresh fish and crabs'，文章提到福井有許多漁村，人們在那裡捕捉新鮮的魚和蟹。"
+          },
+          {
+            question: "What do the beaches in Fukui have?",
+            options: ["Hard rocks", "Soft sand and clear water", "Many buildings", "Many trees"],
+            answer: 1,
+            explanation: "The passage says 'The beaches have soft sand and clear water'，文章提到海灘有柔軟的沙子和清澈的水。"
+          },
+          {
+            question: "How do some people visit the small islands?",
+            options: ["By car", "By train", "By boat", "By plane"],
+            answer: 2,
+            explanation: "The passage states 'Some people take boats to visit these islands'，文章最後提到有些人乘船去參觀這些島嶼。"
+          }
+        ]
+      },
+      {
+        title: "Karuizawa's Nature",
+        passage: "Karuizawa is famous for its beautiful nature. The air is clean and cool, even in summer. There are many hiking trails through green forests. Mount Asama is a volcano that you can see from the town. It sometimes has smoke coming from the top. Bird watching is popular here, and you can see many kinds of birds. In winter, people come to ski on the snow-covered mountains. There are also hot springs where you can relax in warm water while looking at the snow.",
+        questions: [
+          {
+            question: "How is the air in Karuizawa?",
+            options: ["Dirty and hot", "Clean and cool", "Wet and warm", "Dry and cold"],
+            answer: 1,
+            explanation: "The passage states 'The air is clean and cool, even in summer'，文章提到空氣乾淨涼爽，即使在夏天。"
+          },
+          {
+            question: "What kind of trails are there in Karuizawa?",
+            options: ["Hiking trails", "Car roads", "Train tracks", "Bicycle paths"],
+            answer: 0,
+            explanation: "According to the passage, 'There are many hiking trails through green forests'，文章提到有許多穿過綠色森林的徒步小徑。"
+          },
+          {
+            question: "What is Mount Asama?",
+            options: ["A lake", "A temple", "A volcano", "A shopping mall"],
+            answer: 2,
+            explanation: "The passage mentions 'Mount Asama is a volcano that you can see from the town'，文章提到淺間山是一座火山，從鎮上可以看到。"
+          },
+          {
+            question: "What activity is popular for bird lovers in Karuizawa?",
+            options: ["Swimming", "Bird watching", "Fishing", "Cooking"],
+            answer: 1,
+            explanation: "The passage says 'Bird watching is popular here, and you can see many kinds of birds'，文章提到觀鳥在這裡很受歡迎，你可以看到許多種類的鳥。"
+          },
+          {
+            question: "What can you do in hot springs in winter?",
+            options: ["Sleep", "Eat food", "Relax in warm water while looking at snow", "Play games"],
+            answer: 2,
+            explanation: "The passage states 'There are also hot springs where you can relax in warm water while looking at the snow'，文章最後提到還有溫泉，你可以在溫暖的水中放鬆，同時欣賞雪景。"
+          }
+        ]
+      },
+      {
+        title: "Tokyo's Transportation",
+        passage: "Tokyo has one of the best transportation systems in the world. The trains are always on time. If a train is even one minute late, the staff will say sorry. The subway can take you to most places in the city. There are many lines with different colors. Taxis in Tokyo are clean and the drivers wear white gloves. Buses are also good for going to places where trains don't go. Many people also ride bicycles in Tokyo, especially in small streets.",
+        questions: [
+          {
+            question: "How are Tokyo's trains with timing?",
+            options: ["Always late", "Always on time", "Sometimes on time", "Never run"],
+            answer: 1,
+            explanation: "The passage states 'The trains are always on time'，文章提到火車總是準時。"
+          },
+          {
+            question: "What happens if a train is one minute late?",
+            options: ["Nothing happens", "The staff will say sorry", "The train stops", "People get money back"],
+            answer: 1,
+            explanation: "According to the passage, 'If a train is even one minute late, the staff will say sorry'，文章提到如果火車晚了一分鐘，工作人員會道歉。"
+          },
+          {
+            question: "How are the subway lines marked?",
+            options: ["With numbers", "With animals", "With different colors", "With people's names"],
+            answer: 2,
+            explanation: "The passage mentions 'There are many lines with different colors'，文章提到有許多不同顏色的線路。"
+          },
+          {
+            question: "What do taxi drivers in Tokyo wear?",
+            options: ["Red hats", "Blue shirts", "Black shoes", "White gloves"],
+            answer: 3,
+            explanation: "The passage says 'Taxis in Tokyo are clean and the drivers wear white gloves'，文章提到東京的計程車很乾淨，司機戴白手套。"
+          },
+          {
+            question: "Where do many people ride bicycles in Tokyo?",
+            options: ["On trains", "In small streets", "In big parks", "Inside buildings"],
+            answer: 1,
+            explanation: "The passage states 'Many people also ride bicycles in Tokyo, especially in small streets'，文章最後提到許多人也在東京騎自行車，特別是在小街道上。"
+          }
+        ]
+      },
+      {
+        title: "Kyoto's Temples",
+        passage: "Kyoto has more than 1,600 Buddhist temples. Kinkakuji, the Golden Pavilion, is covered in gold and sits by a lake. Kiyomizudera is built on a hill and has a large wooden stage. From there, you can see the whole city. Ryoanji has a famous rock garden with 15 stones. No matter where you stand, you can only see 14 stones at once. Many temples have beautiful gardens where you can sit and feel peaceful. Some temples let visitors stay overnight to try meditation.",
+        questions: [
+          {
+            question: "How many Buddhist temples does Kyoto have?",
+            options: ["About 100", "About 500", "More than 1,600", "About 2,000"],
+            answer: 2,
+            explanation: "The passage states 'Kyoto has more than 1,600 Buddhist temples'，文章開頭提到京都有超過1,600座佛教寺廟。"
+          },
+          {
+            question: "What is special about Kinkakuji?",
+            options: ["It is very old", "It is covered in gold", "It is very tall", "It is underground"],
+            answer: 1,
+            explanation: "According to the passage, 'Kinkakuji, the Golden Pavilion, is covered in gold and sits by a lake'，文章提到金閣寺，金色閣樓，被金子覆蓋，坐落在湖邊。"
+          },
+          {
+            question: "Where is Kiyomizudera built?",
+            options: ["On a mountain", "On a hill", "By the sea", "In a forest"],
+            answer: 1,
+            explanation: "The passage mentions 'Kiyomizudera is built on a hill and has a large wooden stage'，文章提到清水寺建在山上，有一個大木台。"
+          },
+          {
+            question: "How many stones can you see at once in Ryoanji's rock garden?",
+            options: ["All 15", "Only 14", "Only 10", "None"],
+            answer: 1,
+            explanation: "The passage says 'No matter where you stand, you can only see 14 stones at once'，文章提到無論你站在哪裡，一次只能看到14塊石頭。"
+          },
+          {
+            question: "What can visitors do at some temples?",
+            options: ["Go swimming", "Stay overnight", "Cook food", "Watch TV"],
+            answer: 1,
+            explanation: "The passage states 'Some temples let visitors stay overnight to try meditation'，文章最後提到一些寺廟讓遊客過夜嘗試冥想。"
+          }
+        ]
+      },
+      {
+        title: "Osaka Castle",
+        passage: "Osaka Castle is one of Japan's most famous buildings. It was built more than 400 years ago by Toyotomi Hideyoshi, a great leader. The castle has eight floors and is surrounded by big stone walls and a wide moat with water. From the top floor, you can see all of Osaka city. Inside the castle is now a museum about its history. In spring, there are many cherry trees in the castle park. Many people come to see the beautiful flowers and have picnics.",
+        questions: [
+          {
+            question: "How old is Osaka Castle?",
+            options: ["About 100 years", "About 200 years", "More than 400 years", "About 1,000 years"],
+            answer: 2,
+            explanation: "The passage states 'It was built more than 400 years ago by Toyotomi Hideyoshi'，文章提到它是400多年前由豐臣秀吉建造的。"
+          },
+          {
+            question: "Who built Osaka Castle?",
+            options: ["A king", "Toyotomi Hideyoshi", "A group of farmers", "Foreign people"],
+            answer: 1,
+            explanation: "According to the passage, 'It was built more than 400 years ago by Toyotomi Hideyoshi, a great leader'，文章提到它是由豐臣秀吉，一位偉大的領導者建造的。"
+          },
+          {
+            question: "How many floors does the castle have?",
+            options: ["Four", "Six", "Eight", "Ten"],
+            answer: 2,
+            explanation: "The passage mentions 'The castle has eight floors and is surrounded by big stone walls'，文章提到城堡有八層，周圍是大石牆。"
+          },
+          {
+            question: "What is inside the castle now?",
+            options: ["A hotel", "A restaurant", "A museum", "A school"],
+            answer: 2,
+            explanation: "The passage says 'Inside the castle is now a museum about its history'，文章提到城堡內部現在是一個關於其歷史的博物館。"
+          },
+          {
+            question: "What do people do in the castle park in spring?",
+            options: ["Sleep", "Have picnics", "Play sports", "Study"],
+            answer: 1,
+            explanation: "The passage states 'Many people come to see the beautiful flowers and have picnics'，文章最後提到許多人來看美麗的花朵並野餐。"
+          }
+        ]
+      },
+      {
+        title: "Fukui's Dinosaurs",
+        passage: "Fukui is famous for dinosaurs. Many dinosaur bones have been found in this area. The Fukui Dinosaur Museum is one of the biggest dinosaur museums in the world. It has many real dinosaur bones and big models that move and make sounds. You can learn how dinosaurs lived long ago. There is also a place where children can dig in the sand to find fake dinosaur bones. Every year, new dinosaur bones are found in the mountains of Fukui. Scientists come from many countries to study them.",
+        questions: [
+          {
+            question: "What is Fukui famous for?",
+            options: ["Cars", "Computers", "Dinosaurs", "Ships"],
+            answer: 2,
+            explanation: "The passage states 'Fukui is famous for dinosaurs'，文章開頭提到福井以恐龍聞名。"
+          },
+          {
+            question: "What kind of museum is in Fukui?",
+            options: ["Art museum", "History museum", "Dinosaur museum", "Science museum"],
+            answer: 2,
+            explanation: "According to the passage, 'The Fukui Dinosaur Museum is one of the biggest dinosaur museums in the world'，文章提到福井恐龍博物館是世界上最大的恐龍博物館之一。"
+          },
+          {
+            question: "What can you see in the museum?",
+            options: ["Only pictures", "Real dinosaur bones and moving models", "Only small toys", "Live dinosaurs"],
+            answer: 1,
+            explanation: "The passage mentions 'It has many real dinosaur bones and big models that move and make sounds'，文章提到它有許多真正的恐龍骨頭和會動且發出聲音的大型模型。"
+          },
+          {
+            question: "What can children do at the museum?",
+            options: ["Swim", "Dig in sand to find fake dinosaur bones", "Play video games", "Ride on dinosaurs"],
+            answer: 1,
+            explanation: "The passage says 'There is also a place where children can dig in the sand to find fake dinosaur bones'，文章提到還有一個地方，孩子們可以在沙子裡挖掘假恐龍骨頭。"
+          },
+          {
+            question: "Who comes to Fukui to study dinosaur bones?",
+            options: ["Only Japanese people", "Only children", "Scientists from many countries", "Only teachers"],
+            answer: 2,
+            explanation: "The passage states 'Scientists come from many countries to study them'，文章最後提到來自許多國家的科學家來研究它們。"
+          }
+        ]
+      },
+      {
+        title: "Karuizawa Shopping",
+        passage: "Karuizawa has good shopping places. The Prince Shopping Plaza is a big outlet mall with many foreign brand shops. You can buy clothes, shoes, and bags for less money than in Tokyo. The old shopping street has many small shops selling local food and crafts. There are shops with jam made from local fruits and wooden toys made by local artists. There are also many good restaurants where you can eat after shopping. Some shops sell special cookies that are famous Karuizawa souvenirs.",
+        questions: [
+          {
+            question: "What is the Prince Shopping Plaza?",
+            options: ["A small shop", "A big outlet mall", "A restaurant", "A museum"],
+            answer: 1,
+            explanation: "The passage states 'The Prince Shopping Plaza is a big outlet mall with many foreign brand shops'，文章提到王子購物廣場是一個有許多外國品牌商店的大型奧特萊斯購物中心。"
+          },
+          {
+            question: "How are the prices in Karuizawa compared to Tokyo?",
+            options: ["Higher", "Lower", "The same", "It depends on the season"],
+            answer: 1,
+            explanation: "According to the passage, 'You can buy clothes, shoes, and bags for less money than in Tokyo'，文章提到你可以買到比東京便宜的衣服、鞋子和包包。"
+          },
+          {
+            question: "What can you buy on the old shopping street?",
+            options: ["Only clothes", "Only food", "Local food and crafts", "Only electronics"],
+            answer: 2,
+            explanation: "The passage mentions 'The old shopping street has many small shops selling local food and crafts'，文章提到舊購物街有許多小商店銷售當地食品和工藝品。"
+          },
+          {
+            question: "What is made from local fruits?",
+            options: ["Jam", "Shoes", "Toys", "Bags"],
+            answer: 0,
+            explanation: "The passage says 'There are shops with jam made from local fruits'，文章提到有商店銷售用當地水果製成的果醬。"
+          },
+          {
+            question: "What is a famous Karuizawa souvenir?",
+            options: ["Maps", "Special cookies", "T-shirts", "Hats"],
+            answer: 1,
+            explanation: "The passage states 'Some shops sell special cookies that are famous Karuizawa souvenirs'，文章最後提到一些商店銷售作為輕井澤著名紀念品的特殊餅乾。"
+          }
+        ]
+      },
+      {
+        title: "Tokyo's Akihabara",
+        passage: "Akihabara is a special area in Tokyo for people who love electronics and anime. There are many big stores selling computers, cameras, and games. Some buildings have eight or more floors, each selling different things. There are also many shops for anime and manga fans. You can find toys, books, and clothes from famous Japanese cartoons. In some cafes, the workers dress like anime characters. On Sunday, the main street is closed to cars, and many people walk around looking at shops.",
+        questions: [
+          {
+            question: "What is Akihabara famous for?",
+            options: ["Food", "Electronics and anime", "Sports", "Traditional crafts"],
+            answer: 1,
+            explanation: "The passage states 'Akihabara is a special area in Tokyo for people who love electronics and anime'，文章開頭提到秋葉原是東京的一個特殊區域，為喜愛電子產品和動漫的人而設。"
+          },
+          {
+            question: "How many floors can some buildings in Akihabara have?",
+            options: ["Two or three", "Four or five", "Eight or more", "Only one"],
+            answer: 2,
+            explanation: "According to the passage, 'Some buildings have eight or more floors, each selling different things'，文章提到一些建築有八層或更多，每層銷售不同的東西。"
+          },
+          {
+            question: "What can anime fans find in Akihabara?",
+            options: ["Only books", "Only games", "Toys, books, and clothes from famous Japanese cartoons", "Only food"],
+            answer: 2,
+            explanation: "The passage mentions 'You can find toys, books, and clothes from famous Japanese cartoons'，文章提到你可以找到來自著名日本卡通的玩具、書籍和衣服。"
+          },
+          {
+            question: "How do some cafe workers dress in Akihabara?",
+            options: ["In business suits", "Like anime characters", "In traditional Japanese clothes", "Like sports players"],
+            answer: 1,
+            explanation: "The passage says 'In some cafes, the workers dress like anime characters'，文章提到在一些咖啡館，工作人員打扮成動漫角色。"
+          },
+          {
+            question: "What happens on Sunday in Akihabara?",
+            options: ["All shops close", "The main street is closed to cars", "There is a big market", "There is a festival"],
+            answer: 1,
+            explanation: "The passage states 'On Sunday, the main street is closed to cars, and many people walk around looking at shops'，文章最後提到週日，主要街道禁止汽車通行，許多人四處走動看商店。"
+          }
+        ]
+      },
+      {
+        title: "Kyoto's Geisha",
+        passage: "Geisha are traditional Japanese entertainers. They are most famous in Kyoto, especially in the Gion area. Geisha wear beautiful kimono and white makeup. They learn many traditional arts like dancing, singing, and playing music. It takes many years to become a good geisha. Young geisha in training are called maiko. They have more colorful kimono and different hairstyles. In the evening, you might see geisha walking to work in Gion. Many tourists try to take their pictures, but it is better to be polite and not stop them.",
+        questions: [
+          {
+            question: "Where are geisha most famous?",
+            options: ["Tokyo", "Osaka", "Kyoto", "Fukui"],
+            answer: 2,
+            explanation: "The passage states 'They are most famous in Kyoto, especially in the Gion area'，文章提到她們在京都最為著名，特別是在祇園區。"
+          },
+          {
+            question: "What do geisha wear on their face?",
+            options: ["Red makeup", "Blue makeup", "White makeup", "No makeup"],
+            answer: 2,
+            explanation: "According to the passage, 'Geisha wear beautiful kimono and white makeup'，文章提到藝妓穿著美麗的和服並塗白妝。"
+          },
+          {
+            question: "What are young geisha in training called?",
+            options: ["Maiko", "Sensei", "Samurai", "Ninja"],
+            answer: 0,
+            explanation: "The passage mentions 'Young geisha in training are called maiko'，文章提到年輕的見習藝妓被稱為舞妓。"
+          },
+          {
+            question: "How long does it take to become a good geisha?",
+            options: ["A few days", "A few weeks", "A few months", "Many years"],
+            answer: 3,
+            explanation: "The passage says 'It takes many years to become a good geisha'，文章提到成為一個好的藝妓需要很多年。"
+          },
+          {
+            question: "What should tourists do when they see geisha in Gion?",
+            options: ["Stop them and talk", "Be polite and not stop them", "Ask them to dance", "Give them money"],
+            answer: 1,
+            explanation: "The passage states 'Many tourists try to take their pictures, but it is better to be polite and not stop them'，文章最後提到許多遊客試圖拍攝她們的照片，但最好禮貌一點，不要阻止她們。"
+          }
+        ]
+      },
+      {
+        title: "Osaka's Aquarium",
+        passage: "Osaka Aquarium Kaiyukan is one of the biggest aquariums in the world. The main tank is so big that it has whale sharks, the biggest fish in the world. You walk down a spiral path and see the same tank from different levels. There are also tanks with fish from different parts of the world, like the Arctic and the Great Barrier Reef. You can see penguins, seals, and many colorful fish. There is a touch pool where you can touch some sea animals like starfish. Near the aquarium is a big Ferris wheel with nice views of Osaka Bay.",
+        questions: [
+          {
+            question: "What is special about Osaka Aquarium Kaiyukan?",
+            options: ["It is very small", "It is one of the biggest aquariums in the world", "It is very old", "It is very cheap"],
+            answer: 1,
+            explanation: "The passage states 'Osaka Aquarium Kaiyukan is one of the biggest aquariums in the world'，文章開頭提到大阪海遊館是世界上最大的水族館之一。"
+          },
+          {
+            question: "What fish lives in the main tank?",
+            options: ["Goldfish", "Whale sharks", "Tuna", "Salmon"],
+            answer: 1,
+            explanation: "According to the passage, 'The main tank is so big that it has whale sharks, the biggest fish in the world'，文章提到主水槽非常大，裡面有鯨鯊，世界上最大的魚。"
+          },
+          {
+            question: "How do visitors see the main tank?",
+            options: ["From above only", "From below only", "By swimming in it", "From different levels on a spiral path"],
+            answer: 3,
+            explanation: "The passage mentions 'You walk down a spiral path and see the same tank from different levels'，文章提到你沿著螺旋路徑走下去，從不同的層次看同一個水槽。"
+          },
+          {
+            question: "What can visitors do at the touch pool?",
+            options: ["Swim", "Feed the fish", "Touch sea animals like starfish", "Take fish home"],
+            answer: 2,
+            explanation: "The passage says 'There is a touch pool where you can touch some sea animals like starfish'，文章提到有一個觸摸池，你可以觸摸一些海洋動物，如海星。"
+          },
+          {
+            question: "What is near the aquarium?",
+            options: ["A mountain", "A big Ferris wheel", "A train station", "A castle"],
+            answer: 1,
+            explanation: "The passage states 'Near the aquarium is a big Ferris wheel with nice views of Osaka Bay'，文章最後提到水族館附近有一個大摩天輪，可以欣賞大阪灣的美景。"
+          }
+        ]
+      },
+      {
+        title: "Fukui's Traditional Crafts",
+        passage: "Fukui is famous for traditional Japanese paper called washi. This paper is made by hand from plant fibers. It is very strong and beautiful. Fukui is also known for its lacquerware, which is made by painting many layers of special sap on wood. The finished items are shiny and can last for many years. Another famous craft is Echizen pottery, which has a history of more than 800 years. You can visit workshops and see how these crafts are made. Some places even let visitors try making their own paper or pottery.",
+        questions: [
+          {
+            question: "What is washi?",
+            options: ["A type of food", "Traditional Japanese paper", "A type of clothing", "A musical instrument"],
+            answer: 1,
+            explanation: "The passage states 'Fukui is famous for traditional Japanese paper called washi'，文章開頭提到福井以名為和紙的傳統日本紙而聞名。"
+          },
+          {
+            question: "How is washi made?",
+            options: ["By machine", "By hand from plant fibers", "From animal skin", "From rocks"],
+            answer: 1,
+            explanation: "According to the passage, 'This paper is made by hand from plant fibers'，文章提到這種紙是用植物纖維手工製作的。"
+          },
+          {
+            question: "How is lacquerware made in Fukui?",
+            options: ["By carving stone", "By weaving threads", "By painting layers of special sap on wood", "By melting metal"],
+            answer: 2,
+            explanation: "The passage mentions 'Fukui is also known for its lacquerware, which is made by painting many layers of special sap on wood'，文章提到福井也以其漆器聞名，漆器是通過在木頭上塗抹多層特殊樹液製成的。"
+          },
+          {
+            question: "How old is the history of Echizen pottery?",
+            options: ["About 100 years", "About 300 years", "About 500 years", "More than 800 years"],
+            answer: 3,
+            explanation: "The passage says 'Another famous craft is Echizen pottery, which has a history of more than 800 years'，文章提到另一個著名的工藝是越前陶器，它有超過800年的歷史。"
+          },
+          {
+            question: "What can visitors do at some workshops?",
+            options: ["Only watch", "Try making their own paper or pottery", "Buy expensive items", "Stay overnight"],
+            answer: 1,
+            explanation: "The passage states 'Some places even let visitors try making their own paper or pottery'，文章最後提到一些地方甚至讓遊客嘗試製作自己的紙或陶器。"
+          }
+        ]
+      },
+      {
+        title: "Karuizawa's Seasons",
+        passage: "Karuizawa is beautiful in all four seasons. In spring, new green leaves appear on the trees. Wild birds sing, and flowers bloom everywhere. Summer is cool compared to other parts of Japan, so many people come to escape the heat. Autumn brings red and yellow leaves that make the mountains look like they are on fire. Winter is cold with lots of snow. People come to ski and snowboard on the white mountains. Each season has its own beauty, so people visit Karuizawa all year round.",
+        questions: [
+          {
+            question: "What happens to the trees in spring in Karuizawa?",
+            options: ["They die", "New green leaves appear", "They are cut down", "They produce fruit"],
+            answer: 1,
+            explanation: "The passage states 'In spring, new green leaves appear on the trees'，文章提到春天，樹上出現新的綠葉。"
+          },
+          {
+            question: "Why do many people come to Karuizawa in summer?",
+            options: ["To see the snow", "To escape the heat", "To see the autumn leaves", "To go swimming"],
+            answer: 1,
+            explanation: "According to the passage, 'Summer is cool compared to other parts of Japan, so many people come to escape the heat'，文章提到夏天比日本其他地區涼爽，所以很多人來避暑。"
+          },
+          {
+            question: "What colors are the leaves in autumn?",
+            options: ["Blue and green", "Red and yellow", "Purple and orange", "Black and white"],
+            answer: 1,
+            explanation: "The passage mentions 'Autumn brings red and yellow leaves that make the mountains look like they are on fire'，文章提到秋天帶來紅色和黃色的葉子，使山看起來像著火了一樣。"
+          },
+          {
+            question: "What activities do people do in Karuizawa in winter?",
+            options: ["Swimming and surfing", "Skiing and snowboarding", "Playing tennis", "Growing vegetables"],
+            answer: 1,
+            explanation: "The passage says 'Winter is cold with lots of snow. People come to ski and snowboard on the white mountains'，文章提到冬天很冷，有很多雪。人們來到白色的山上滑雪和滑雪板。"
+          },
+          {
+            question: "When do people visit Karuizawa?",
+            options: ["Only in summer", "Only in winter", "Only in spring", "All year round"],
+            answer: 3,
+            explanation: "The passage states 'Each season has its own beauty, so people visit Karuizawa all year round'，文章最後提到每個季節都有自己的美麗，所以人們全年都來輕井澤。"
+          }
+        ]
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let userAnswers = Array(quizData.length).fill().map(() => Array(5).fill(null));
+    let quizSubmitted = Array(quizData.length).fill(false);
+    let scores = Array(quizData.length).fill(0);
+
+    function renderTabs() {
+      const tabsContainer = document.querySelector('.tabs');
+      tabsContainer.innerHTML = '';
+      
+      quizData.forEach((quiz, index) => {
+        const tab = document.createElement('button');
+        tab.className = `px-4 py-2 m-1 rounded-lg transition ${currentQuizIndex === index ? 'tab-active' : 'bg-white hover:bg-indigo-100'}`;
+        tab.textContent = quiz.title;
+        tab.addEventListener('click', () => {
+          currentQuizIndex = index;
+          renderQuiz();
+          renderTabs();
+        });
+        tabsContainer.appendChild(tab);
+      });
+    }
+
+    function renderQuiz() {
+      const quiz = quizData[currentQuizIndex];
+      
+      // Render passage
+      document.querySelector('.passage-title').textContent = quiz.title;
+      document.querySelector('.passage-container').textContent = quiz.passage;
+      
+      // Render questions
+      const questionsContainer = document.querySelector('.questions-container');
+      questionsContainer.innerHTML = '';
+      
+      quiz.questions.forEach((question, qIndex) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-item mb-8 pb-4 border-b border-gray-200';
+        questionDiv.dataset.index = qIndex;
+        
+        const questionTitle = document.createElement('h3');
+        questionTitle.className = 'text-lg font-semibold mb-2';
+        questionTitle.textContent = `${qIndex + 1}. ${question.question}`;
+        questionDiv.appendChild(questionTitle);
+        
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options space-y-2 mb-4';
+        
+        question.options.forEach((option, oIndex) => {
+          const label = document.createElement('label');
+          label.className = 'flex items-start space-x-2 p-2 rounded hover:bg-gray-100 cursor-pointer';
+          
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `question-${qIndex}`;
+          input.value = oIndex;
+          input.className = 'mt-1';
+          
+          if (userAnswers[currentQuizIndex][qIndex] === oIndex) {
+            input.checked = true;
+          }
+          
+          if (quizSubmitted[currentQuizIndex]) {
+            input.disabled = true;
+            
+            if (oIndex === question.answer) {
+              label.classList.add('bg-green-100');
+            } else if (userAnswers[currentQuizIndex][qIndex] === oIndex) {
+              label.classList.add('bg-red-100');
+            }
+          }
+          
+          input.addEventListener('change', () => {
+            userAnswers[currentQuizIndex][qIndex] = oIndex;
+          });
+          
+          const optionText = document.createElement('span');
+          optionText.textContent = option;
+          
+          label.appendChild(input);
+          label.appendChild(optionText);
+          optionsDiv.appendChild(label);
+        });
+        
+        questionDiv.appendChild(optionsDiv);
+        
+        // Add explanation directly after each question (hidden until submitted)
+        const explanationDiv = document.createElement('div');
+        explanationDiv.className = `explanation-${qIndex + 1} p-3 rounded-lg bg-gray-50 mt-2 ${quizSubmitted[currentQuizIndex] ? '' : 'hidden'}`;
+        explanationDiv.innerHTML = `<p class="text-gray-700">${question.explanation}</p>`;
+        questionDiv.appendChild(explanationDiv);
+        
+        questionsContainer.appendChild(questionDiv);
+        
+        // Add hover effect for highlighting text in passage
+        questionDiv.addEventListener('mouseenter', () => {
+          if (quizSubmitted[currentQuizIndex]) {
+            highlightPassageText(qIndex);
+          }
+        });
+        
+        questionDiv.addEventListener('mouseleave', () => {
+          if (quizSubmitted[currentQuizIndex]) {
+            removeHighlightFromPassage();
+          }
+        });
+      });
+      
+      // Update submit button and score display
+      const submitBtn = document.getElementById('submit-btn');
+      const scoreDisplay = document.getElementById('score-display');
+      
+      if (quizSubmitted[currentQuizIndex]) {
+        submitBtn.textContent = '重新測驗';
+        submitBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        submitBtn.classList.add('bg-gray-500', 'hover:bg-gray-600');
+        scoreDisplay.textContent = `得分: ${scores[currentQuizIndex]} / 100`;
+        scoreDisplay.classList.remove('hidden');
+      } else {
+        submitBtn.textContent = '提交答案';
+        submitBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        submitBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+        scoreDisplay.classList.add('hidden');
+      }
+    }
+
+    function submitQuiz() {
+      if (quizSubmitted[currentQuizIndex]) {
+        // Reset quiz
+        quizSubmitted[currentQuizIndex] = false;
+        userAnswers[currentQuizIndex] = Array(5).fill(null);
+        scores[currentQuizIndex] = 0;
+        renderQuiz();
+        return;
+      }
+      
+      // Calculate score
+      let score = 0;
+      const quiz = quizData[currentQuizIndex];
+      
+      quiz.questions.forEach((question, index) => {
+        if (userAnswers[currentQuizIndex][index] === question.answer) {
+          score += 20;
+        }
+      });
+      
+      scores[currentQuizIndex] = score;
+      quizSubmitted[currentQuizIndex] = true;
+      
+      // Show results
+      renderQuiz();
+      
+      // Animate score display
+      const scoreDisplay = document.getElementById('score-display');
+      scoreDisplay.classList.add('animate-pulse');
+      setTimeout(() => {
+        scoreDisplay.classList.remove('animate-pulse');
+      }, 1000);
+    }
+
+    function highlightPassageText(questionIndex) {
+      removeHighlightFromPassage();
+      
+      const passageContainer = document.querySelector('.passage-container');
+      const passageText = passageContainer.textContent;
+      
+      // Create a highlighted version of the passage based on the question
+      const quiz = quizData[currentQuizIndex];
+      const question = quiz.questions[questionIndex];
+      
+      // Extract key phrases from the question and answer to highlight
+      let keyPhrases = [];
+      
+      // Extract phrases from the explanation that are quoted from the passage
+      const explanation = question.explanation;
+      const matches = explanation.match(/'([^']+)'/g);
+      
+      if (matches) {
+        keyPhrases = matches.map(match => match.replace(/'/g, ''));
+      }
+      
+      // If no matches found, try to use the question itself to find relevant text
+      if (keyPhrases.length === 0) {
+        const words = question.question.toLowerCase().split(' ');
+        const significantWords = words.filter(word => 
+          word.length > 3 && 
+          !['what', 'where', 'when', 'which', 'how', 'does', 'is', 'are', 'the', 'and', 'that'].includes(word)
+        );
+        
+        if (significantWords.length > 0) {
+          // Find sentences containing these words
+          const sentences = passageText.split('. ');
+          sentences.forEach(sentence => {
+            const sentenceLower = sentence.toLowerCase();
+            if (significantWords.some(word => sentenceLower.includes(word))) {
+              keyPhrases.push(sentence);
+            }
+          });
+        }
+      }
+      
+      // Apply highlighting
+      if (keyPhrases.length > 0) {
+        let highlightedText = passageText;
+        keyPhrases.forEach(phrase => {
+          const regex = new RegExp(`(${phrase})`, 'gi');
+          highlightedText = highlightedText.replace(regex, `<span class="highlight-${questionIndex + 1}">$1</span>`);
+        });
+        passageContainer.innerHTML = highlightedText;
+      }
+    }
+
+    function removeHighlightFromPassage() {
+      const passageContainer = document.querySelector('.passage-container');
+      passageContainer.innerHTML = passageContainer.textContent;
+    }
+
+    // Initialize the quiz
+    document.getElementById('submit-btn').addEventListener('click', submitQuiz);
+    renderTabs();
+    renderQuiz();
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'949dcb49257256ef',t:'MTc0ODkzOTA2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

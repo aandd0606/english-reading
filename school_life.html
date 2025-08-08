@@ -1,0 +1,1172 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語閱讀測驗 - 學校生活篇</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .highlight-1 { background-color: rgba(255, 182, 193, 0.4); }
+        .highlight-2 { background-color: rgba(173, 216, 230, 0.4); }
+        .highlight-3 { background-color: rgba(144, 238, 144, 0.4); }
+        .highlight-4 { background-color: rgba(255, 218, 185, 0.4); }
+        .highlight-5 { background-color: rgba(221, 160, 221, 0.4); }
+        
+        .explanation-1 { background-color: rgba(255, 182, 193, 0.2); }
+        .explanation-2 { background-color: rgba(173, 216, 230, 0.2); }
+        .explanation-3 { background-color: rgba(144, 238, 144, 0.2); }
+        .explanation-4 { background-color: rgba(255, 218, 185, 0.2); }
+        .explanation-5 { background-color: rgba(221, 160, 221, 0.2); }
+        
+        .tab-active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .passage {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+        
+        .passage-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .correct-answer {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-left: 4px solid #22c55e;
+            padding-left: 8px;
+        }
+        
+        .wrong-answer {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+            padding-left: 8px;
+        }
+        
+        .tabs-container {
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #e5e7eb;
+        }
+        
+        .tabs-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .tabs-container::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+        
+        .tabs-container::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 10px;
+        }
+        
+        .questions-scroll {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #e5e7eb;
+        }
+        
+        .questions-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .questions-scroll::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+        
+        .questions-scroll::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 10px;
+        }
+        
+        .passage-container {
+            position: sticky;
+            top: 0;
+            overflow-y: hidden; /* Remove scrollbar from passage area */
+        }
+        
+        @media (max-width: 768px) {
+            .quiz-container {
+                flex-direction: column;
+            }
+            
+            .passage-container {
+                position: relative;
+                max-height: none; /* Remove height limit on mobile */
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-8">英語閱讀測驗 - 學校生活篇</h1>
+        
+        <!-- Quiz Navigation -->
+        <div class="mb-6">
+            <div class="flex space-x-2 pb-2">
+                <button id="prev-quiz" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex-shrink-0">上一篇</button>
+                <div id="quiz-tabs" class="tabs-container flex space-x-1 flex-grow overflow-x-auto">
+                    <!-- Tabs will be generated here -->
+                </div>
+                <button id="next-quiz" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex-shrink-0">下一篇</button>
+            </div>
+        </div>
+        
+        <!-- Quiz Content -->
+        <div class="quiz-container flex flex-wrap md:flex-nowrap gap-6">
+            <!-- Left side: Reading passage -->
+            <div class="w-full md:w-1/2 bg-white rounded-lg shadow-md p-6 passage-container">
+                <h2 id="passage-title" class="passage-title text-center mb-4 sticky top-0 bg-white pb-2"></h2>
+                <div id="passage" class="passage"></div>
+            </div>
+            
+            <!-- Right side: Questions -->
+            <div class="w-full md:w-1/2 bg-white rounded-lg shadow-md p-6">
+                <div id="questions-container" class="questions-scroll pr-2">
+                    <!-- Questions will be generated here -->
+                </div>
+                
+                <div class="mt-6 sticky bottom-0 bg-white pt-4">
+                    <button id="submit-btn" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">提交答案</button>
+                
+                    <!-- Results Section -->
+                    <div id="results" class="mt-6 hidden">
+                        <div class="p-4 rounded-lg bg-gray-50">
+                            <h3 class="text-xl font-bold">測驗結果</h3>
+                            <p class="text-lg">得分: <span id="score" class="font-bold text-2xl text-indigo-600">0</span> / 100</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const quizzes = [
+            {
+                title: "A Day at School",
+                passage: "I wake up at 7 o'clock every morning. I eat breakfast and then go to school. My first class is math. I like math because the teacher is nice. After math, I have English class. At 12 o'clock, I eat lunch with my friends in the cafeteria. In the afternoon, I have science and history. After school, I play sports with my classmates. I go home at 4 o'clock.",
+                questions: [
+                    {
+                        question: "What time does the writer wake up?",
+                        options: ["6 o'clock", "7 o'clock", "8 o'clock", "9 o'clock"],
+                        answer: 1,
+                        explanation: "文章開頭提到 \"I wake up at 7 o'clock every morning.\"，表示作者每天早上7點起床。"
+                    },
+                    {
+                        question: "Why does the writer like math?",
+                        options: ["It's easy", "The teacher is nice", "It's fun", "It's short"],
+                        answer: 1,
+                        explanation: "文章中提到 \"I like math because the teacher is nice.\"，表示作者喜歡數學是因為老師很好。"
+                    },
+                    {
+                        question: "What does the writer do at 12 o'clock?",
+                        options: ["Goes home", "Has English class", "Eats lunch", "Plays sports"],
+                        answer: 2,
+                        explanation: "文章中提到 \"At 12 o'clock, I eat lunch with my friends in the cafeteria.\"，表示作者在12點時和朋友在餐廳吃午餐。"
+                    },
+                    {
+                        question: "What subjects does the writer have in the afternoon?",
+                        options: ["Math and English", "Science and history", "Sports and math", "English and sports"],
+                        answer: 1,
+                        explanation: "文章中提到 \"In the afternoon, I have science and history.\"，表示作者下午有科學和歷史課。"
+                    },
+                    {
+                        question: "What time does the writer go home?",
+                        options: ["3 o'clock", "4 o'clock", "5 o'clock", "6 o'clock"],
+                        answer: 1,
+                        explanation: "文章最後提到 \"I go home at 4 o'clock.\"，表示作者4點回家。"
+                    }
+                ]
+            },
+            {
+                title: "My Favorite Teacher",
+                passage: "Mrs. Smith is my favorite teacher. She teaches English at our school. She is kind and always helps students. Her classes are fun and interesting. We read books and write stories. Sometimes we play word games. She gives us homework, but not too much. When we don't understand something, she explains it again. Everyone in class likes Mrs. Smith because she makes learning English easy.",
+                questions: [
+                    {
+                        question: "What subject does Mrs. Smith teach?",
+                        options: ["Math", "Science", "English", "History"],
+                        answer: 2,
+                        explanation: "文章中提到 \"She teaches English at our school.\"，表示Smith老師在學校教英文。"
+                    },
+                    {
+                        question: "How are Mrs. Smith's classes described?",
+                        options: ["Boring and hard", "Fun and interesting", "Long and difficult", "Short and easy"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Her classes are fun and interesting.\"，表示Smith老師的課程有趣且吸引人。"
+                    },
+                    {
+                        question: "What do students do in Mrs. Smith's class?",
+                        options: ["Only read books", "Only write stories", "Read books and write stories", "Only play games"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We read books and write stories.\"，表示在Smith老師的課上，學生們閱讀書籍並寫故事。"
+                    },
+                    {
+                        question: "How much homework does Mrs. Smith give?",
+                        options: ["A lot", "None", "Not too much", "Too much"],
+                        answer: 2,
+                        explanation: "文章中提到 \"She gives us homework, but not too much.\"，表示Smith老師布置作業，但不會太多。"
+                    },
+                    {
+                        question: "Why does everyone like Mrs. Smith?",
+                        options: ["She gives no homework", "She makes learning English easy", "She gives good grades", "She lets students play all day"],
+                        answer: 1,
+                        explanation: "文章最後提到 \"Everyone in class likes Mrs. Smith because she makes learning English easy.\"，表示大家喜歡Smith老師是因為她讓學習英語變得容易。"
+                    }
+                ]
+            },
+            {
+                title: "School Library",
+                passage: "Our school library is big and quiet. It has many books, computers, and study tables. Students can read books or do homework there. The librarian, Mr. Brown, helps students find books. We can borrow books for two weeks. I go to the library three times a week. My favorite section is where they keep story books. Sometimes teachers take us to the library for class. I think our library is the best place in school.",
+                questions: [
+                    {
+                        question: "How is the school library described?",
+                        options: ["Small and noisy", "Big and quiet", "Old and dirty", "New and colorful"],
+                        answer: 1,
+                        explanation: "文章開頭提到 \"Our school library is big and quiet.\"，表示學校圖書館又大又安靜。"
+                    },
+                    {
+                        question: "What is the name of the librarian?",
+                        options: ["Mrs. Smith", "Mr. Brown", "Mrs. Jones", "Mr. White"],
+                        answer: 1,
+                        explanation: "文章中提到 \"The librarian, Mr. Brown, helps students find books.\"，表示圖書館管理員是Brown先生。"
+                    },
+                    {
+                        question: "How long can students borrow books for?",
+                        options: ["One week", "Two weeks", "Three weeks", "One month"],
+                        answer: 1,
+                        explanation: "文章中提到 \"We can borrow books for two weeks.\"，表示學生可以借書兩週。"
+                    },
+                    {
+                        question: "How often does the writer go to the library?",
+                        options: ["Every day", "Once a week", "Twice a week", "Three times a week"],
+                        answer: 3,
+                        explanation: "文章中提到 \"I go to the library three times a week.\"，表示作者每週去圖書館三次。"
+                    },
+                    {
+                        question: "What does the writer think about the library?",
+                        options: ["It's too quiet", "It's the best place in school", "It needs more books", "It's too small"],
+                        answer: 1,
+                        explanation: "文章最後提到 \"I think our library is the best place in school.\"，表示作者認為圖書館是學校裡最好的地方。"
+                    }
+                ]
+            },
+            {
+                title: "Science Class",
+                passage: "Today in science class, we learned about plants. Our teacher, Mr. Lee, brought some plants to show us. We looked at the roots, stems, and leaves. Then, we worked in groups of four. Each group got a plant to study. We had to draw the plant and label its parts. My group had a small flower. After that, Mr. Lee taught us how plants make food using sunlight. It was a very interesting class.",
+                questions: [
+                    {
+                        question: "What did the class learn about?",
+                        options: ["Animals", "Weather", "Plants", "Rocks"],
+                        answer: 2,
+                        explanation: "文章開頭提到 \"Today in science class, we learned about plants.\"，表示今天在科學課上學習了關於植物的知識。"
+                    },
+                    {
+                        question: "What did Mr. Lee bring to class?",
+                        options: ["Books", "Pictures", "Plants", "Food"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Our teacher, Mr. Lee, brought some plants to show us.\"，表示Lee老師帶了一些植物來給學生看。"
+                    },
+                    {
+                        question: "How many students were in each group?",
+                        options: ["Two", "Three", "Four", "Five"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Then, we worked in groups of four.\"，表示學生們分成四人一組工作。"
+                    },
+                    {
+                        question: "What did each group have to do?",
+                        options: ["Write a report", "Draw the plant and label its parts", "Make a presentation", "Grow a new plant"],
+                        answer: 1,
+                        explanation: "文章中提到 \"We had to draw the plant and label its parts.\"，表示每組需要畫出植物並標記其各部分。"
+                    },
+                    {
+                        question: "What plant did the writer's group study?",
+                        options: ["A tree", "A vegetable", "A small flower", "A cactus"],
+                        answer: 2,
+                        explanation: "文章中提到 \"My group had a small flower.\"，表示作者所在的小組研究的是一朵小花。"
+                    }
+                ]
+            },
+            {
+                title: "Lunch Time",
+                passage: "Lunch time is at 12:30 at our school. When the bell rings, we all go to the cafeteria. Some students bring lunch from home. Others buy food at school. Today, I bought a sandwich, an apple, and milk. I sat with my friends Tom and Lisa. We talked about our morning classes. Tom told a funny story about his math class. We laughed a lot. After eating, we still had 15 minutes to play outside. Lunch time is my favorite part of the school day.",
+                questions: [
+                    {
+                        question: "What time is lunch at the school?",
+                        options: ["11:30", "12:00", "12:30", "1:00"],
+                        answer: 2,
+                        explanation: "文章開頭提到 \"Lunch time is at 12:30 at our school.\"，表示學校的午餐時間是12:30。"
+                    },
+                    {
+                        question: "What did the writer buy for lunch?",
+                        options: ["A burger and fries", "A sandwich, an apple, and milk", "Pizza and juice", "Salad and water"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Today, I bought a sandwich, an apple, and milk.\"，表示作者今天買了三明治、蘋果和牛奶作為午餐。"
+                    },
+                    {
+                        question: "Who did the writer sit with?",
+                        options: ["Only Tom", "Only Lisa", "Tom and Lisa", "No one"],
+                        answer: 2,
+                        explanation: "文章中提到 \"I sat with my friends Tom and Lisa.\"，表示作者和朋友Tom和Lisa一起坐。"
+                    },
+                    {
+                        question: "What did Tom talk about?",
+                        options: ["His homework", "A funny story about math class", "His lunch", "His plans after school"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Tom told a funny story about his math class.\"，表示Tom講了一個關於數學課的有趣故事。"
+                    },
+                    {
+                        question: "How much time did they have to play outside after eating?",
+                        options: ["5 minutes", "10 minutes", "15 minutes", "20 minutes"],
+                        answer: 2,
+                        explanation: "文章中提到 \"After eating, we still had 15 minutes to play outside.\"，表示吃完飯後，他們還有15分鐘的時間在外面玩。"
+                    }
+                ]
+            },
+            {
+                title: "Art Class Project",
+                passage: "This week in art class, we started a new project. We are making pictures of our school. First, Mrs. Chen showed us some examples. Then, she gave us large paper and colored pencils. I decided to draw the school playground. I like drawing the swings and the big tree. Jack drew the school building. Sarah drew the library. We will finish our pictures next week. Then we will hang them in the hallway for everyone to see.",
+                questions: [
+                    {
+                        question: "What is the new project about?",
+                        options: ["Making pictures of animals", "Making pictures of families", "Making pictures of the school", "Making pictures of friends"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We are making pictures of our school.\"，表示新項目是繪製學校的圖畫。"
+                    },
+                    {
+                        question: "Who is the art teacher?",
+                        options: ["Mr. Lee", "Mrs. Chen", "Mr. Brown", "Mrs. Smith"],
+                        answer: 1,
+                        explanation: "文章中提到 \"First, Mrs. Chen showed us some examples.\"，表示藝術老師是Chen女士。"
+                    },
+                    {
+                        question: "What did the writer choose to draw?",
+                        options: ["The school building", "The library", "The playground", "The cafeteria"],
+                        answer: 2,
+                        explanation: "文章中提到 \"I decided to draw the school playground.\"，表示作者決定畫學校的操場。"
+                    },
+                    {
+                        question: "What did Jack draw?",
+                        options: ["The school building", "The library", "The playground", "The cafeteria"],
+                        answer: 0,
+                        explanation: "文章中提到 \"Jack drew the school building.\"，表示Jack畫了學校建築。"
+                    },
+                    {
+                        question: "Where will they hang their pictures when finished?",
+                        options: ["In the classroom", "In the library", "In the hallway", "In the cafeteria"],
+                        answer: 2,
+                        explanation: "文章最後提到 \"Then we will hang them in the hallway for everyone to see.\"，表示他們將把圖畫掛在走廊上讓大家看。"
+                    }
+                ]
+            },
+            {
+                title: "Physical Education Class",
+                passage: "On Tuesdays and Thursdays, we have P.E. class. Our P.E. teacher is Mr. Wilson. He is tall and strong. First, we do warm-up exercises for ten minutes. Then, we play different sports. Last week, we played basketball. This week, we are learning to play volleyball. I'm not very good at it yet, but I'm trying my best. My friend David is the best volleyball player in our class. After class, we are always tired but happy.",
+                questions: [
+                    {
+                        question: "When do they have P.E. class?",
+                        options: ["Mondays and Wednesdays", "Tuesdays and Thursdays", "Wednesdays and Fridays", "Mondays and Fridays"],
+                        answer: 1,
+                        explanation: "文章開頭提到 \"On Tuesdays and Thursdays, we have P.E. class.\"，表示他們在週二和週四有體育課。"
+                    },
+                    {
+                        question: "How is Mr. Wilson described?",
+                        options: ["Short and fast", "Old and wise", "Young and funny", "Tall and strong"],
+                        answer: 3,
+                        explanation: "文章中提到 \"He is tall and strong.\"，表示Wilson先生又高又壯。"
+                    },
+                    {
+                        question: "How long do they do warm-up exercises?",
+                        options: ["Five minutes", "Ten minutes", "Fifteen minutes", "Twenty minutes"],
+                        answer: 1,
+                        explanation: "文章中提到 \"First, we do warm-up exercises for ten minutes.\"，表示他們先做十分鐘的熱身運動。"
+                    },
+                    {
+                        question: "What sport did they play last week?",
+                        options: ["Soccer", "Basketball", "Volleyball", "Tennis"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Last week, we played basketball.\"，表示上週他們打籃球。"
+                    },
+                    {
+                        question: "Who is the best volleyball player in the class?",
+                        options: ["The writer", "Mr. Wilson", "David", "No one mentioned"],
+                        answer: 2,
+                        explanation: "文章中提到 \"My friend David is the best volleyball player in our class.\"，表示作者的朋友David是班上最好的排球選手。"
+                    }
+                ]
+            },
+            {
+                title: "School Trip",
+                passage: "Last Friday, our class went on a school trip to the zoo. We went by bus. It took one hour to get there. Our teacher, Miss Taylor, divided us into small groups. My group had four students. We saw many animals like lions, elephants, and monkeys. The monkeys were my favorite because they were very funny. We ate lunch in the zoo park. After lunch, we visited the gift shop. I bought a small toy elephant. We returned to school at 3:30.",
+                questions: [
+                    {
+                        question: "Where did the class go on their school trip?",
+                        options: ["Museum", "Park", "Zoo", "Aquarium"],
+                        answer: 2,
+                        explanation: "文章開頭提到 \"Last Friday, our class went on a school trip to the zoo.\"，表示上週五班級去動物園進行校外教學。"
+                    },
+                    {
+                        question: "How long did it take to get to the destination?",
+                        options: ["30 minutes", "One hour", "Two hours", "Three hours"],
+                        answer: 1,
+                        explanation: "文章中提到 \"It took one hour to get there.\"，表示花了一小時才到達目的地。"
+                    },
+                    {
+                        question: "How many students were in the writer's group?",
+                        options: ["Three", "Four", "Five", "Six"],
+                        answer: 1,
+                        explanation: "文章中提到 \"My group had four students.\"，表示作者所在的小組有四名學生。"
+                    },
+                    {
+                        question: "Which animals were the writer's favorite?",
+                        options: ["Lions", "Elephants", "Monkeys", "Tigers"],
+                        answer: 2,
+                        explanation: "文章中提到 \"The monkeys were my favorite because they were very funny.\"，表示猴子是作者最喜歡的動物，因為牠們很有趣。"
+                    },
+                    {
+                        question: "What did the writer buy at the gift shop?",
+                        options: ["A toy monkey", "A toy elephant", "A toy lion", "Nothing"],
+                        answer: 1,
+                        explanation: "文章中提到 \"I bought a small toy elephant.\"，表示作者在禮品店買了一個小象玩具。"
+                    }
+                ]
+            },
+            {
+                title: "Computer Class",
+                passage: "Every Monday, we have computer class in the computer lab. There are twenty computers in the room. Each student uses one computer. Our teacher, Ms. Park, teaches us how to use different programs. Last class, we learned how to make presentations. I made a presentation about my favorite hobby. This week, we are learning how to use spreadsheets. Computer class is sometimes difficult, but it's very useful. I want to be good at using computers.",
+                questions: [
+                    {
+                        question: "When do they have computer class?",
+                        options: ["Every Monday", "Every Tuesday", "Every Wednesday", "Every Friday"],
+                        answer: 0,
+                        explanation: "文章開頭提到 \"Every Monday, we have computer class in the computer lab.\"，表示每週一他們在電腦教室上電腦課。"
+                    },
+                    {
+                        question: "How many computers are in the room?",
+                        options: ["Ten", "Fifteen", "Twenty", "Twenty-five"],
+                        answer: 2,
+                        explanation: "文章中提到 \"There are twenty computers in the room.\"，表示房間裡有二十台電腦。"
+                    },
+                    {
+                        question: "What did they learn in the last class?",
+                        options: ["How to use spreadsheets", "How to make presentations", "How to use email", "How to create websites"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Last class, we learned how to make presentations.\"，表示上節課他們學習如何製作演示文稿。"
+                    },
+                    {
+                        question: "What are they learning this week?",
+                        options: ["How to use spreadsheets", "How to make presentations", "How to use email", "How to create websites"],
+                        answer: 0,
+                        explanation: "文章中提到 \"This week, we are learning how to use spreadsheets.\"，表示本週他們正在學習如何使用電子表格。"
+                    },
+                    {
+                        question: "How does the writer feel about computer class?",
+                        options: ["It's always easy", "It's always difficult", "It's sometimes difficult but useful", "It's boring"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Computer class is sometimes difficult, but it's very useful.\"，表示電腦課有時很難，但非常有用。"
+                    }
+                ]
+            },
+            {
+                title: "Music Lesson",
+                passage: "I have music lessons twice a week. Our music teacher is Mrs. Johnson. She can play many instruments. In our class, we learn to sing songs and play simple instruments. I like playing the recorder. Some of my friends play drums or xylophones. We are practicing for the school concert next month. My class will sing two songs. I'm a little nervous about singing in front of many people, but Mrs. Johnson says we will do well if we practice.",
+                questions: [
+                    {
+                        question: "How often does the writer have music lessons?",
+                        options: ["Once a week", "Twice a week", "Three times a week", "Every day"],
+                        answer: 1,
+                        explanation: "文章開頭提到 \"I have music lessons twice a week.\"，表示作者每週有兩次音樂課。"
+                    },
+                    {
+                        question: "What instrument does the writer like to play?",
+                        options: ["Piano", "Recorder", "Drums", "Xylophone"],
+                        answer: 1,
+                        explanation: "文章中提到 \"I like playing the recorder.\"，表示作者喜歡演奏直笛。"
+                    },
+                    {
+                        question: "What are they practicing for?",
+                        options: ["A music competition", "A school concert", "A music exam", "A TV show"],
+                        answer: 1,
+                        explanation: "文章中提到 \"We are practicing for the school concert next month.\"，表示他們正在為下個月的學校音樂會練習。"
+                    },
+                    {
+                        question: "How many songs will the writer's class sing?",
+                        options: ["One", "Two", "Three", "Four"],
+                        answer: 1,
+                        explanation: "文章中提到 \"My class will sing two songs.\"，表示作者的班級將演唱兩首歌。"
+                    },
+                    {
+                        question: "How does the writer feel about singing in the concert?",
+                        options: ["Excited", "Bored", "A little nervous", "Angry"],
+                        answer: 2,
+                        explanation: "文章中提到 \"I'm a little nervous about singing in front of many people\"，表示作者對於在眾人面前唱歌感到有點緊張。"
+                    }
+                ]
+            },
+            {
+                title: "English Homework",
+                passage: "Yesterday, our English teacher gave us homework. We have to write a short story about our family. The story should be about 100 words. I started writing my story last night. I wrote about my parents, my sister, and our dog. I think my story is interesting, but I'm not sure if my grammar is correct. I will ask my friend Anna to read it. She is very good at English. The homework is due on Friday. I hope the teacher will like my story.",
+                questions: [
+                    {
+                        question: "What is the homework about?",
+                        options: ["Writing about friends", "Writing about school", "Writing about family", "Writing about hobbies"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We have to write a short story about our family.\"，表示作業是寫一個關於家庭的短故事。"
+                    },
+                    {
+                        question: "How long should the story be?",
+                        options: ["About 50 words", "About 100 words", "About 150 words", "About 200 words"],
+                        answer: 1,
+                        explanation: "文章中提到 \"The story should be about 100 words.\"，表示故事應該約100字。"
+                    },
+                    {
+                        question: "Who did the writer write about?",
+                        options: ["Only parents", "Parents and sister", "Parents, sister, and dog", "Only sister and dog"],
+                        answer: 2,
+                        explanation: "文章中提到 \"I wrote about my parents, my sister, and our dog.\"，表示作者寫了關於父母、姐妹和狗的內容。"
+                    },
+                    {
+                        question: "Who will the writer ask to read the story?",
+                        options: ["The teacher", "Anna", "Parents", "Sister"],
+                        answer: 1,
+                        explanation: "文章中提到 \"I will ask my friend Anna to read it.\"，表示作者將請朋友Anna閱讀故事。"
+                    },
+                    {
+                        question: "When is the homework due?",
+                        options: ["Monday", "Wednesday", "Friday", "Sunday"],
+                        answer: 2,
+                        explanation: "文章中提到 \"The homework is due on Friday.\"，表示作業在週五截止。"
+                    }
+                ]
+            },
+            {
+                title: "Math Test",
+                passage: "We had a math test this morning. It was about fractions and decimals. I studied hard for this test last night. There were 20 questions, and we had 40 minutes to finish. Some questions were easy, but others were difficult. I think I did well on most questions, but I'm not sure about question 15. After the test, I talked with my friend Ben. He found the test very hard. Our teacher, Mr. Garcia, will give us our scores tomorrow. I hope I get a good grade.",
+                questions: [
+                    {
+                        question: "What was the math test about?",
+                        options: ["Addition and subtraction", "Multiplication and division", "Fractions and decimals", "Geometry"],
+                        answer: 2,
+                        explanation: "文章中提到 \"It was about fractions and decimals.\"，表示數學測驗是關於分數和小數的。"
+                    },
+                    {
+                        question: "How many questions were on the test?",
+                        options: ["10", "15", "20", "25"],
+                        answer: 2,
+                        explanation: "文章中提到 \"There were 20 questions\"，表示測驗有20道題目。"
+                    },
+                    {
+                        question: "How much time did they have to finish the test?",
+                        options: ["30 minutes", "40 minutes", "50 minutes", "60 minutes"],
+                        answer: 1,
+                        explanation: "文章中提到 \"we had 40 minutes to finish\"，表示他們有40分鐘完成測驗。"
+                    },
+                    {
+                        question: "Which question was the writer unsure about?",
+                        options: ["Question 10", "Question 12", "Question 15", "Question 20"],
+                        answer: 2,
+                        explanation: "文章中提到 \"but I'm not sure about question 15\"，表示作者對第15題不太確定。"
+                    },
+                    {
+                        question: "When will they get their test scores?",
+                        options: ["Today", "Tomorrow", "Next week", "In two days"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Our teacher, Mr. Garcia, will give us our scores tomorrow.\"，表示老師將在明天給他們成績。"
+                    }
+                ]
+            },
+            {
+                title: "Group Project",
+                passage: "This month, we are doing a group project in science class. Our teacher put us in groups of three. My group has me, Lisa, and Tom. Our project is about the solar system. We need to make a poster and give a presentation. Lisa is researching about the planets. Tom is drawing pictures for our poster. I am writing the information we will present. We meet in the library after school to work together. Our presentation is next Monday. I think our project will be very good.",
+                questions: [
+                    {
+                        question: "How many students are in each group?",
+                        options: ["Two", "Three", "Four", "Five"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Our teacher put us in groups of three.\"，表示老師將他們分成三人一組。"
+                    },
+                    {
+                        question: "Who are the members of the writer's group?",
+                        options: ["The writer, Lisa, and Ben", "The writer, Tom, and Ben", "The writer, Lisa, and Tom", "The writer, Lisa, and Sarah"],
+                        answer: 2,
+                        explanation: "文章中提到 \"My group has me, Lisa, and Tom.\"，表示作者的小組成員是作者本人、Lisa和Tom。"
+                    },
+                    {
+                        question: "What is their project about?",
+                        options: ["Animals", "Plants", "The solar system", "The ocean"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Our project is about the solar system.\"，表示他們的專案是關於太陽系的。"
+                    },
+                    {
+                        question: "What is Lisa's job in the project?",
+                        options: ["Drawing pictures", "Writing information", "Researching about planets", "Making the poster"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Lisa is researching about the planets.\"，表示Lisa負責研究行星的資料。"
+                    },
+                    {
+                        question: "When is their presentation?",
+                        options: ["This Friday", "Next Monday", "Next Wednesday", "In two weeks"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Our presentation is next Monday.\"，表示他們的報告在下週一。"
+                    }
+                ]
+            },
+            {
+                title: "School Lunch Menu",
+                passage: "Our school cafeteria has a different lunch menu every day. On Monday, they serve pasta. Tuesday is sandwich day. Wednesday is chicken day. Thursday is pizza day, which is my favorite. On Friday, they serve fish. We can also choose salad, fruit, and milk every day. Some students bring lunch from home. My friend Emma always brings her lunch because she doesn't like cafeteria food. I usually buy lunch at school because I think it tastes good.",
+                questions: [
+                    {
+                        question: "What is served on Monday?",
+                        options: ["Sandwich", "Pasta", "Chicken", "Pizza"],
+                        answer: 1,
+                        explanation: "文章中提到 \"On Monday, they serve pasta.\"，表示週一供應義大利麵。"
+                    },
+                    {
+                        question: "Which day is the writer's favorite?",
+                        options: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+                        answer: 3,
+                        explanation: "文章中提到 \"Thursday is pizza day, which is my favorite.\"，表示週四是披薩日，這是作者最喜歡的。"
+                    },
+                    {
+                        question: "What is available every day?",
+                        options: ["Only salad", "Only fruit", "Only milk", "Salad, fruit, and milk"],
+                        answer: 3,
+                        explanation: "文章中提到 \"We can also choose salad, fruit, and milk every day.\"，表示每天都可以選擇沙拉、水果和牛奶。"
+                    },
+                    {
+                        question: "Why does Emma bring her lunch?",
+                        options: ["She likes cooking", "She doesn't like cafeteria food", "It's cheaper", "She has allergies"],
+                        answer: 1,
+                        explanation: "文章中提到 \"My friend Emma always brings her lunch because she doesn't like cafeteria food.\"，表示Emma帶午餐是因為她不喜歡學校餐廳的食物。"
+                    },
+                    {
+                        question: "Why does the writer usually buy lunch at school?",
+                        options: ["It's convenient", "It's cheap", "It tastes good", "There's more variety"],
+                        answer: 2,
+                        explanation: "文章中提到 \"I usually buy lunch at school because I think it tastes good.\"，表示作者通常在學校買午餐是因為他認為味道不錯。"
+                    }
+                ]
+            },
+            {
+                title: "After School Club",
+                passage: "I joined the photography club this year. We meet every Wednesday after school. There are fifteen students in the club. Our club teacher is Ms. Adams. She teaches us how to take good photos. Last week, we went to the park to take nature photos. I took pictures of trees and birds. This week, we will learn how to edit photos on the computer. At the end of the year, we will have a photo exhibition. I'm excited to show my best photos to everyone.",
+                questions: [
+                    {
+                        question: "What club did the writer join?",
+                        options: ["Art club", "Music club", "Photography club", "Sports club"],
+                        answer: 2,
+                        explanation: "文章開頭提到 \"I joined the photography club this year.\"，表示作者今年加入了攝影俱樂部。"
+                    },
+                    {
+                        question: "When does the club meet?",
+                        options: ["Every Monday", "Every Tuesday", "Every Wednesday", "Every Thursday"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We meet every Wednesday after school.\"，表示他們每週三放學後聚會。"
+                    },
+                    {
+                        question: "How many students are in the club?",
+                        options: ["Ten", "Twelve", "Fifteen", "Twenty"],
+                        answer: 2,
+                        explanation: "文章中提到 \"There are fifteen students in the club.\"，表示俱樂部有十五名學生。"
+                    },
+                    {
+                        question: "Where did they go to take photos last week?",
+                        options: ["School", "Park", "Museum", "Zoo"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Last week, we went to the park to take nature photos.\"，表示上週他們去公園拍攝自然照片。"
+                    },
+                    {
+                        question: "What will they learn this week?",
+                        options: ["How to use cameras", "How to take portraits", "How to edit photos", "How to print photos"],
+                        answer: 2,
+                        explanation: "文章中提到 \"This week, we will learn how to edit photos on the computer.\"，表示本週他們將學習如何在電腦上編輯照片。"
+                    }
+                ]
+            },
+            {
+                title: "School Festival",
+                passage: "Our school festival is next week. All classes are preparing something special. My class is doing a play about a famous story. I play the main character. We practice every day after school. Other classes are preparing music performances, art exhibitions, and food stalls. Parents and families will come to see our festival. The festival will be on Saturday from 10 AM to 4 PM. I'm nervous but also excited. I hope many people will come to see our play.",
+                questions: [
+                    {
+                        question: "When is the school festival?",
+                        options: ["This week", "Next week", "Next month", "Tomorrow"],
+                        answer: 1,
+                        explanation: "文章開頭提到 \"Our school festival is next week.\"，表示學校節日在下週。"
+                    },
+                    {
+                        question: "What is the writer's class preparing?",
+                        options: ["A music performance", "A play", "An art exhibition", "A food stall"],
+                        answer: 1,
+                        explanation: "文章中提到 \"My class is doing a play about a famous story.\"，表示作者的班級正在準備一個關於著名故事的戲劇。"
+                    },
+                    {
+                        question: "What role does the writer have in the play?",
+                        options: ["The main character", "A supporting role", "The director", "No role"],
+                        answer: 0,
+                        explanation: "文章中提到 \"I play the main character.\"，表示作者扮演主角。"
+                    },
+                    {
+                        question: "When do they practice for the play?",
+                        options: ["Before school", "During lunch", "After school", "On weekends"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We practice every day after school.\"，表示他們每天放學後練習。"
+                    },
+                    {
+                        question: "What time will the festival end?",
+                        options: ["2 PM", "3 PM", "4 PM", "5 PM"],
+                        answer: 2,
+                        explanation: "文章中提到 \"The festival will be on Saturday from 10 AM to 4 PM.\"，表示節日將在週六上午10點到下午4點舉行。"
+                    }
+                ]
+            },
+            {
+                title: "New Student",
+                passage: "Today, a new student joined our class. Her name is Sophia. She moved here from another city. Our teacher, Mrs. Wilson, asked her to introduce herself. Sophia said she likes reading books and playing tennis. She seems very nice. Mrs. Wilson told me to show Sophia around the school. I showed her the library, cafeteria, and gym. At lunch time, I invited her to sit with my friends. I hope Sophia will like our school and make many friends.",
+                questions: [
+                    {
+                        question: "What is the new student's name?",
+                        options: ["Sarah", "Sophia", "Samantha", "Susan"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Her name is Sophia.\"，表示新學生的名字是Sophia。"
+                    },
+                    {
+                        question: "Where did Sophia come from?",
+                        options: ["Another country", "Another city", "Another school in the same city", "Not mentioned"],
+                        answer: 1,
+                        explanation: "文章中提到 \"She moved here from another city.\"，表示Sophia從另一個城市搬來。"
+                    },
+                    {
+                        question: "What does Sophia like to do?",
+                        options: ["Reading books and playing soccer", "Reading books and playing tennis", "Watching movies and playing tennis", "Watching movies and playing soccer"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Sophia said she likes reading books and playing tennis.\"，表示Sophia喜歡閱讀書籍和打網球。"
+                    },
+                    {
+                        question: "Who asked the writer to show Sophia around?",
+                        options: ["The principal", "Mrs. Wilson", "Sophia", "The writer's friends"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Mrs. Wilson told me to show Sophia around the school.\"，表示Wilson女士要求作者帶Sophia參觀學校。"
+                    },
+                    {
+                        question: "What did the writer do at lunch time?",
+                        options: ["Left Sophia alone", "Introduced Sophia to teachers", "Invited Sophia to sit with friends", "Showed Sophia the cafeteria"],
+                        answer: 2,
+                        explanation: "文章中提到 \"At lunch time, I invited her to sit with my friends.\"，表示在午餐時間，作者邀請Sophia和朋友們一起坐。"
+                    }
+                ]
+            },
+            {
+                title: "School Library Rules",
+                passage: "Our school library has some important rules. First, we must be quiet. Second, we cannot bring food or drinks inside. Third, we can borrow up to three books at a time. Books must be returned within two weeks. If a book is late, we have to pay a small fine. We need our student ID card to borrow books. The library is open from 8 AM to 4 PM on weekdays. It is closed on weekends. These rules help keep our library clean and organized.",
+                questions: [
+                    {
+                        question: "How many books can students borrow at once?",
+                        options: ["Two", "Three", "Four", "Five"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Third, we can borrow up to three books at a time.\"，表示學生一次最多可以借三本書。"
+                    },
+                    {
+                        question: "How long can students keep borrowed books?",
+                        options: ["One week", "Two weeks", "Three weeks", "One month"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Books must be returned within two weeks.\"，表示書籍必須在兩週內歸還。"
+                    },
+                    {
+                        question: "What happens if a book is returned late?",
+                        options: ["Nothing happens", "Students can't borrow more books", "Students have to pay a fine", "Students get detention"],
+                        answer: 2,
+                        explanation: "文章中提到 \"If a book is late, we have to pay a small fine.\"，表示如果書籍逾期，學生必須支付小額罰款。"
+                    },
+                    {
+                        question: "What do students need to borrow books?",
+                        options: ["Money", "A permission slip", "A student ID card", "Nothing"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We need our student ID card to borrow books.\"，表示學生需要學生證才能借書。"
+                    },
+                    {
+                        question: "When is the library closed?",
+                        options: ["After 4 PM", "Before 8 AM", "On weekends", "All of the above"],
+                        answer: 3,
+                        explanation: "文章中提到 \"The library is open from 8 AM to 4 PM on weekdays. It is closed on weekends.\"，表示圖書館在週末關閉，並且在工作日的上午8點前和下午4點後也關閉。"
+                    }
+                ]
+            },
+            {
+                title: "School Uniform",
+                passage: "In our school, all students must wear a uniform. Boys wear white shirts, blue pants, and a blue tie. Girls wear white shirts, blue skirts or pants, and a blue tie. In winter, we also wear blue sweaters. We must wear black shoes. On P.E. days, we can wear our P.E. uniform all day. The P.E. uniform is a white T-shirt and blue shorts or track pants. Some students don't like wearing uniforms, but I think they look nice.",
+                questions: [
+                    {
+                        question: "What color are the shirts in the regular uniform?",
+                        options: ["Blue", "White", "Black", "Red"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Boys wear white shirts\" 和 \"Girls wear white shirts\"，表示制服的襯衫是白色的。"
+                    },
+                    {
+                        question: "What do students wear in winter?",
+                        options: ["Blue jackets", "Blue sweaters", "Blue coats", "Blue hoodies"],
+                        answer: 1,
+                        explanation: "文章中提到 \"In winter, we also wear blue sweaters.\"，表示冬天學生還要穿藍色毛衣。"
+                    },
+                    {
+                        question: "What color shoes must students wear?",
+                        options: ["White", "Blue", "Black", "Any color"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We must wear black shoes.\"，表示學生必須穿黑色鞋子。"
+                    },
+                    {
+                        question: "When can students wear the P.E. uniform all day?",
+                        options: ["Never", "On Fridays", "On P.E. days", "In summer"],
+                        answer: 2,
+                        explanation: "文章中提到 \"On P.E. days, we can wear our P.E. uniform all day.\"，表示在體育課的日子，學生可以整天穿體育制服。"
+                    },
+                    {
+                        question: "What does the writer think about uniforms?",
+                        options: ["They are uncomfortable", "They look nice", "They are too expensive", "They are unnecessary"],
+                        answer: 1,
+                        explanation: "文章最後提到 \"but I think they look nice.\"，表示作者認為制服看起來很好看。"
+                    }
+                ]
+            },
+            {
+                title: "School Subjects",
+                passage: "I study many subjects at school. In the morning, I usually have math, science, and English. Math is difficult for me, but my teacher explains things well. Science is interesting because we do experiments. English is my favorite subject because I like reading stories. After lunch, I have history, art, and P.E. History is about people and events from the past. In art class, we draw and paint. P.E. is fun because we play games and sports.",
+                questions: [
+                    {
+                        question: "Which subject does the writer find difficult?",
+                        options: ["English", "Science", "Math", "History"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Math is difficult for me\"，表示作者覺得數學很難。"
+                    },
+                    {
+                        question: "Why does the writer like science?",
+                        options: ["The teacher is good", "They do experiments", "It's easy", "They read stories"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Science is interesting because we do experiments.\"，表示作者喜歡科學是因為他們做實驗。"
+                    },
+                    {
+                        question: "What is the writer's favorite subject?",
+                        options: ["Math", "Science", "English", "P.E."],
+                        answer: 2,
+                        explanation: "文章中提到 \"English is my favorite subject because I like reading stories.\"，表示英語是作者最喜歡的科目。"
+                    },
+                    {
+                        question: "What do they do in art class?",
+                        options: ["Play sports", "Read books", "Study history", "Draw and paint"],
+                        answer: 3,
+                        explanation: "文章中提到 \"In art class, we draw and paint.\"，表示在藝術課上，他們畫畫。"
+                    },
+                    {
+                        question: "Why does the writer think P.E. is fun?",
+                        options: ["They play games and sports", "It's easy", "The teacher is nice", "They can talk with friends"],
+                        answer: 0,
+                        explanation: "文章中提到 \"P.E. is fun because we play games and sports.\"，表示作者認為體育課很有趣是因為他們玩遊戲和運動。"
+                    }
+                ]
+            },
+            {
+                title: "School Holidays",
+                passage: "Our school year has several holidays. We have two weeks off for winter break in December. During this time, many students celebrate Christmas with their families. In spring, we have a one-week break in April. Some students travel during this time. Summer vacation is the longest break. It starts in July and ends in August. We have about six weeks of summer vacation. There are also some one-day holidays throughout the year. I always look forward to school holidays.",
+                questions: [
+                    {
+                        question: "How long is winter break?",
+                        options: ["One week", "Two weeks", "Three weeks", "Four weeks"],
+                        answer: 1,
+                        explanation: "文章中提到 \"We have two weeks off for winter break in December.\"，表示冬季假期有兩週。"
+                    },
+                    {
+                        question: "When is spring break?",
+                        options: ["March", "April", "May", "June"],
+                        answer: 1,
+                        explanation: "文章中提到 \"In spring, we have a one-week break in April.\"，表示春假在四月。"
+                    },
+                    {
+                        question: "Which is the longest break?",
+                        options: ["Winter break", "Spring break", "Summer vacation", "Fall break"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Summer vacation is the longest break.\"，表示暑假是最長的假期。"
+                    },
+                    {
+                        question: "How long is summer vacation?",
+                        options: ["About four weeks", "About five weeks", "About six weeks", "About eight weeks"],
+                        answer: 2,
+                        explanation: "文章中提到 \"We have about six weeks of summer vacation.\"，表示暑假大約有六週。"
+                    },
+                    {
+                        question: "When does summer vacation start?",
+                        options: ["June", "July", "August", "September"],
+                        answer: 1,
+                        explanation: "文章中提到 \"It starts in July and ends in August.\"，表示暑假從七月開始。"
+                    }
+                ]
+            },
+            {
+                title: "School Lunch Break",
+                passage: "Our lunch break starts at 12:15 PM and ends at 1:00 PM. First, we go to the cafeteria to eat. Some students bring lunch from home. Others buy food at school. After eating, we have free time. Many students go outside to the playground. Some play basketball or soccer. Others just talk with friends. Some students go to the library to read or do homework. I usually play with my friends outside if the weather is good. When the bell rings at 1:00 PM, we go back to class.",
+                questions: [
+                    {
+                        question: "What time does lunch break start?",
+                        options: ["11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM"],
+                        answer: 2,
+                        explanation: "文章開頭提到 \"Our lunch break starts at 12:15 PM\"，表示午餐休息時間從12:15開始。"
+                    },
+                    {
+                        question: "How long is the lunch break?",
+                        options: ["30 minutes", "45 minutes", "60 minutes", "75 minutes"],
+                        answer: 1,
+                        explanation: "文章提到午餐休息從12:15 PM開始，到1:00 PM結束，所以是45分鐘。"
+                    },
+                    {
+                        question: "What do many students do after eating?",
+                        options: ["Go to class", "Go to the playground", "Go home", "Go to sleep"],
+                        answer: 1,
+                        explanation: "文章中提到 \"Many students go outside to the playground.\"，表示許多學生吃完飯後去操場。"
+                    },
+                    {
+                        question: "Why do some students go to the library?",
+                        options: ["To eat lunch", "To meet teachers", "To read or do homework", "To play games"],
+                        answer: 2,
+                        explanation: "文章中提到 \"Some students go to the library to read or do homework.\"，表示一些學生去圖書館閱讀或做作業。"
+                    },
+                    {
+                        question: "What does the writer usually do during free time?",
+                        options: ["Go to the library", "Play with friends outside if weather is good", "Stay in the cafeteria", "Do homework"],
+                        answer: 1,
+                        explanation: "文章中提到 \"I usually play with my friends outside if the weather is good.\"，表示作者通常在天氣好的時候和朋友在外面玩。"
+                    }
+                ]
+            }
+        ];
+
+        // Current quiz index
+        let currentQuizIndex = 0;
+        let selectedAnswers = Array(quizzes.length).fill().map(() => Array(5).fill(-1));
+        let quizSubmitted = Array(quizzes.length).fill(false);
+        
+        // DOM elements
+        const passageTitle = document.getElementById('passage-title');
+        const passage = document.getElementById('passage');
+        const questionsContainer = document.getElementById('questions-container');
+        const results = document.getElementById('results');
+        const score = document.getElementById('score');
+        const submitBtn = document.getElementById('submit-btn');
+        const quizTabs = document.getElementById('quiz-tabs');
+        const prevQuizBtn = document.getElementById('prev-quiz');
+        const nextQuizBtn = document.getElementById('next-quiz');
+        
+        // Initialize tabs
+        function initTabs() {
+            quizTabs.innerHTML = '';
+            for (let i = 0; i < quizzes.length; i++) {
+                const tab = document.createElement('button');
+                tab.textContent = quizzes[i].title;
+                tab.className = `px-3 py-2 rounded whitespace-nowrap ${i === currentQuizIndex ? 'tab-active' : 'bg-gray-200 hover:bg-gray-300'}`;
+                tab.onclick = () => {
+                    currentQuizIndex = i;
+                    renderQuiz();
+                };
+                quizTabs.appendChild(tab);
+            }
+        }
+        
+        // Render current quiz
+        function renderQuiz() {
+            // Update tabs
+            const tabs = quizTabs.querySelectorAll('button');
+            tabs.forEach((tab, i) => {
+                tab.className = `px-3 py-2 rounded whitespace-nowrap ${i === currentQuizIndex ? 'tab-active' : 'bg-gray-200 hover:bg-gray-300'}`;
+            });
+            
+            // Update passage
+            const quiz = quizzes[currentQuizIndex];
+            passageTitle.textContent = quiz.title;
+            passage.textContent = quiz.passage;
+            
+            // Update questions
+            questionsContainer.innerHTML = '';
+            quiz.questions.forEach((q, i) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'mb-6 question-container';
+                questionDiv.dataset.questionIndex = i;
+                
+                const questionText = document.createElement('p');
+                questionText.className = 'font-semibold mb-2';
+                questionText.textContent = `${i + 1}. ${q.question}`;
+                questionDiv.appendChild(questionText);
+                
+                q.options.forEach((option, j) => {
+                    const optionLabel = document.createElement('label');
+                    optionLabel.className = 'block mb-2 pl-6 relative';
+                    
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question-${i}`;
+                    optionInput.value = j;
+                    optionInput.className = 'absolute left-0 top-1';
+                    optionInput.checked = selectedAnswers[currentQuizIndex][i] === j;
+                    optionInput.disabled = quizSubmitted[currentQuizIndex];
+                    
+                    optionInput.onchange = () => {
+                        selectedAnswers[currentQuizIndex][i] = j;
+                    };
+                    
+                    const optionText = document.createTextNode(option);
+                    
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(optionText);
+                    
+                    // Add visual feedback for submitted quizzes
+                    if (quizSubmitted[currentQuizIndex]) {
+                        if (j === q.answer) {
+                            optionLabel.classList.add('correct-answer');
+                        } else if (j === selectedAnswers[currentQuizIndex][i]) {
+                            optionLabel.classList.add('wrong-answer');
+                        }
+                    }
+                    
+                    questionDiv.appendChild(optionLabel);
+                });
+                
+                // Add explanation after the question when submitted
+                if (quizSubmitted[currentQuizIndex]) {
+                    const explanationDiv = document.createElement('div');
+                    explanationDiv.className = `p-3 mt-2 mb-4 rounded-lg explanation-${i+1}`;
+                    
+                    const explanationText = document.createElement('p');
+                    explanationText.textContent = q.explanation;
+                    
+                    const userAnswer = document.createElement('p');
+                    userAnswer.className = 'mt-2 font-semibold';
+                    if (selectedAnswers[currentQuizIndex][i] === q.answer) {
+                        userAnswer.innerHTML = `<span class="text-green-600">✓ 你的答案正確!</span>`;
+                    } else {
+                        userAnswer.innerHTML = `<span class="text-red-600">✗ 你的答案: ${q.options[selectedAnswers[currentQuizIndex][i]]}</span><br>
+                                              <span class="text-green-600">正確答案: ${q.options[q.answer]}</span>`;
+                    }
+                    
+                    explanationDiv.appendChild(explanationText);
+                    explanationDiv.appendChild(userAnswer);
+                    
+                    questionDiv.appendChild(explanationDiv);
+                }
+                
+                questionsContainer.appendChild(questionDiv);
+            });
+            
+            // Update submit button and results visibility
+            submitBtn.disabled = quizSubmitted[currentQuizIndex];
+            submitBtn.textContent = quizSubmitted[currentQuizIndex] ? '已提交' : '提交答案';
+            submitBtn.className = `w-full py-3 ${quizSubmitted[currentQuizIndex] ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'} text-white rounded-lg transition`;
+            
+            results.classList.toggle('hidden', !quizSubmitted[currentQuizIndex]);
+            
+            // Add hover effect for highlighting text
+            setupHighlighting();
+        }
+        
+        // Setup text highlighting on hover
+        function setupHighlighting() {
+            if (!quizSubmitted[currentQuizIndex]) return;
+            
+            const questionContainers = document.querySelectorAll('.question-container');
+            const passageText = passage.textContent;
+            
+            questionContainers.forEach((container, i) => {
+                container.addEventListener('mouseenter', () => {
+                    // Create a new passage with highlighted text
+                    const quiz = quizzes[currentQuizIndex];
+                    const questionExplanation = quiz.questions[i].explanation;
+                    
+                    // Extract the English text from the explanation (assuming it's in quotes)
+                    const englishTextMatch = questionExplanation.match(/"([^"]+)"/);
+                    
+                    if (englishTextMatch && englishTextMatch[1]) {
+                        const englishText = englishTextMatch[1];
+                        const highlightedPassage = passageText.replace(
+                            new RegExp(englishText, 'g'),
+                            `<span class="highlight-${i+1}">${englishText}</span>`
+                        );
+                        passage.innerHTML = highlightedPassage;
+                    }
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    passage.textContent = passageText;
+                });
+            });
+        }
+        
+        // Submit quiz
+        submitBtn.addEventListener('click', () => {
+            if (quizSubmitted[currentQuizIndex]) return;
+            
+            // Check if all questions are answered
+            const unansweredQuestions = selectedAnswers[currentQuizIndex].filter(a => a === -1).length;
+            if (unansweredQuestions > 0) {
+                alert(`還有 ${unansweredQuestions} 題未作答，請完成所有題目。`);
+                return;
+            }
+            
+            // Mark quiz as submitted
+            quizSubmitted[currentQuizIndex] = true;
+            
+            // Calculate score
+            const quiz = quizzes[currentQuizIndex];
+            let correctAnswers = 0;
+            
+            selectedAnswers[currentQuizIndex].forEach((answer, i) => {
+                if (answer === quiz.questions[i].answer) {
+                    correctAnswers++;
+                }
+            });
+            
+            const totalScore = correctAnswers * 20;
+            score.textContent = totalScore;
+            
+            // Show results
+            results.classList.remove('hidden');
+            
+            // Update UI
+            renderQuiz();
+            
+            // Add animation for score
+            score.classList.add('animate-pulse');
+            setTimeout(() => {
+                score.classList.remove('animate-pulse');
+            }, 1500);
+        });
+        
+        // Navigation buttons
+        prevQuizBtn.addEventListener('click', () => {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                renderQuiz();
+            }
+        });
+        
+        nextQuizBtn.addEventListener('click', () => {
+            if (currentQuizIndex < quizzes.length - 1) {
+                currentQuizIndex++;
+                renderQuiz();
+            }
+        });
+        
+        // Initialize
+        initTabs();
+        renderQuiz();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'949cd268736fa339',t:'MTc0ODkyODg3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

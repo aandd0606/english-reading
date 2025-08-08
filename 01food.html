@@ -1,0 +1,1095 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Reading Test: Food Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f5f2;
+        }
+        .passage-container {
+            height: 300px;
+            overflow: auto;
+        }
+        .questions-container {
+            height: 350px;
+            overflow-y: auto;
+        }
+        .passage-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        .passage-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+        }
+        .option-selected {
+            background-color: #e0f2fe;
+            border-color: #0ea5e9;
+        }
+        .option-correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+        .option-incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        .tabs-container {
+            overflow-x: auto;
+            scrollbar-width: thin;
+            -ms-overflow-style: none;
+            padding-bottom: 5px;
+            white-space: nowrap;
+        }
+        .tabs-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .tabs-container::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+        .tab {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+            border-bottom: none;
+            white-space: nowrap;
+            margin-right: 2px;
+        }
+        .tab.active {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .tab:not(.active):hover {
+            background-color: #f1f5f9;
+        }
+        .result-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .result-correct {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .result-incorrect {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .score-display {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e2e8f0;
+            color: #4b5563;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .tab.active .tab-number {
+            background-color: white;
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-700">English Reading Test: Food Edition</h1>
+            <p class="text-lg text-gray-600 mt-2">Test your understanding of food-related passages</p>
+        </header>
+
+        <div class="tabs-container mb-4 border-b border-gray-200">
+            <div id="tabs-list" class="flex">
+                <!-- Tabs will be generated here -->
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="passage-container bg-indigo-50 rounded-lg p-6 mb-6">
+                <h3 id="passage-title" class="passage-title text-indigo-800 mb-4"></h3>
+                <p id="passage-text" class="passage-text text-gray-800"></p>
+            </div>
+
+            <div class="questions-container bg-gray-50 rounded-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-indigo-600">Questions</h3>
+                    <div id="score-display" class="score-display">
+                        <span class="font-semibold">Score: </span>
+                        <span id="score-value" class="text-xl font-bold text-indigo-600">0</span>
+                        <span class="text-gray-600">/5</span>
+                    </div>
+                </div>
+                <div id="questions-list" class="space-y-6"></div>
+                <div class="mt-8 text-center">
+                    <button id="submit-btn" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">Submit Answers</button>
+                    <button id="reset-btn" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 font-semibold ml-4" style="display: none;">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox for score display -->
+    <div id="score-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">Your Score</h2>
+            <div class="flex items-center justify-center mb-6">
+                <div class="text-5xl font-bold text-indigo-600" id="lightbox-score">0</div>
+                <div class="text-2xl text-gray-600 ml-2">/5</div>
+            </div>
+            <div class="mb-6">
+                <div id="lightbox-feedback" class="text-lg"></div>
+            </div>
+            <button id="lightbox-close" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const passages = [
+            {
+                title: "Taiwanese Night Markets",
+                text: "Night markets in Taiwan are famous for their delicious food. People can try stinky tofu, bubble tea, and many other tasty snacks. During the Lunar New Year, families eat special foods like dumplings and fish. These foods bring good luck for the coming year. Visitors love to walk around and try different foods.",
+                questions: [
+                    {
+                        question: "What are night markets in Taiwan famous for?",
+                        options: ["Beautiful lights", "Delicious food", "Live music", "Shopping"],
+                        answer: 1
+                    },
+                    {
+                        question: "What drink is mentioned in the passage?",
+                        options: ["Coffee", "Orange juice", "Bubble tea", "Water"],
+                        answer: 2
+                    },
+                    {
+                        question: "When do families eat special foods like dumplings?",
+                        options: ["Every Sunday", "During summer", "During the Lunar New Year", "On birthdays"],
+                        answer: 2
+                    },
+                    {
+                        question: "Why do people eat special foods during festivals?",
+                        options: ["They are cheap", "They bring good luck", "They are easy to make", "They are colorful"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do visitors love to do at night markets?",
+                        options: ["Sleep", "Walk around and try different foods", "Take photos only", "Buy clothes"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Italian Pasta",
+                text: "Italy is famous for its pasta. There are many kinds of pasta like spaghetti, penne, and lasagna. Italians use tomatoes, cheese, and olive oil to make delicious sauces. Each region in Italy has its own special pasta dish. When you visit Italy, you must try the fresh pasta made by local people.",
+                questions: [
+                    {
+                        question: "What is Italy famous for?",
+                        options: ["Rice", "Pasta", "Bread", "Soup"],
+                        answer: 1
+                    },
+                    {
+                        question: "Which of these is NOT mentioned as a type of pasta?",
+                        options: ["Spaghetti", "Penne", "Lasagna", "Ramen"],
+                        answer: 3
+                    },
+                    {
+                        question: "What do Italians use to make sauces?",
+                        options: ["Tomatoes, cheese, and olive oil", "Milk and sugar", "Only meat", "Only vegetables"],
+                        answer: 0
+                    },
+                    {
+                        question: "What is special about pasta in different regions of Italy?",
+                        options: ["They all taste the same", "Each region has its own special pasta dish", "They are all made with rice", "They are all very spicy"],
+                        answer: 1
+                    },
+                    {
+                        question: "What should you try when visiting Italy?",
+                        options: ["Fast food", "Fresh pasta made by local people", "Only pizza", "Only ice cream"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Dragon Boat Festival",
+                text: "The Dragon Boat Festival is an important holiday in Taiwan. People eat zongzi, which are sticky rice dumplings wrapped in bamboo leaves. They also watch dragon boat races on the water. The festival happens in the summer. Many families make zongzi together at home. The rice dumplings can be sweet or salty.",
+                questions: [
+                    {
+                        question: "What do people eat during the Dragon Boat Festival?",
+                        options: ["Moon cakes", "Zongzi", "Ice cream", "Hamburgers"],
+                        answer: 1
+                    },
+                    {
+                        question: "What are zongzi wrapped in?",
+                        options: ["Paper", "Plastic", "Bamboo leaves", "Cloth"],
+                        answer: 2
+                    },
+                    {
+                        question: "What activity do people watch during this festival?",
+                        options: ["Football games", "Dragon boat races", "Movies", "Fireworks"],
+                        answer: 1
+                    },
+                    {
+                        question: "When does the Dragon Boat Festival happen?",
+                        options: ["Winter", "Spring", "Summer", "Fall"],
+                        answer: 2
+                    },
+                    {
+                        question: "How can zongzi taste?",
+                        options: ["Only sweet", "Only salty", "Sweet or salty", "Only spicy"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Japanese Sushi",
+                text: "Sushi is a popular food from Japan. It is made with rice and fresh fish. People eat sushi with chopsticks and dip it in soy sauce. Wasabi, a green spicy paste, is often added. There are many types of sushi like maki, nigiri, and sashimi. Making good sushi takes many years of practice.",
+                questions: [
+                    {
+                        question: "Where does sushi come from?",
+                        options: ["China", "Korea", "Japan", "Thailand"],
+                        answer: 2
+                    },
+                    {
+                        question: "What are the main ingredients of sushi?",
+                        options: ["Rice and fresh fish", "Noodles and vegetables", "Bread and meat", "Potatoes and cheese"],
+                        answer: 0
+                    },
+                    {
+                        question: "What do people use to eat sushi?",
+                        options: ["Forks", "Spoons", "Hands only", "Chopsticks"],
+                        answer: 3
+                    },
+                    {
+                        question: "What is wasabi?",
+                        options: ["A type of fish", "A green spicy paste", "A sweet sauce", "A type of rice"],
+                        answer: 1
+                    },
+                    {
+                        question: "How long does it take to become good at making sushi?",
+                        options: ["One day", "One week", "One month", "Many years"],
+                        answer: 3
+                    }
+                ]
+            },
+            {
+                title: "Mid-Autumn Festival",
+                text: "The Mid-Autumn Festival is celebrated in Taiwan and China. People eat moon cakes and watch the full moon. Families gather together for a big dinner. Traditional moon cakes have sweet fillings like red bean or lotus seed paste. Some modern moon cakes have new flavors like chocolate or ice cream.",
+                questions: [
+                    {
+                        question: "What do people eat during the Mid-Autumn Festival?",
+                        options: ["Zongzi", "Moon cakes", "Dumplings", "Noodles"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do people watch during this festival?",
+                        options: ["The full moon", "TV shows", "Dragon boat races", "Fireworks"],
+                        answer: 0
+                    },
+                    {
+                        question: "What do families do during the Mid-Autumn Festival?",
+                        options: ["Go to work", "Sleep all day", "Gather for a big dinner", "Go swimming"],
+                        answer: 2
+                    },
+                    {
+                        question: "What are traditional fillings for moon cakes?",
+                        options: ["Cheese", "Red bean or lotus seed paste", "Meat", "Vegetables"],
+                        answer: 1
+                    },
+                    {
+                        question: "What new flavors do some modern moon cakes have?",
+                        options: ["Chocolate or ice cream", "Pizza", "Curry", "Hamburger"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                title: "Mexican Tacos",
+                text: "Tacos are a famous food from Mexico. They are made with corn or flour tortillas filled with meat, beans, cheese, and vegetables. People add salsa, which is a spicy sauce. In Mexico, you can find tacos on almost every street. Each region has its own special way to make tacos.",
+                questions: [
+                    {
+                        question: "Where do tacos come from?",
+                        options: ["Spain", "Italy", "Mexico", "France"],
+                        answer: 2
+                    },
+                    {
+                        question: "What are tortillas made of?",
+                        options: ["Rice", "Corn or flour", "Potatoes", "Meat"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is salsa?",
+                        options: ["A type of dance", "A spicy sauce", "A type of cheese", "A dessert"],
+                        answer: 1
+                    },
+                    {
+                        question: "How common are tacos in Mexico?",
+                        options: ["Very rare", "Only in restaurants", "Found on almost every street", "Only at festivals"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is different about tacos in different regions of Mexico?",
+                        options: ["They all taste the same", "Each region has its own special way to make them", "They are all very spicy", "They all use the same ingredients"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Taiwanese Bubble Tea",
+                text: "Bubble tea was created in Taiwan in the 1980s. It is a sweet drink with tea, milk, and chewy tapioca balls. People drink it with a special wide straw. Now bubble tea is popular around the world. There are many flavors like taro, matcha, and fruit. Some shops let you choose how sweet you want your drink.",
+                questions: [
+                    {
+                        question: "Where was bubble tea created?",
+                        options: ["Japan", "China", "Taiwan", "Korea"],
+                        answer: 2
+                    },
+                    {
+                        question: "When was bubble tea created?",
+                        options: ["1950s", "1980s", "2000s", "2010s"],
+                        answer: 1
+                    },
+                    {
+                        question: "What are the chewy balls in bubble tea made of?",
+                        options: ["Chocolate", "Fruit", "Tapioca", "Rice"],
+                        answer: 2
+                    },
+                    {
+                        question: "What kind of straw is used for bubble tea?",
+                        options: ["A thin straw", "A special wide straw", "No straw", "A metal straw"],
+                        answer: 1
+                    },
+                    {
+                        question: "What can you choose at some bubble tea shops?",
+                        options: ["The cup size only", "The color of the straw", "How sweet you want your drink", "The shop location"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Indian Curry",
+                text: "Curry is a popular dish in India. It is made with many spices like turmeric, cumin, and coriander. People eat curry with rice or bread called naan. Each family has its own special curry recipe. Some curries are very spicy, while others are mild. Vegetable curry is good for people who don't eat meat.",
+                questions: [
+                    {
+                        question: "Where is curry popular?",
+                        options: ["America", "France", "India", "Brazil"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is curry made with?",
+                        options: ["Only meat", "Many spices", "Only vegetables", "Only rice"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is naan?",
+                        options: ["A type of rice", "A type of bread", "A type of meat", "A type of spice"],
+                        answer: 1
+                    },
+                    {
+                        question: "How do curry recipes differ?",
+                        options: ["They are all the same", "Each family has its own special recipe", "They all taste sweet", "They are all very spicy"],
+                        answer: 1
+                    },
+                    {
+                        question: "Who might prefer vegetable curry?",
+                        options: ["People who don't eat meat", "People who don't like vegetables", "People who don't like spices", "People who don't like rice"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                title: "Chinese Dumplings",
+                text: "Dumplings are a traditional food in China. They are made with dough filled with meat or vegetables. People often make dumplings together during the Chinese New Year. It is a time for family to talk and have fun. Some families put a coin in one dumpling for good luck. The person who finds it will have a lucky year.",
+                questions: [
+                    {
+                        question: "What are dumplings filled with?",
+                        options: ["Only rice", "Only cheese", "Meat or vegetables", "Only fruit"],
+                        answer: 2
+                    },
+                    {
+                        question: "When do people often make dumplings together?",
+                        options: ["Every day", "During summer", "During the Chinese New Year", "Only on Sundays"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do families do while making dumplings?",
+                        options: ["Watch TV only", "Sleep", "Talk and have fun", "Work on computers"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do some families put in one dumpling?",
+                        options: ["A toy", "A coin", "A key", "A note"],
+                        answer: 1
+                    },
+                    {
+                        question: "What happens to the person who finds the special item?",
+                        options: ["They will have a lucky year", "They have to wash dishes", "They get sick", "They have to make more dumplings"],
+                        answer: 0
+                    }
+                ]
+            },
+            {
+                title: "Thai Food",
+                text: "Thai food is known for its mix of sweet, sour, and spicy flavors. Popular dishes include Pad Thai noodles and Tom Yum soup. Thai people eat with a fork and spoon, not chopsticks. Fresh herbs like basil and lemongrass are important in Thai cooking. Many Thai dishes have rice as the main part of the meal.",
+                questions: [
+                    {
+                        question: "What is Thai food known for?",
+                        options: ["Only sweet flavors", "Only sour flavors", "A mix of sweet, sour, and spicy flavors", "Only spicy flavors"],
+                        answer: 2
+                    },
+                    {
+                        question: "Which is a popular Thai dish mentioned in the passage?",
+                        options: ["Sushi", "Pizza", "Pad Thai noodles", "Hamburgers"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do Thai people eat with?",
+                        options: ["Hands only", "Chopsticks", "Fork and spoon", "Knife only"],
+                        answer: 2
+                    },
+                    {
+                        question: "What herbs are important in Thai cooking?",
+                        options: ["Basil and lemongrass", "Rosemary and thyme", "Mint and parsley", "Oregano and sage"],
+                        answer: 0
+                    },
+                    {
+                        question: "What is the main part of many Thai meals?",
+                        options: ["Bread", "Pasta", "Rice", "Potatoes"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "French Bread",
+                text: "France is famous for its bread, especially the baguette. This long bread has a crispy outside and soft inside. French people buy fresh bread every day. They eat it with cheese, butter, or jam. In France, there are many bakeries on the streets. The smell of fresh bread makes people hungry.",
+                questions: [
+                    {
+                        question: "What bread is France famous for?",
+                        options: ["Naan", "Tortilla", "Baguette", "Pita"],
+                        answer: 2
+                    },
+                    {
+                        question: "How often do French people buy bread?",
+                        options: ["Once a month", "Once a week", "Every day", "Once a year"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is the texture of a baguette?",
+                        options: ["Soft outside and inside", "Crispy outside and soft inside", "Hard all over", "Soft outside and hard inside"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do French people eat with bread?",
+                        options: ["Only meat", "Cheese, butter, or jam", "Only vegetables", "Only soup"],
+                        answer: 1
+                    },
+                    {
+                        question: "What can be found on many French streets?",
+                        options: ["Toy shops", "Bakeries", "Clothing stores", "Electronics shops"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Korean Kimchi",
+                text: "Kimchi is a traditional Korean food. It is made from vegetables like cabbage with spicy seasonings. Koreans eat kimchi with almost every meal. Making kimchi takes time, and families often make it together. In the past, people made enough kimchi for the whole winter. Now, many people buy it from stores.",
+                questions: [
+                    {
+                        question: "What is kimchi?",
+                        options: ["A type of meat", "A traditional Korean food", "A type of bread", "A sweet dessert"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is kimchi made from?",
+                        options: ["Rice", "Meat", "Vegetables like cabbage", "Fruit"],
+                        answer: 2
+                    },
+                    {
+                        question: "How often do Koreans eat kimchi?",
+                        options: ["Once a year", "Only on special days", "With almost every meal", "Never"],
+                        answer: 2
+                    },
+                    {
+                        question: "How was kimchi prepared in the past?",
+                        options: ["People made enough for one day", "People made enough for the whole winter", "People always bought it from stores", "People never ate it"],
+                        answer: 1
+                    },
+                    {
+                        question: "Where do many people get kimchi now?",
+                        options: ["They only make it at home", "They buy it from stores", "They don't eat kimchi anymore", "They get it from restaurants only"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Italian Pizza",
+                text: "Pizza comes from Italy. Traditional Italian pizza has a thin crust with simple toppings like tomato sauce, cheese, and basil. This is called Pizza Margherita. In Italy, pizza is cooked in a very hot wood-fired oven. Each region in Italy has its own style of pizza. Many people think Italian pizza is the best in the world.",
+                questions: [
+                    {
+                        question: "Where does pizza come from?",
+                        options: ["America", "France", "Italy", "Spain"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is Pizza Margherita?",
+                        options: ["A pizza with many toppings", "A pizza with tomato sauce, cheese, and basil", "A pizza with only meat", "A pizza with only vegetables"],
+                        answer: 1
+                    },
+                    {
+                        question: "How is traditional Italian pizza cooked?",
+                        options: ["In a microwave", "In a regular oven", "In a very hot wood-fired oven", "On a stove"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is different about pizza in different regions of Italy?",
+                        options: ["They all taste the same", "Each region has its own style", "They are all very thick", "They all have the same toppings"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do many people think about Italian pizza?",
+                        options: ["It is too expensive", "It is too simple", "It is the best in the world", "It is not good"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Taiwanese Beef Noodle Soup",
+                text: "Beef noodle soup is a famous dish in Taiwan. It has tender beef, noodles, and vegetables in a flavorful broth. People add soy sauce, vinegar, or chili oil to taste. There is a beef noodle festival in Taipei every year. Many restaurants compete to make the best beef noodle soup. It is perfect to eat on cold days.",
+                questions: [
+                    {
+                        question: "What is a famous dish in Taiwan?",
+                        options: ["Sushi", "Pizza", "Beef noodle soup", "Hamburgers"],
+                        answer: 2
+                    },
+                    {
+                        question: "What are the main ingredients in this dish?",
+                        options: ["Only vegetables", "Beef, noodles, and vegetables", "Only beef", "Only noodles"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do people add to the soup for taste?",
+                        options: ["Sugar", "Soy sauce, vinegar, or chili oil", "Milk", "Lemon juice"],
+                        answer: 1
+                    },
+                    {
+                        question: "What happens in Taipei every year?",
+                        options: ["A beef noodle festival", "A pizza festival", "A rice festival", "A bread festival"],
+                        answer: 0
+                    },
+                    {
+                        question: "When is this dish perfect to eat?",
+                        options: ["Only in summer", "Only in spring", "On cold days", "Only at breakfast"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Popular Beverages Around the World",
+                text: "Different countries have their own special drinks. In England, people love tea with milk. In Italy, espresso coffee is very popular. In Japan, people drink green tea. In the Middle East, they enjoy sweet mint tea. In Mexico, horchata is a sweet rice drink. Some drinks are served hot, while others are served cold with ice.",
+                questions: [
+                    {
+                        question: "What do people in England love to drink?",
+                        options: ["Black coffee", "Tea with milk", "Orange juice", "Hot chocolate"],
+                        answer: 1
+                    },
+                    {
+                        question: "Which coffee is very popular in Italy?",
+                        options: ["Cappuccino only", "Espresso", "Iced coffee", "Coffee with lots of sugar"],
+                        answer: 1
+                    },
+                    {
+                        question: "What kind of tea do Japanese people drink?",
+                        options: ["Black tea", "Tea with milk", "Green tea", "Sweet tea"],
+                        answer: 2
+                    },
+                    {
+                        question: "What is horchata?",
+                        options: ["A Mexican sweet rice drink", "A type of coffee", "A type of tea", "A type of milk"],
+                        answer: 0
+                    },
+                    {
+                        question: "How are different drinks served according to the passage?",
+                        options: ["All hot", "All cold", "Some hot, some cold with ice", "Only at room temperature"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Eating Utensils Around the World",
+                text: "People use different tools to eat food around the world. In Western countries, people use forks, knives, and spoons. In East Asian countries like China, Japan, and Korea, chopsticks are common. In India and some Middle Eastern countries, people traditionally eat with their right hand. In Thailand, people use a spoon and fork together, but the fork is only used to push food onto the spoon.",
+                questions: [
+                    {
+                        question: "What utensils do people use in Western countries?",
+                        options: ["Only chopsticks", "Forks, knives, and spoons", "Only hands", "Only spoons"],
+                        answer: 1
+                    },
+                    {
+                        question: "Where are chopsticks commonly used?",
+                        options: ["In Western countries", "In East Asian countries", "In India", "In Middle Eastern countries"],
+                        answer: 1
+                    },
+                    {
+                        question: "How do people traditionally eat in India?",
+                        options: ["With chopsticks", "With a fork and knife", "With their right hand", "With a spoon only"],
+                        answer: 2
+                    },
+                    {
+                        question: "How do Thai people use a fork?",
+                        options: ["To put food directly in their mouth", "To push food onto the spoon", "They don't use forks", "To stir food only"],
+                        answer: 1
+                    },
+                    {
+                        question: "Which countries are mentioned as using chopsticks?",
+                        options: ["America, England, and France", "India, Thailand, and Vietnam", "China, Japan, and Korea", "Mexico, Spain, and Italy"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "American Breakfast",
+                text: "A typical American breakfast includes eggs, bacon, toast, and hash browns. Many people also drink orange juice or coffee. Pancakes with maple syrup are popular on weekends. In some places, people eat biscuits with gravy. Breakfast is an important meal in America, and some restaurants serve it all day.",
+                questions: [
+                    {
+                        question: "What does a typical American breakfast include?",
+                        options: ["Rice and fish", "Noodles and vegetables", "Eggs, bacon, toast, and hash browns", "Only fruit"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do many Americans drink with breakfast?",
+                        options: ["Tea only", "Orange juice or coffee", "Milk only", "Water only"],
+                        answer: 1
+                    },
+                    {
+                        question: "What is popular for breakfast on weekends?",
+                        options: ["Soup", "Salad", "Pancakes with maple syrup", "Sandwiches"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do people eat with gravy in some places?",
+                        options: ["Biscuits", "Cake", "Ice cream", "Fruit"],
+                        answer: 0
+                    },
+                    {
+                        question: "How important is breakfast in America?",
+                        options: ["Not important", "Only important on holidays", "An important meal", "Only important for children"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "Greek Yogurt",
+                text: "Greek yogurt is thick and creamy. It is made by straining regular yogurt to remove the liquid. Greek yogurt has more protein than regular yogurt. People eat it with honey, fruit, or nuts for breakfast. It is also used in cooking to make sauces and dips. In Greece, yogurt is often served with olive oil and herbs.",
+                questions: [
+                    {
+                        question: "How is Greek yogurt described?",
+                        options: ["Thin and watery", "Thick and creamy", "Hard and dry", "Soft and fluffy"],
+                        answer: 1
+                    },
+                    {
+                        question: "How is Greek yogurt made?",
+                        options: ["By adding water", "By straining regular yogurt", "By freezing regular yogurt", "By cooking regular yogurt"],
+                        answer: 1
+                    },
+                    {
+                        question: "What does Greek yogurt have more of compared to regular yogurt?",
+                        options: ["Sugar", "Water", "Protein", "Fat"],
+                        answer: 2
+                    },
+                    {
+                        question: "What do people eat with Greek yogurt for breakfast?",
+                        options: ["Meat", "Bread", "Honey, fruit, or nuts", "Eggs"],
+                        answer: 2
+                    },
+                    {
+                        question: "How is yogurt often served in Greece?",
+                        options: ["With chocolate", "With olive oil and herbs", "With rice", "With pasta"],
+                        answer: 1
+                    }
+                ]
+            },
+            {
+                title: "Vietnamese Pho",
+                text: "Pho is a popular soup from Vietnam. It has rice noodles, meat (usually beef), and herbs in a flavorful broth. People add bean sprouts, lime, and chili sauce to taste. Pho is often eaten for breakfast in Vietnam. The broth takes many hours to make. Each bowl of pho is served hot with fresh herbs on top.",
+                questions: [
+                    {
+                        question: "What is pho?",
+                        options: ["A type of bread", "A popular soup from Vietnam", "A type of meat", "A type of vegetable"],
+                        answer: 1
+                    },
+                    {
+                        question: "What are the main ingredients in pho?",
+                        options: ["Pasta and cheese", "Rice noodles, meat, and herbs", "Only vegetables", "Only rice"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do people add to pho to taste?",
+                        options: ["Sugar and milk", "Bean sprouts, lime, and chili sauce", "Olive oil", "Butter"],
+                        answer: 1
+                    },
+                    {
+                        question: "When is pho often eaten in Vietnam?",
+                        options: ["Only for dinner", "For breakfast", "Only on special days", "Only in winter"],
+                        answer: 1
+                    },
+                    {
+                        question: "How long does it take to make pho broth?",
+                        options: ["A few minutes", "About one hour", "Many hours", "A few seconds"],
+                        answer: 2
+                    }
+                ]
+            },
+            {
+                title: "British Tea Time",
+                text: "Afternoon tea is a British tradition. People drink tea with milk and sugar. They eat small sandwiches, scones with jam and cream, and cakes. Tea time is usually around 4 PM. In the past, it was popular among the upper class. Now, many hotels and cafes offer afternoon tea for everyone to enjoy.",
+                questions: [
+                    {
+                        question: "What is afternoon tea?",
+                        options: ["An American tradition", "A British tradition", "A Chinese tradition", "An Indian tradition"],
+                        answer: 1
+                    },
+                    {
+                        question: "How do British people often drink their tea?",
+                        options: ["With lemon only", "With milk and sugar", "With ice", "Plain"],
+                        answer: 1
+                    },
+                    {
+                        question: "What do people eat during afternoon tea?",
+                        options: ["Only meat", "Only vegetables", "Small sandwiches, scones with jam and cream, and cakes", "Only fruit"],
+                        answer: 2
+                    },
+                    {
+                        question: "What time is tea time usually?",
+                        options: ["Around 8 AM", "Around 12 PM", "Around 4 PM", "Around 8 PM"],
+                        answer: 2
+                    },
+                    {
+                        question: "Who enjoyed afternoon tea in the past?",
+                        options: ["Only children", "Only men", "The upper class", "Only workers"],
+                        answer: 2
+                    }
+                ]
+            }
+        ];
+
+        let currentPassageIndex = 0;
+        let userAnswers = {};
+        let quizSubmitted = false;
+
+        function createTabs() {
+            const tabsList = document.getElementById('tabs-list');
+            tabsList.innerHTML = '';
+            
+            passages.forEach((passage, index) => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${index === currentPassageIndex ? 'active' : ''}`;
+                
+                // Add tab number
+                const tabNumber = document.createElement('span');
+                tabNumber.className = 'tab-number';
+                tabNumber.textContent = (index + 1);
+                tab.appendChild(tabNumber);
+                
+                // Add tab title
+                const tabTitle = document.createElement('span');
+                tabTitle.textContent = passage.title;
+                tab.appendChild(tabTitle);
+                
+                tab.addEventListener('click', () => {
+                    navigateToPassage(index);
+                });
+                tabsList.appendChild(tab);
+            });
+        }
+
+        function displayPassage(index) {
+            const passage = passages[index];
+            document.getElementById('passage-title').textContent = passage.title;
+            document.getElementById('passage-text').textContent = passage.text;
+            
+            // Update tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach((tab, tabIndex) => {
+                if (tabIndex === index) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Display questions
+            displayQuestions(index);
+            
+            // Reset quiz state for this passage
+            if (!userAnswers[index]) {
+                userAnswers[index] = {};
+            }
+            
+            // Hide score display if not submitted
+            if (!quizSubmitted || !userAnswers[index].submitted) {
+                document.getElementById('score-display').style.display = 'none';
+                document.getElementById('submit-btn').style.display = 'block';
+                document.getElementById('reset-btn').style.display = 'none';
+            } else {
+                document.getElementById('score-display').style.display = 'block';
+                document.getElementById('submit-btn').style.display = 'none';
+                document.getElementById('reset-btn').style.display = 'inline-block';
+                document.getElementById('score-value').textContent = userAnswers[index].score || 0;
+            }
+        }
+
+        function displayQuestions(index) {
+            const passage = passages[index];
+            const questionsList = document.getElementById('questions-list');
+            questionsList.innerHTML = '';
+            
+            passage.questions.forEach((q, qIndex) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'mb-6';
+                questionDiv.id = `question-${qIndex}`;
+                
+                const questionHeader = document.createElement('div');
+                questionHeader.className = 'flex justify-between items-center mb-3';
+                
+                const questionText = document.createElement('p');
+                questionText.className = 'text-lg font-medium';
+                questionText.textContent = `${qIndex + 1}. ${q.question}`;
+                questionHeader.appendChild(questionText);
+                
+                // Add result indicator if quiz is submitted
+                if (userAnswers[index] && userAnswers[index].submitted) {
+                    const resultIndicator = document.createElement('span');
+                    const userAnswer = userAnswers[index][qIndex] !== undefined ? userAnswers[index][qIndex] : -1;
+                    const isCorrect = userAnswer === q.answer;
+                    
+                    resultIndicator.className = `result-indicator ${isCorrect ? 'result-correct' : 'result-incorrect'}`;
+                    resultIndicator.textContent = isCorrect ? 'Correct' : 'Incorrect';
+                    
+                    questionHeader.appendChild(resultIndicator);
+                }
+                
+                questionDiv.appendChild(questionHeader);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'space-y-2';
+                
+                q.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    let labelClass = 'flex items-center p-3 border rounded-lg cursor-pointer transition-colors';
+                    
+                    // If quiz is submitted, show correct/incorrect styling
+                    if (userAnswers[index] && userAnswers[index].submitted) {
+                        const userAnswer = userAnswers[index][qIndex] !== undefined ? userAnswers[index][qIndex] : -1;
+                        
+                        if (oIndex === q.answer) {
+                            labelClass += ' option-correct';
+                        } else if (userAnswer === oIndex) {
+                            labelClass += ' option-incorrect';
+                        } else {
+                            labelClass += ' hover:bg-gray-50';
+                        }
+                        
+                        // Disable clicking after submission
+                        optionLabel.style.cursor = 'default';
+                    } else {
+                        // Check if user has already selected this option
+                        if (userAnswers[index] && userAnswers[index][qIndex] === oIndex) {
+                            labelClass += ' option-selected';
+                        } else {
+                            labelClass += ' hover:bg-gray-50';
+                        }
+                    }
+                    
+                    optionLabel.className = labelClass;
+                    optionLabel.setAttribute('data-question', qIndex);
+                    optionLabel.setAttribute('data-option', oIndex);
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `question-${qIndex}`;
+                    radio.value = oIndex;
+                    radio.className = 'mr-3';
+                    radio.disabled = userAnswers[index] && userAnswers[index].submitted;
+                    
+                    // Check if user has already answered this question
+                    if (userAnswers[index] && userAnswers[index][qIndex] === oIndex) {
+                        radio.checked = true;
+                    }
+                    
+                    const optionText = document.createElement('span');
+                    optionText.textContent = option;
+                    
+                    optionLabel.appendChild(radio);
+                    optionLabel.appendChild(optionText);
+                    optionsDiv.appendChild(optionLabel);
+                    
+                    // Add event listener to highlight selected option
+                    if (!(userAnswers[index] && userAnswers[index].submitted)) {
+                        optionLabel.addEventListener('click', function() {
+                            // Remove highlight from all options in this question
+                            const allOptions = document.querySelectorAll(`label[data-question="${qIndex}"]`);
+                            allOptions.forEach(opt => opt.classList.remove('option-selected'));
+                            
+                            // Add highlight to selected option
+                            this.classList.add('option-selected');
+                            
+                            // Save user's answer
+                            if (!userAnswers[index]) {
+                                userAnswers[index] = {};
+                            }
+                            userAnswers[index][qIndex] = oIndex;
+                        });
+                    }
+                });
+                
+                questionDiv.appendChild(optionsDiv);
+                questionsList.appendChild(questionDiv);
+            });
+        }
+
+        function navigateToPassage(index) {
+            if (index >= 0 && index < passages.length) {
+                currentPassageIndex = index;
+                displayPassage(currentPassageIndex);
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function checkAnswers() {
+            const passage = passages[currentPassageIndex];
+            let score = 0;
+            
+            // Check each question
+            for (let i = 0; i < passage.questions.length; i++) {
+                const userAnswer = userAnswers[currentPassageIndex] && userAnswers[currentPassageIndex][i] !== undefined 
+                    ? userAnswers[currentPassageIndex][i] 
+                    : -1;
+                
+                const correctAnswer = passage.questions[i].answer;
+                const isCorrect = userAnswer === correctAnswer;
+                
+                if (isCorrect) {
+                    score++;
+                }
+            }
+            
+            // Save score and mark as submitted
+            if (!userAnswers[currentPassageIndex]) {
+                userAnswers[currentPassageIndex] = {};
+            }
+            userAnswers[currentPassageIndex].score = score;
+            userAnswers[currentPassageIndex].submitted = true;
+            
+            // Update display
+            displayPassage(currentPassageIndex);
+            
+            // Show lightbox with score
+            showScoreLightbox(score);
+        }
+
+        function showScoreLightbox(score) {
+            const lightbox = document.getElementById('score-lightbox');
+            const lightboxScore = document.getElementById('lightbox-score');
+            const lightboxFeedback = document.getElementById('lightbox-feedback');
+            
+            lightboxScore.textContent = score;
+            
+            // Set feedback based on score
+            if (score === 5) {
+                lightboxFeedback.textContent = "Perfect! You got all questions correct!";
+                lightboxFeedback.className = "text-lg text-green-600";
+            } else if (score >= 3) {
+                lightboxFeedback.textContent = "Good job! You're doing well!";
+                lightboxFeedback.className = "text-lg text-blue-600";
+            } else {
+                lightboxFeedback.textContent = "Keep practicing! You'll improve!";
+                lightboxFeedback.className = "text-lg text-orange-600";
+            }
+            
+            // Show lightbox
+            lightbox.style.display = "flex";
+        }
+
+        function resetQuiz() {
+            // Reset user answers for current passage
+            if (userAnswers[currentPassageIndex]) {
+                delete userAnswers[currentPassageIndex].submitted;
+                delete userAnswers[currentPassageIndex].score;
+            }
+            
+            // Update display
+            displayPassage(currentPassageIndex);
+        }
+
+        // Initialize the tabs and first passage
+        createTabs();
+        displayPassage(currentPassageIndex);
+
+        // Event listeners
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            checkAnswers();
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            resetQuiz();
+        });
+        
+        document.getElementById('lightbox-close').addEventListener('click', function() {
+            document.getElementById('score-lightbox').style.display = "none";
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94ac9a06f0ce8442',t:'MTc0OTA5NDMzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

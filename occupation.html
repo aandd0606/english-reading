@@ -1,0 +1,1183 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>職業英語閱讀測驗</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f0f4f8;
+    }
+    
+    .tab {
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    .tab:hover {
+      transform: translateY(-2px);
+    }
+    .score-display {
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* 固定高度的文章區塊 */
+    .passage-container {
+      height: 500px;
+      overflow: hidden;
+    }
+    
+    /* 可捲動的題目區塊 */
+    .questions-scroll {
+      height: 500px;
+      overflow-y: auto;
+    }
+    
+    /* 可捲動的標籤列 */
+    .tabs-container {
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 8px;
+    }
+    
+    /* 答案結果樣式 */
+    .correct-answer {
+      border-left: 4px solid #10B981;
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+    
+    .wrong-answer {
+      border-left: 4px solid #EF4444;
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+    
+    .highlight-text {
+      transition: background-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <h1 class="text-3xl font-bold text-center text-blue-800 mb-6">職業英語閱讀測驗</h1>
+    
+    <div class="tabs-container mb-8">
+      <div class="tabs flex gap-2">
+        <!-- Tabs will be generated here -->
+      </div>
+    </div>
+    
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- Reading passage (fixed height, no scroll) -->
+      <div class="w-full md:w-1/2 bg-white rounded-lg shadow-md p-6 passage-container">
+        <h2 id="passage-title" class="text-2xl font-bold mb-4 text-blue-700"></h2>
+        <div id="passage-content" class="text-lg leading-relaxed"></div>
+      </div>
+      
+      <!-- Questions (with scroll) -->
+      <div class="w-full md:w-1/2">
+        <div id="questions-container" class="bg-white rounded-lg shadow-md p-6 mb-6 questions-scroll">
+          <!-- Questions will be generated here -->
+        </div>
+        
+        <div id="result-container" class="hidden bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-xl font-bold mb-4">測驗結果</h3>
+          <div id="score-display" class="text-2xl font-bold text-center p-4 mb-4 rounded-lg"></div>
+          <button id="retry-button" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">重新測驗</button>
+        </div>
+        
+        <button id="submit-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg w-full text-lg">提交答案</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const passages = [
+      {
+        title: "Teacher",
+        content: "A teacher helps students learn new things. They work in schools with children of different ages. Teachers prepare lessons, explain new ideas, and check students' work. They need to be patient and good at explaining things. Teachers also meet with parents to talk about how their children are doing in school. Many teachers love seeing their students grow and learn new skills.",
+        questions: [
+          {
+            question: "Where do teachers usually work?",
+            options: ["In hospitals", "In schools", "In restaurants", "In offices"],
+            answer: 1,
+            explanation: "根據文章 'They work in schools with children of different ages.' 教師通常在學校工作。",
+            highlightText: "They work in schools with children of different ages."
+          },
+          {
+            question: "What do teachers prepare?",
+            options: ["Food", "Medicine", "Lessons", "Cars"],
+            answer: 2,
+            explanation: "根據文章 'Teachers prepare lessons, explain new ideas, and check students' work.' 教師準備課程。",
+            highlightText: "Teachers prepare lessons, explain new ideas, and check students' work."
+          },
+          {
+            question: "Teachers need to be good at:",
+            options: ["Running", "Cooking", "Explaining things", "Singing"],
+            answer: 2,
+            explanation: "根據文章 'They need to be patient and good at explaining things.' 教師需要善於解釋事物。",
+            highlightText: "They need to be patient and good at explaining things."
+          },
+          {
+            question: "Who do teachers meet with?",
+            options: ["Doctors", "Parents", "Police", "Chefs"],
+            answer: 1,
+            explanation: "根據文章 'Teachers also meet with parents to talk about how their children are doing in school.' 教師會與家長會面。",
+            highlightText: "Teachers also meet with parents to talk about how their children are doing in school."
+          },
+          {
+            question: "What do many teachers love?",
+            options: ["Seeing students grow", "Getting paid", "Having holidays", "Driving cars"],
+            answer: 0,
+            explanation: "根據文章 'Many teachers love seeing their students grow and learn new skills.' 許多教師喜歡看到學生成長。",
+            highlightText: "Many teachers love seeing their students grow and learn new skills."
+          }
+        ]
+      },
+      {
+        title: "Doctor",
+        content: "Doctors help sick people feel better. They work in hospitals and clinics. Doctors check patients to find out what is wrong with them. They ask questions about how the patient feels and do tests. Then they give medicine or other treatments to help patients get well. Doctors study for many years to learn about the human body and different illnesses. They often work long hours to take care of their patients.",
+        questions: [
+          {
+            question: "What do doctors do?",
+            options: ["Build houses", "Help sick people", "Cook food", "Drive buses"],
+            answer: 1,
+            explanation: "根據文章 'Doctors help sick people feel better.' 醫生幫助病人感覺更好。",
+            highlightText: "Doctors help sick people feel better."
+          },
+          {
+            question: "Where do doctors work?",
+            options: ["Schools", "Restaurants", "Hospitals and clinics", "Farms"],
+            answer: 2,
+            explanation: "根據文章 'They work in hospitals and clinics.' 醫生在醫院和診所工作。",
+            highlightText: "They work in hospitals and clinics."
+          },
+          {
+            question: "What do doctors ask patients about?",
+            options: ["Their jobs", "Their families", "How they feel", "Their hobbies"],
+            answer: 2,
+            explanation: "根據文章 'They ask questions about how the patient feels and do tests.' 醫生詢問病人感覺如何。",
+            highlightText: "They ask questions about how the patient feels and do tests."
+          },
+          {
+            question: "How long do doctors study?",
+            options: ["A few months", "One year", "Many years", "A few weeks"],
+            answer: 2,
+            explanation: "根據文章 'Doctors study for many years to learn about the human body and different illnesses.' 醫生學習多年。",
+            highlightText: "Doctors study for many years to learn about the human body and different illnesses."
+          },
+          {
+            question: "What kind of hours do doctors often work?",
+            options: ["Short hours", "Long hours", "Only mornings", "Only weekends"],
+            answer: 1,
+            explanation: "根據文章 'They often work long hours to take care of their patients.' 醫生經常長時間工作。",
+            highlightText: "They often work long hours to take care of their patients."
+          }
+        ]
+      },
+      {
+        title: "Chef",
+        content: "A chef cooks food in a restaurant. They create menus and prepare different dishes. Chefs need to know how to use many cooking tools and understand flavors. They work in hot kitchens and often stand for many hours. Some chefs specialize in certain types of food, like desserts or fish dishes. They must keep their cooking area clean and make sure the food is safe to eat. Many chefs start early in the morning to prepare for the day.",
+        questions: [
+          {
+            question: "Where does a chef work?",
+            options: ["In a school", "In a hospital", "In a restaurant", "In an office"],
+            answer: 2,
+            explanation: "根據文章 'A chef cooks food in a restaurant.' 廚師在餐廳工作。",
+            highlightText: "A chef cooks food in a restaurant."
+          },
+          {
+            question: "What do chefs create?",
+            options: ["Books", "Menus", "Clothes", "Furniture"],
+            answer: 1,
+            explanation: "根據文章 'They create menus and prepare different dishes.' 廚師創建菜單。",
+            highlightText: "They create menus and prepare different dishes."
+          },
+          {
+            question: "What do chefs need to understand?",
+            options: ["Languages", "Computers", "Flavors", "Cars"],
+            answer: 2,
+            explanation: "根據文章 'Chefs need to know how to use many cooking tools and understand flavors.' 廚師需要了解口味。",
+            highlightText: "Chefs need to know how to use many cooking tools and understand flavors."
+          },
+          {
+            question: "What must chefs keep clean?",
+            options: ["Their cooking area", "Their car", "Their home", "Their clothes"],
+            answer: 0,
+            explanation: "根據文章 'They must keep their cooking area clean and make sure the food is safe to eat.' 廚師必須保持烹飪區域乾淨。",
+            highlightText: "They must keep their cooking area clean and make sure the food is safe to eat."
+          },
+          {
+            question: "When do many chefs start working?",
+            options: ["Late at night", "In the afternoon", "Early in the morning", "At noon"],
+            answer: 2,
+            explanation: "根據文章 'Many chefs start early in the morning to prepare for the day.' 許多廚師一大早就開始工作。",
+            highlightText: "Many chefs start early in the morning to prepare for the day."
+          }
+        ]
+      },
+      {
+        title: "Police Officer",
+        content: "Police officers keep people safe. They patrol streets and respond to emergency calls. When someone breaks the law, police officers may arrest them. They also help during accidents and other emergencies. Police officers write reports about what happened during their shift. They need to be brave and stay calm in difficult situations. Many police officers wear uniforms and carry equipment to help them do their job safely.",
+        questions: [
+          {
+            question: "What is the main job of police officers?",
+            options: ["Teaching children", "Keeping people safe", "Building houses", "Selling products"],
+            answer: 1,
+            explanation: "根據文章 'Police officers keep people safe.' 警察的主要工作是保護人們安全。",
+            highlightText: "Police officers keep people safe."
+          },
+          {
+            question: "What do police officers do when someone breaks the law?",
+            options: ["Give them money", "Take them to hospital", "May arrest them", "Ignore them"],
+            answer: 2,
+            explanation: "根據文章 'When someone breaks the law, police officers may arrest them.' 當有人違法時，警察可能會逮捕他們。",
+            highlightText: "When someone breaks the law, police officers may arrest them."
+          },
+          {
+            question: "What do police officers write?",
+            options: ["Books", "Songs", "Reports", "Letters"],
+            answer: 2,
+            explanation: "根據文章 'Police officers write reports about what happened during their shift.' 警察寫報告。",
+            highlightText: "Police officers write reports about what happened during their shift."
+          },
+          {
+            question: "What quality do police officers need to have?",
+            options: ["To be funny", "To be brave", "To be rich", "To be famous"],
+            answer: 1,
+            explanation: "根據文章 'They need to be brave and stay calm in difficult situations.' 警察需要勇敢。",
+            highlightText: "They need to be brave and stay calm in difficult situations."
+          },
+          {
+            question: "What do many police officers wear?",
+            options: ["Casual clothes", "Uniforms", "Sports clothes", "Fancy clothes"],
+            answer: 1,
+            explanation: "根據文章 'Many police officers wear uniforms and carry equipment to help them do their job safely.' 許多警察穿制服。",
+            highlightText: "Many police officers wear uniforms and carry equipment to help them do their job safely."
+          }
+        ]
+      },
+      {
+        title: "Nurse",
+        content: "Nurses take care of sick people in hospitals and clinics. They check patients' health by measuring things like temperature and blood pressure. Nurses give medicine to patients and help doctors during treatments. They also talk to patients and their families about health care. Nurses work different shifts, including nights and weekends. They need to be caring and have good attention to detail. Many nurses say helping others is the best part of their job.",
+        questions: [
+          {
+            question: "Where do nurses work?",
+            options: ["Schools", "Restaurants", "Hospitals and clinics", "Farms"],
+            answer: 2,
+            explanation: "根據文章 'Nurses take care of sick people in hospitals and clinics.' 護士在醫院和診所工作。",
+            highlightText: "Nurses take care of sick people in hospitals and clinics."
+          },
+          {
+            question: "What do nurses check?",
+            options: ["Cars", "Houses", "Patients' health", "Food"],
+            answer: 2,
+            explanation: "根據文章 'They check patients' health by measuring things like temperature and blood pressure.' 護士檢查病人的健康狀況。",
+            highlightText: "They check patients' health by measuring things like temperature and blood pressure."
+          },
+          {
+            question: "Who do nurses help during treatments?",
+            options: ["Teachers", "Doctors", "Police officers", "Chefs"],
+            answer: 1,
+            explanation: "根據文章 'Nurses give medicine to patients and help doctors during treatments.' 護士在治療過程中幫助醫生。",
+            highlightText: "Nurses give medicine to patients and help doctors during treatments."
+          },
+          {
+            question: "When do nurses work?",
+            options: ["Only mornings", "Only weekdays", "Different shifts including nights and weekends", "Only during the day"],
+            answer: 2,
+            explanation: "根據文章 'Nurses work different shifts, including nights and weekends.' 護士工作不同的班次，包括夜間和週末。",
+            highlightText: "Nurses work different shifts, including nights and weekends."
+          },
+          {
+            question: "What quality do nurses need to have?",
+            options: ["To be caring", "To be strict", "To be funny", "To be loud"],
+            answer: 0,
+            explanation: "根據文章 'They need to be caring and have good attention to detail.' 護士需要有愛心。",
+            highlightText: "They need to be caring and have good attention to detail."
+          }
+        ]
+      },
+      {
+        title: "Firefighter",
+        content: "Firefighters help people in danger. They put out fires in buildings and other places. When there is a fire, they use water and special tools to stop it. Firefighters also rescue people and animals from burning buildings. They wear special clothes to protect themselves from heat and smoke. Firefighters live at the fire station during their shifts. They train regularly to stay strong and ready for emergencies. Many firefighters are also trained to give basic medical help.",
+        questions: [
+          {
+            question: "What do firefighters put out?",
+            options: ["Lights", "Fires", "Cars", "Trees"],
+            answer: 1,
+            explanation: "根據文章 'They put out fires in buildings and other places.' 消防員撲滅火災。",
+            highlightText: "They put out fires in buildings and other places."
+          },
+          {
+            question: "Who do firefighters rescue?",
+            options: ["Only children", "Only adults", "People and animals", "Only firefighters"],
+            answer: 2,
+            explanation: "根據文章 'Firefighters also rescue people and animals from burning buildings.' 消防員救援人和動物。",
+            highlightText: "Firefighters also rescue people and animals from burning buildings."
+          },
+          {
+            question: "What do firefighters wear?",
+            options: ["Normal clothes", "Uniforms", "Special protective clothes", "Swimsuits"],
+            answer: 2,
+            explanation: "根據文章 'They wear special clothes to protect themselves from heat and smoke.' 消防員穿特殊的防護服。",
+            highlightText: "They wear special clothes to protect themselves from heat and smoke."
+          },
+          {
+            question: "Where do firefighters live during their shifts?",
+            options: ["At home", "At the fire station", "In hotels", "In the forest"],
+            answer: 1,
+            explanation: "根據文章 'Firefighters live at the fire station during their shifts.' 消防員在值班期間住在消防站。",
+            highlightText: "Firefighters live at the fire station during their shifts."
+          },
+          {
+            question: "What other training do many firefighters have?",
+            options: ["Cooking", "Basic medical help", "Teaching", "Singing"],
+            answer: 1,
+            explanation: "根據文章 'Many firefighters are also trained to give basic medical help.' 許多消防員也接受基本醫療幫助的培訓。",
+            highlightText: "Many firefighters are also trained to give basic medical help."
+          }
+        ]
+      },
+      {
+        title: "Farmer",
+        content: "Farmers grow food for people to eat. They plant seeds and take care of crops as they grow. Farmers also raise animals like cows, pigs, and chickens. They use different machines to help with their work. Farmers wake up very early in the morning to start their day. The weather is very important for farmers because it affects how well their crops grow. Many farmers sell their products at markets or to food companies. Farming is hard work but important for feeding people.",
+        questions: [
+          {
+            question: "What do farmers grow?",
+            options: ["Houses", "Cars", "Food", "Clothes"],
+            answer: 2,
+            explanation: "根據文章 'Farmers grow food for people to eat.' 農民種植食物。",
+            highlightText: "Farmers grow food for people to eat."
+          },
+          {
+            question: "What animals might farmers raise?",
+            options: ["Lions and tigers", "Cows, pigs, and chickens", "Fish and sharks", "Bears and wolves"],
+            answer: 1,
+            explanation: "根據文章 'Farmers also raise animals like cows, pigs, and chickens.' 農民飼養牛、豬和雞等動物。",
+            highlightText: "Farmers also raise animals like cows, pigs, and chickens."
+          },
+          {
+            question: "When do farmers wake up?",
+            options: ["Very early", "At noon", "In the afternoon", "At night"],
+            answer: 0,
+            explanation: "根據文章 'Farmers wake up very early in the morning to start their day.' 農民很早起床。",
+            highlightText: "Farmers wake up very early in the morning to start their day."
+          },
+          {
+            question: "What is very important for farmers?",
+            options: ["Music", "Weather", "Television", "Sports"],
+            answer: 1,
+            explanation: "根據文章 'The weather is very important for farmers because it affects how well their crops grow.' 天氣對農民很重要。",
+            highlightText: "The weather is very important for farmers because it affects how well their crops grow."
+          },
+          {
+            question: "Where do many farmers sell their products?",
+            options: ["At schools", "At hospitals", "At markets or to food companies", "At banks"],
+            answer: 2,
+            explanation: "根據文章 'Many farmers sell their products at markets or to food companies.' 許多農民在市場或向食品公司銷售產品。",
+            highlightText: "Many farmers sell their products at markets or to food companies."
+          }
+        ]
+      },
+      {
+        title: "Engineer",
+        content: "Engineers solve problems and design new things. They use math and science to create solutions. Some engineers build bridges and buildings, while others make computers or machines. Engineers need to think carefully about how things work. They often work in teams with other people. Engineers test their ideas to make sure they are safe and work well. Many engineers use computers to help with their designs. Their work helps make our lives better and easier.",
+        questions: [
+          {
+            question: "What do engineers use to create solutions?",
+            options: ["Art and music", "Math and science", "Sports and games", "Food and drinks"],
+            answer: 1,
+            explanation: "根據文章 'They use math and science to create solutions.' 工程師使用數學和科學來創造解決方案。",
+            highlightText: "They use math and science to create solutions."
+          },
+          {
+            question: "What might some engineers build?",
+            options: ["Songs", "Bridges and buildings", "Clothes", "Food"],
+            answer: 1,
+            explanation: "根據文章 'Some engineers build bridges and buildings, while others make computers or machines.' 一些工程師建造橋樑和建築物。",
+            highlightText: "Some engineers build bridges and buildings, while others make computers or machines."
+          },
+          {
+            question: "How do engineers often work?",
+            options: ["Always alone", "In teams", "Only at night", "Only outdoors"],
+            answer: 1,
+            explanation: "根據文章 'They often work in teams with other people.' 工程師經常在團隊中工作。",
+            highlightText: "They often work in teams with other people."
+          },
+          {
+            question: "Why do engineers test their ideas?",
+            options: ["To make them expensive", "To make them colorful", "To make sure they are safe and work well", "To make them famous"],
+            answer: 2,
+            explanation: "根據文章 'Engineers test their ideas to make sure they are safe and work well.' 工程師測試他們的想法，以確保它們安全且運作良好。",
+            highlightText: "Engineers test their ideas to make sure they are safe and work well."
+          },
+          {
+            question: "What does engineers' work help with?",
+            options: ["Making our lives better and easier", "Making people sick", "Making the world smaller", "Making people sad"],
+            answer: 0,
+            explanation: "根據文章 'Their work helps make our lives better and easier.' 工程師的工作幫助使我們的生活更好、更輕鬆。",
+            highlightText: "Their work helps make our lives better and easier."
+          }
+        ]
+      },
+      {
+        title: "Pilot",
+        content: "Pilots fly airplanes that carry people and goods. They check the plane before flying to make sure everything works. Pilots use many instruments to help them fly safely. They need to watch the weather and talk to air traffic control. Pilots must make quick decisions if problems happen during a flight. They study for many years to learn how to fly different types of planes. Most pilots wear uniforms when they are working. They travel to many different places around the world.",
+        questions: [
+          {
+            question: "What do pilots fly?",
+            options: ["Cars", "Boats", "Airplanes", "Bicycles"],
+            answer: 2,
+            explanation: "根據文章 'Pilots fly airplanes that carry people and goods.' 飛行員駕駛飛機。",
+            highlightText: "Pilots fly airplanes that carry people and goods."
+          },
+          {
+            question: "What do pilots check before flying?",
+            options: ["Their email", "The plane", "Their house", "Their food"],
+            answer: 1,
+            explanation: "根據文章 'They check the plane before flying to make sure everything works.' 飛行員在飛行前檢查飛機。",
+            highlightText: "They check the plane before flying to make sure everything works."
+          },
+          {
+            question: "Who do pilots talk to while flying?",
+            options: ["Their families", "Their friends", "Air traffic control", "Restaurant staff"],
+            answer: 2,
+            explanation: "根據文章 'They need to watch the weather and talk to air traffic control.' 飛行員與空中交通管制通話。",
+            highlightText: "They need to watch the weather and talk to air traffic control."
+          },
+          {
+            question: "How long do pilots study?",
+            options: ["A few days", "A few weeks", "Many years", "A few hours"],
+            answer: 2,
+            explanation: "根據文章 'They study for many years to learn how to fly different types of planes.' 飛行員學習多年。",
+            highlightText: "They study for many years to learn how to fly different types of planes."
+          },
+          {
+            question: "What do most pilots wear when working?",
+            options: ["Casual clothes", "Uniforms", "Sports clothes", "Pajamas"],
+            answer: 1,
+            explanation: "根據文章 'Most pilots wear uniforms when they are working.' 大多數飛行員工作時穿制服。",
+            highlightText: "Most pilots wear uniforms when they are working."
+          }
+        ]
+      },
+      {
+        title: "Dentist",
+        content: "Dentists take care of people's teeth. They check for problems like cavities and clean teeth. Dentists use special tools to fix teeth that are damaged. They teach patients how to brush and floss correctly. Some dentists do more complex work like removing teeth or putting in false teeth. They wear masks and gloves to keep everything clean. Dentists usually work in offices with special chairs for patients. Many people visit the dentist twice a year for check-ups.",
+        questions: [
+          {
+            question: "What do dentists take care of?",
+            options: ["Hair", "Skin", "Teeth", "Eyes"],
+            answer: 2,
+            explanation: "根據文章 'Dentists take care of people's teeth.' 牙醫照顧人們的牙齒。",
+            highlightText: "Dentists take care of people's teeth."
+          },
+          {
+            question: "What problems do dentists check for?",
+            options: ["Broken bones", "Cavities", "Headaches", "Coughs"],
+            answer: 1,
+            explanation: "根據文章 'They check for problems like cavities and clean teeth.' 牙醫檢查蛀牙等問題。",
+            highlightText: "They check for problems like cavities and clean teeth."
+          },
+          {
+            question: "What do dentists teach patients?",
+            options: ["How to cook", "How to drive", "How to brush and floss", "How to swim"],
+            answer: 2,
+            explanation: "根據文章 'They teach patients how to brush and floss correctly.' 牙醫教病人如何正確刷牙和使用牙線。",
+            highlightText: "They teach patients how to brush and floss correctly."
+          },
+          {
+            question: "What do dentists wear?",
+            options: ["Hats and scarves", "Masks and gloves", "T-shirts and jeans", "Dresses and suits"],
+            answer: 1,
+            explanation: "根據文章 'They wear masks and gloves to keep everything clean.' 牙醫戴口罩和手套。",
+            highlightText: "They wear masks and gloves to keep everything clean."
+          },
+          {
+            question: "How often do many people visit the dentist?",
+            options: ["Every day", "Once a month", "Twice a year", "Once every five years"],
+            answer: 2,
+            explanation: "根據文章 'Many people visit the dentist twice a year for check-ups.' 許多人每年看牙醫兩次。",
+            highlightText: "Many people visit the dentist twice a year for check-ups."
+          }
+        ]
+      },
+      {
+        title: "Lawyer",
+        content: "Lawyers help people with legal problems. They give advice about the law and represent people in court. Lawyers read many documents and prepare legal papers. They need to know many laws and rules. Some lawyers work on criminal cases, while others help with business or family matters. Lawyers often work long hours researching and preparing for cases. They must be good at speaking and writing clearly. Many lawyers work in offices with other lawyers and staff.",
+        questions: [
+          {
+            question: "What kind of problems do lawyers help with?",
+            options: ["Health problems", "Car problems", "Legal problems", "Math problems"],
+            answer: 2,
+            explanation: "根據文章 'Lawyers help people with legal problems.' 律師幫助人們解決法律問題。",
+            highlightText: "Lawyers help people with legal problems."
+          },
+          {
+            question: "Where do lawyers represent people?",
+            options: ["In schools", "In hospitals", "In court", "In restaurants"],
+            answer: 2,
+            explanation: "根據文章 'They give advice about the law and represent people in court.' 律師在法庭上代表人們。",
+            highlightText: "They give advice about the law and represent people in court."
+          },
+          {
+            question: "What do lawyers need to know?",
+            options: ["Many recipes", "Many laws and rules", "Many songs", "Many sports"],
+            answer: 1,
+            explanation: "根據文章 'They need to know many laws and rules.' 律師需要了解許多法律和規則。",
+            highlightText: "They need to know many laws and rules."
+          },
+          {
+            question: "What skills must lawyers have?",
+            options: ["Singing and dancing", "Speaking and writing clearly", "Drawing and painting", "Running and jumping"],
+            answer: 1,
+            explanation: "根據文章 'They must be good at speaking and writing clearly.' 律師必須善於清晰地說話和寫作。",
+            highlightText: "They must be good at speaking and writing clearly."
+          },
+          {
+            question: "Where do many lawyers work?",
+            options: ["In forests", "In factories", "In offices with other lawyers", "On farms"],
+            answer: 2,
+            explanation: "根據文章 'Many lawyers work in offices with other lawyers and staff.' 許多律師在辦公室與其他律師一起工作。",
+            highlightText: "Many lawyers work in offices with other lawyers and staff."
+          }
+        ]
+      },
+      {
+        title: "Electrician",
+        content: "Electricians install and fix electrical systems. They work in homes, buildings, and factories. Electricians use tools to connect wires and test if electricity is flowing correctly. They read blueprints to understand where to put electrical parts. Safety is very important for electricians because electricity can be dangerous. They wear special gear to protect themselves. Electricians need training to learn their job. They solve problems when lights or other electrical things stop working.",
+        questions: [
+          {
+            question: "What do electricians install and fix?",
+            options: ["Plumbing systems", "Electrical systems", "Computer systems", "Heating systems"],
+            answer: 1,
+            explanation: "根據文章 'Electricians install and fix electrical systems.' 電工安裝和修理電氣系統。",
+            highlightText: "Electricians install and fix electrical systems."
+          },
+          {
+            question: "Where do electricians work?",
+            options: ["Only outdoors", "Only in schools", "In homes, buildings, and factories", "Only in hospitals"],
+            answer: 2,
+            explanation: "根據文章 'They work in homes, buildings, and factories.' 電工在家庭、建築物和工廠工作。",
+            highlightText: "They work in homes, buildings, and factories."
+          },
+          {
+            question: "What do electricians read to understand their work?",
+            options: ["Novels", "Magazines", "Blueprints", "Menus"],
+            answer: 2,
+            explanation: "根據文章 'They read blueprints to understand where to put electrical parts.' 電工閱讀藍圖。",
+            highlightText: "They read blueprints to understand where to put electrical parts."
+          },
+          {
+            question: "Why is safety important for electricians?",
+            options: ["Because they work at night", "Because electricity can be dangerous", "Because they work with food", "Because they work with children"],
+            answer: 1,
+            explanation: "根據文章 'Safety is very important for electricians because electricity can be dangerous.' 安全對電工很重要，因為電可能很危險。",
+            highlightText: "Safety is very important for electricians because electricity can be dangerous."
+          },
+          {
+            question: "What do electricians solve?",
+            options: ["Math problems", "Family problems", "Problems when electrical things stop working", "Transportation problems"],
+            answer: 2,
+            explanation: "根據文章 'They solve problems when lights or other electrical things stop working.' 電工解決電氣設備停止工作時的問題。",
+            highlightText: "They solve problems when lights or other electrical things stop working."
+          }
+        ]
+      },
+      {
+        title: "Carpenter",
+        content: "Carpenters build and fix things made of wood. They make furniture, cabinets, and parts of buildings. Carpenters use tools like saws, hammers, and drills. They measure carefully before cutting wood to make sure everything fits together. Carpenters need to be good with their hands and able to follow plans. Some carpenters work inside buildings, while others work outside on construction sites. They often wear tool belts to keep their tools handy. Many carpenters learn their skills through training programs.",
+        questions: [
+          {
+            question: "What material do carpenters mainly work with?",
+            options: ["Metal", "Plastic", "Wood", "Glass"],
+            answer: 2,
+            explanation: "根據文章 'Carpenters build and fix things made of wood.' 木匠建造和修理木製品。",
+            highlightText: "Carpenters build and fix things made of wood."
+          },
+          {
+            question: "What do carpenters make?",
+            options: ["Cars", "Furniture and cabinets", "Food", "Clothes"],
+            answer: 1,
+            explanation: "根據文章 'They make furniture, cabinets, and parts of buildings.' 木匠製作家具、櫥櫃等。",
+            highlightText: "They make furniture, cabinets, and parts of buildings."
+          },
+          {
+            question: "What tools do carpenters use?",
+            options: ["Pens and paper", "Saws, hammers, and drills", "Spoons and forks", "Computers"],
+            answer: 1,
+            explanation: "根據文章 'Carpenters use tools like saws, hammers, and drills.' 木匠使用鋸子、錘子和鑽頭等工具。",
+            highlightText: "Carpenters use tools like saws, hammers, and drills."
+          },
+          {
+            question: "Why do carpenters measure carefully?",
+            options: ["To save money", "To save time", "To make sure everything fits together", "To make things heavy"],
+            answer: 2,
+            explanation: "根據文章 'They measure carefully before cutting wood to make sure everything fits together.' 木匠仔細測量以確保一切都能拼合在一起。",
+            highlightText: "They measure carefully before cutting wood to make sure everything fits together."
+          },
+          {
+            question: "What do many carpenters wear?",
+            options: ["Uniforms", "Tool belts", "Suits", "Lab coats"],
+            answer: 1,
+            explanation: "根據文章 'They often wear tool belts to keep their tools handy.' 木匠經常佩戴工具帶。",
+            highlightText: "They often wear tool belts to keep their tools handy."
+          }
+        ]
+      },
+      {
+        title: "Accountant",
+        content: "Accountants work with money and numbers. They keep track of how much money comes in and goes out of a business. Accountants prepare tax forms and make sure businesses follow money rules. They use computers to record financial information. Accountants help people and businesses make good decisions about their money. They need to be very careful and check their work for mistakes. Many accountants are busiest during tax season. They often work in offices but may visit clients.",
+        questions: [
+          {
+            question: "What do accountants work with?",
+            options: ["Food", "Cars", "Money and numbers", "Plants"],
+            answer: 2,
+            explanation: "根據文章 'Accountants work with money and numbers.' 會計師處理金錢和數字。",
+            highlightText: "Accountants work with money and numbers."
+          },
+          {
+            question: "What do accountants keep track of?",
+            options: ["Weather", "Sports scores", "How much money comes in and goes out", "TV shows"],
+            answer: 2,
+            explanation: "根據文章 'They keep track of how much money comes in and goes out of a business.' 會計師追蹤資金的流入和流出。",
+            highlightText: "They keep track of how much money comes in and goes out of a business."
+          },
+          {
+            question: "What do accountants prepare?",
+            options: ["Food", "Tax forms", "Clothes", "Medicine"],
+            answer: 1,
+            explanation: "根據文章 'Accountants prepare tax forms and make sure businesses follow money rules.' 會計師準備稅務表格。",
+            highlightText: "Accountants prepare tax forms and make sure businesses follow money rules."
+          },
+          {
+            question: "What quality do accountants need to have?",
+            options: ["To be very careful", "To be very strong", "To be very tall", "To be very loud"],
+            answer: 0,
+            explanation: "根據文章 'They need to be very careful and check their work for mistakes.' 會計師需要非常小心。",
+            highlightText: "They need to be very careful and check their work for mistakes."
+          },
+          {
+            question: "When are many accountants busiest?",
+            options: ["During summer", "During winter", "During tax season", "During holidays"],
+            answer: 2,
+            explanation: "根據文章 'Many accountants are busiest during tax season.' 許多會計師在納稅季節最忙。",
+            highlightText: "Many accountants are busiest during tax season."
+          }
+        ]
+      },
+      {
+        title: "Artist",
+        content: "Artists create beautiful or interesting things. They may paint pictures, make sculptures, or draw. Some artists use computers to make digital art. Artists express ideas and feelings through their work. They choose colors, shapes, and materials carefully. Many artists work in studios where they have space and light. Some artists sell their work in galleries or online. Artists often spend years developing their own style. They may teach others or work for companies that need creative people.",
+        questions: [
+          {
+            question: "What do artists create?",
+            options: ["Food", "Beautiful or interesting things", "Cars", "Buildings"],
+            answer: 1,
+            explanation: "根據文章 'Artists create beautiful or interesting things.' 藝術家創造美麗或有趣的東西。",
+            highlightText: "Artists create beautiful or interesting things."
+          },
+          {
+            question: "What might artists do?",
+            options: ["Fix cars", "Cook meals", "Paint pictures or make sculptures", "Build houses"],
+            answer: 2,
+            explanation: "根據文章 'They may paint pictures, make sculptures, or draw.' 藝術家可能繪畫、製作雕塑或繪圖。",
+            highlightText: "They may paint pictures, make sculptures, or draw."
+          },
+          {
+            question: "What do artists express through their work?",
+            options: ["Ideas and feelings", "Rules", "Prices", "Directions"],
+            answer: 0,
+            explanation: "根據文章 'Artists express ideas and feelings through their work.' 藝術家通過作品表達想法和感受。",
+            highlightText: "Artists express ideas and feelings through their work."
+          },
+          {
+            question: "Where do many artists work?",
+            options: ["In hospitals", "In restaurants", "In studios", "In schools"],
+            answer: 2,
+            explanation: "根據文章 'Many artists work in studios where they have space and light.' 許多藝術家在工作室工作。",
+            highlightText: "Many artists work in studios where they have space and light."
+          },
+          {
+            question: "How long do artists spend developing their style?",
+            options: ["A few days", "A few weeks", "Years", "A few hours"],
+            answer: 2,
+            explanation: "根據文章 'Artists often spend years developing their own style.' 藝術家通常花費數年發展自己的風格。",
+            highlightText: "Artists often spend years developing their own style."
+          }
+        ]
+      },
+      {
+        title: "Journalist",
+        content: "Journalists collect and report news. They interview people and research topics to find information. Journalists write stories for newspapers, websites, or TV shows. They try to be fair and accurate when reporting facts. Some journalists focus on specific topics like sports, politics, or food. They often work on tight deadlines to share news quickly. Journalists may travel to different places to cover important events. They help people understand what is happening in the world.",
+        questions: [
+          {
+            question: "What do journalists collect and report?",
+            options: ["Money", "Food", "News", "Cars"],
+            answer: 2,
+            explanation: "根據文章 'Journalists collect and report news.' 記者收集和報導新聞。",
+            highlightText: "Journalists collect and report news."
+          },
+          {
+            question: "What do journalists do to find information?",
+            options: ["Sleep", "Interview people and research", "Watch TV", "Play games"],
+            answer: 1,
+            explanation: "根據文章 'They interview people and research topics to find information.' 記者採訪人們並研究主題以獲取信息。",
+            highlightText: "They interview people and research topics to find information."
+          },
+          {
+            question: "Where do journalists write stories for?",
+            options: ["Books only", "Newspapers, websites, or TV shows", "Personal diaries", "School textbooks"],
+            answer: 1,
+            explanation: "根據文章 'Journalists write stories for newspapers, websites, or TV shows.' 記者為報紙、網站或電視節目撰寫故事。",
+            highlightText: "Journalists write stories for newspapers, websites, or TV shows."
+          },
+          {
+            question: "How do journalists try to report facts?",
+            options: ["Quickly and loudly", "Slowly and quietly", "Fairly and accurately", "Angrily and sadly"],
+            answer: 2,
+            explanation: "根據文章 'They try to be fair and accurate when reporting facts.' 記者嘗試公平準確地報導事實。",
+            highlightText: "They try to be fair and accurate when reporting facts."
+          },
+          {
+            question: "Why do journalists work on tight deadlines?",
+            options: ["To earn more money", "To share news quickly", "To make fewer mistakes", "To work fewer hours"],
+            answer: 1,
+            explanation: "根據文章 'They often work on tight deadlines to share news quickly.' 記者經常在緊迫的截止日期工作，以快速分享新聞。",
+            highlightText: "They often work on tight deadlines to share news quickly."
+          }
+        ]
+      },
+      {
+        title: "Programmer",
+        content: "Programmers write code to create computer software. They solve problems and build new features for websites and apps. Programmers use different programming languages to tell computers what to do. They test their code to find and fix errors. Many programmers work in teams on big projects. They need to think logically and pay attention to details. Programmers often learn new skills because technology changes quickly. They may work for tech companies or as freelancers from home.",
+        questions: [
+          {
+            question: "What do programmers write?",
+            options: ["Books", "Songs", "Code", "Letters"],
+            answer: 2,
+            explanation: "根據文章 'Programmers write code to create computer software.' 程式設計師編寫代碼。",
+            highlightText: "Programmers write code to create computer software."
+          },
+          {
+            question: "What do programmers create?",
+            options: ["Food", "Clothes", "Computer software", "Cars"],
+            answer: 2,
+            explanation: "根據文章 'Programmers write code to create computer software.' 程式設計師創建電腦軟體。",
+            highlightText: "Programmers write code to create computer software."
+          },
+          {
+            question: "What do programmers use to tell computers what to do?",
+            options: ["Maps", "Programming languages", "Pictures", "Music"],
+            answer: 1,
+            explanation: "根據文章 'Programmers use different programming languages to tell computers what to do.' 程式設計師使用不同的程式語言。",
+            highlightText: "Programmers use different programming languages to tell computers what to do."
+          },
+          {
+            question: "Why do programmers test their code?",
+            options: ["To make it longer", "To find and fix errors", "To make it shorter", "To make it colorful"],
+            answer: 1,
+            explanation: "根據文章 'They test their code to find and fix errors.' 程式設計師測試代碼以找出並修復錯誤。",
+            highlightText: "They test their code to find and fix errors."
+          },
+          {
+            question: "Why do programmers often learn new skills?",
+            options: ["Because they are bored", "Because technology changes quickly", "Because they earn more money", "Because their boss tells them to"],
+            answer: 1,
+            explanation: "根據文章 'Programmers often learn new skills because technology changes quickly.' 程式設計師經常學習新技能，因為技術變化很快。",
+            highlightText: "Programmers often learn new skills because technology changes quickly."
+          }
+        ]
+      },
+      {
+        title: "Veterinarian",
+        content: "Veterinarians take care of sick and injured animals. They give medicine and perform surgery when needed. Veterinarians also help prevent diseases by giving vaccines. They examine animals to find out what is wrong with them. Some veterinarians work with pets like cats and dogs, while others help farm animals or zoo animals. They need to be gentle with animals and explain things clearly to pet owners. Veterinarians study for many years to learn about different animals and their health.",
+        questions: [
+          {
+            question: "Who do veterinarians take care of?",
+            options: ["People", "Plants", "Animals", "Buildings"],
+            answer: 2,
+            explanation: "根據文章 'Veterinarians take care of sick and injured animals.' 獸醫照顧生病和受傷的動物。",
+            highlightText: "Veterinarians take care of sick and injured animals."
+          },
+          {
+            question: "What do veterinarians give to help prevent diseases?",
+            options: ["Money", "Food", "Vaccines", "Toys"],
+            answer: 2,
+            explanation: "根據文章 'Veterinarians also help prevent diseases by giving vaccines.' 獸醫通過提供疫苗來幫助預防疾病。",
+            highlightText: "Veterinarians also help prevent diseases by giving vaccines."
+          },
+          {
+            question: "What animals might veterinarians work with?",
+            options: ["Only wild animals", "Only farm animals", "Pets, farm animals, or zoo animals", "Only water animals"],
+            answer: 2,
+            explanation: "根據文章 'Some veterinarians work with pets like cats and dogs, while others help farm animals or zoo animals.' 獸醫可能與寵物、農場動物或動物園動物一起工作。",
+            highlightText: "Some veterinarians work with pets like cats and dogs, while others help farm animals or zoo animals."
+          },
+          {
+            question: "How do veterinarians need to be with animals?",
+            options: ["Loud", "Rough", "Gentle", "Angry"],
+            answer: 2,
+            explanation: "根據文章 'They need to be gentle with animals and explain things clearly to pet owners.' 獸醫需要對動物溫柔。",
+            highlightText: "They need to be gentle with animals and explain things clearly to pet owners."
+          },
+          {
+            question: "How long do veterinarians study?",
+            options: ["A few weeks", "A few months", "Many years", "A few days"],
+            answer: 2,
+            explanation: "根據文章 'Veterinarians study for many years to learn about different animals and their health.' 獸醫學習多年。",
+            highlightText: "Veterinarians study for many years to learn about different animals and their health."
+          }
+        ]
+      },
+      {
+        title: "Photographer",
+        content: "Photographers take pictures of people, places, and things. They use cameras and special equipment to create good images. Photographers think about lighting and composition when taking photos. Some photographers work at special events like weddings or sports games. Others take pictures for magazines, websites, or advertisements. Photographers may edit their photos on computers to make them look better. Many photographers have their own style of taking pictures. They need to be creative and have a good eye for detail.",
+        questions: [
+          {
+            question: "What do photographers take?",
+            options: ["Notes", "Pictures", "Buses", "Medicine"],
+            answer: 1,
+            explanation: "根據文章 'Photographers take pictures of people, places, and things.' 攝影師拍攝照片。",
+            highlightText: "Photographers take pictures of people, places, and things."
+          },
+          {
+            question: "What do photographers use?",
+            options: ["Pens and paper", "Hammers and nails", "Cameras and special equipment", "Pots and pans"],
+            answer: 2,
+            explanation: "根據文章 'They use cameras and special equipment to create good images.' 攝影師使用相機和特殊設備。",
+            highlightText: "They use cameras and special equipment to create good images."
+          },
+          {
+            question: "What do photographers think about when taking photos?",
+            options: ["Food and drinks", "Lighting and composition", "Money and prices", "Cars and buses"],
+            answer: 1,
+            explanation: "根據文章 'Photographers think about lighting and composition when taking photos.' 攝影師考慮光線和構圖。",
+            highlightText: "Photographers think about lighting and composition when taking photos."
+          },
+          {
+            question: "Where might some photographers work?",
+            options: ["Only in studios", "Only outdoors", "At special events like weddings", "Only in schools"],
+            answer: 2,
+            explanation: "根據文章 'Some photographers work at special events like weddings or sports games.' 一些攝影師在婚禮等特殊活動工作。",
+            highlightText: "Some photographers work at special events like weddings or sports games."
+          },
+          {
+            question: "What qualities do photographers need?",
+            options: ["To be very tall", "To be creative and have a good eye for detail", "To be very strong", "To be very loud"],
+            answer: 1,
+            explanation: "根據文章 'They need to be creative and have a good eye for detail.' 攝影師需要有創意並有良好的細節眼光。",
+            highlightText: "They need to be creative and have a good eye for detail."
+          }
+        ]
+      },
+      {
+        title: "Architect",
+        content: "Architects design buildings and other structures. They create plans showing what buildings will look like and how they will be built. Architects need to think about safety, function, and beauty when designing. They use computers to help draw detailed plans. Architects work with clients to understand what they want in a building. They also work with construction workers who build their designs. Architects need to know about building materials and rules. Many architects visit construction sites to check on progress.",
+        questions: [
+          {
+            question: "What do architects design?",
+            options: ["Clothes", "Food", "Buildings and structures", "Cars"],
+            answer: 2,
+            explanation: "根據文章 'Architects design buildings and other structures.' 建築師設計建築物和其他結構。",
+            highlightText: "Architects design buildings and other structures."
+          },
+          {
+            question: "What do architects create plans for?",
+            options: ["What buildings will look like and how they will be built", "What food to cook", "What clothes to wear", "What car to drive"],
+            answer: 0,
+            explanation: "根據文章 'They create plans showing what buildings will look like and how they will be built.' 建築師創建顯示建築物外觀和建造方式的計劃。",
+            highlightText: "They create plans showing what buildings will look like and how they will be built."
+          },
+          {
+            question: "What do architects need to think about when designing?",
+            options: ["Colors only", "Safety, function, and beauty", "Size only", "Cost only"],
+            answer: 1,
+            explanation: "根據文章 'Architects need to think about safety, function, and beauty when designing.' 建築師在設計時需要考慮安全性、功能性和美觀性。",
+            highlightText: "Architects need to think about safety, function, and beauty when designing."
+          },
+          {
+            question: "Who do architects work with to understand what they want?",
+            options: ["Animals", "Plants", "Clients", "Only other architects"],
+            answer: 2,
+            explanation: "根據文章 'Architects work with clients to understand what they want in a building.' 建築師與客戶合作，了解他們對建築物的需求。",
+            highlightText: "Architects work with clients to understand what they want in a building."
+          },
+          {
+            question: "Why do many architects visit construction sites?",
+            options: ["To take pictures", "To check on progress", "To cook food", "To sleep"],
+            answer: 1,
+            explanation: "根據文章 'Many architects visit construction sites to check on progress.' 許多建築師參觀建築工地以檢查進度。",
+            highlightText: "Many architects visit construction sites to check on progress."
+          }
+        ]
+      },
+      {
+        title: "Musician",
+        content: "Musicians play instruments or sing to make music. They practice many hours to improve their skills. Some musicians write their own songs, while others play music written by someone else. Musicians may perform alone or in groups like bands or orchestras. They play in different places like concert halls, clubs, or recording studios. Many musicians record their music so people can listen to it at home. They need to have a good ear for sound and rhythm. Some musicians teach others how to play instruments or sing.",
+        questions: [
+          {
+            question: "What do musicians do?",
+            options: ["Cook food", "Build houses", "Play instruments or sing", "Drive cars"],
+            answer: 2,
+            explanation: "根據文章 'Musicians play instruments or sing to make music.' 音樂家演奏樂器或唱歌。",
+            highlightText: "Musicians play instruments or sing to make music."
+          },
+          {
+            question: "Why do musicians practice many hours?",
+            options: ["To make money", "To improve their skills", "To meet people", "To stay healthy"],
+            answer: 1,
+            explanation: "根據文章 'They practice many hours to improve their skills.' 音樂家練習很多小時來提高技能。",
+            highlightText: "They practice many hours to improve their skills."
+          },
+          {
+            question: "How might musicians perform?",
+            options: ["Only in large groups", "Only alone", "Alone or in groups", "Only in pairs"],
+            answer: 2,
+            explanation: "根據文章 'Musicians may perform alone or in groups like bands or orchestras.' 音樂家可能獨自或在樂隊等團體中表演。",
+            highlightText: "Musicians may perform alone or in groups like bands or orchestras."
+          },
+          {
+            question: "Where might musicians play?",
+            options: ["Only outdoors", "Only in schools", "In concert halls, clubs, or recording studios", "Only in homes"],
+            answer: 2,
+            explanation: "根據文章 'They play in different places like concert halls, clubs, or recording studios.' 音樂家在音樂廳、俱樂部或錄音室等不同地方演奏。",
+            highlightText: "They play in different places like concert halls, clubs, or recording studios."
+          },
+          {
+            question: "What do musicians need to have?",
+            options: ["A good ear for sound and rhythm", "A lot of money", "A big house", "A car"],
+            answer: 0,
+            explanation: "根據文章 'They need to have a good ear for sound and rhythm.' 音樂家需要有良好的聲音和節奏感。",
+            highlightText: "They need to have a good ear for sound and rhythm."
+          }
+        ]
+      }
+    ];
+
+    let currentPassageIndex = 0;
+    let userAnswers = [];
+    let submitted = false;
+
+    function initializeTabs() {
+      const tabsContainer = document.querySelector('.tabs');
+      passages.forEach((passage, index) => {
+        const tab = document.createElement('button');
+        tab.className = `tab px-4 py-2 rounded-lg font-medium ${index === 0 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`;
+        tab.textContent = passage.title;
+        tab.addEventListener('click', () => {
+          changePassage(index);
+        });
+        tabsContainer.appendChild(tab);
+      });
+    }
+
+    function changePassage(index) {
+      if (submitted) {
+        resetTest();
+      }
+      
+      currentPassageIndex = index;
+      userAnswers = [];
+      submitted = false;
+      
+      // Update tabs
+      document.querySelectorAll('.tab').forEach((tab, i) => {
+        if (i === index) {
+          tab.className = 'tab px-4 py-2 rounded-lg font-medium bg-blue-600 text-white';
+        } else {
+          tab.className = 'tab px-4 py-2 rounded-lg font-medium bg-gray-200 hover:bg-gray-300';
+        }
+      });
+      
+      loadPassage();
+    }
+
+    function loadPassage() {
+      const passage = passages[currentPassageIndex];
+      
+      // Set passage content
+      document.getElementById('passage-title').textContent = passage.title;
+      document.getElementById('passage-content').textContent = passage.content;
+      
+      // Generate questions
+      const questionsContainer = document.getElementById('questions-container');
+      questionsContainer.innerHTML = `<h3 class="text-xl font-bold mb-4">閱讀測驗題目</h3>`;
+      
+      passage.questions.forEach((q, qIndex) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-container mb-6 p-4 border border-gray-200 rounded-lg hover:bg-gray-50';
+        questionDiv.setAttribute('data-question', qIndex);
+        
+        let questionHTML = `
+          <p class="font-medium mb-2">${qIndex + 1}. ${q.question}</p>
+          <div class="options space-y-2 mb-3">
+        `;
+        
+        q.options.forEach((option, oIndex) => {
+          questionHTML += `
+            <div class="option flex items-center">
+              <input type="radio" id="q${qIndex}o${oIndex}" name="q${qIndex}" value="${oIndex}" class="mr-2">
+              <label for="q${qIndex}o${oIndex}">${option}</label>
+            </div>
+          `;
+        });
+        
+        questionHTML += `
+          <div class="answer-result mt-3 hidden"></div>
+          <div class="explanation mt-3 bg-gray-50 p-3 rounded-lg text-sm hidden"></div>
+        `;
+        
+        questionDiv.innerHTML = questionHTML;
+        
+        // 添加滑鼠事件來高亮文章中的相關句子
+        questionDiv.addEventListener('mouseenter', () => {
+          if (submitted) {
+            highlightPassageText(qIndex);
+          }
+        });
+        
+        questionDiv.addEventListener('mouseleave', () => {
+          if (submitted) {
+            removeHighlight();
+          }
+        });
+        
+        questionsContainer.appendChild(questionDiv);
+      });
+      
+      // Reset UI
+      document.getElementById('result-container').classList.add('hidden');
+      document.getElementById('submit-button').classList.remove('hidden');
+    }
+
+    function highlightPassageText(questionIndex) {
+      removeHighlight();
+      
+      const passage = passages[currentPassageIndex];
+      const textToHighlight = passage.questions[questionIndex].highlightText;
+      
+      if (textToHighlight) {
+        const passageContent = document.getElementById('passage-content');
+        const content = passageContent.textContent;
+        
+        // 創建一個臨時元素來處理內容
+        const tempDiv = document.createElement('div');
+        tempDiv.textContent = content;
+        let htmlContent = tempDiv.innerHTML;
+        
+        // 替換要高亮的文本
+        const highlightedText = `<span class="highlight-text" style="background-color: rgba(255, 220, 40, 0.5);">${textToHighlight}</span>`;
+        htmlContent = htmlContent.replace(textToHighlight, highlightedText);
+        
+        passageContent.innerHTML = htmlContent;
+      }
+    }
+
+    function removeHighlight() {
+      const passageContent = document.getElementById('passage-content');
+      passageContent.textContent = passages[currentPassageIndex].content;
+    }
+
+    function submitAnswers() {
+      const passage = passages[currentPassageIndex];
+      userAnswers = [];
+      
+      // Collect user answers
+      passage.questions.forEach((q, qIndex) => {
+        const selectedOption = document.querySelector(`input[name="q${qIndex}"]:checked`);
+        userAnswers.push(selectedOption ? parseInt(selectedOption.value) : -1);
+      });
+      
+      // Calculate score
+      let score = 0;
+      userAnswers.forEach((answer, index) => {
+        if (answer === passage.questions[index].answer) {
+          score += 20;
+        }
+      });
+      
+      // Show results in each question
+      passage.questions.forEach((q, qIndex) => {
+        const userAnswer = userAnswers[qIndex];
+        const correctAnswer = q.answer;
+        const isCorrect = userAnswer === correctAnswer;
+        
+        const questionDiv = document.querySelectorAll('.question-container')[qIndex];
+        
+        // 添加正確或錯誤的樣式
+        if (isCorrect) {
+          questionDiv.classList.add('correct-answer');
+        } else {
+          questionDiv.classList.add('wrong-answer');
+        }
+        
+        // 顯示答案結果
+        const resultDiv = questionDiv.querySelector('.answer-result');
+        resultDiv.classList.remove('hidden');
+        
+        if (userAnswer >= 0) {
+          resultDiv.innerHTML = `
+            <div class="p-2 rounded-lg ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+              <p>${isCorrect ? '✓ 正確' : '✗ 錯誤'}</p>
+              <p>你的答案: ${q.options[userAnswer]}</p>
+              ${!isCorrect ? `<p>正確答案: ${q.options[correctAnswer]}</p>` : ''}
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="p-2 rounded-lg bg-yellow-100 text-yellow-800">
+              <p>✗ 未作答</p>
+              <p>正確答案: ${q.options[correctAnswer]}</p>
+            </div>
+          `;
+        }
+        
+        // 顯示解析
+        const explanationDiv = questionDiv.querySelector('.explanation');
+        explanationDiv.classList.remove('hidden');
+        explanationDiv.textContent = q.explanation;
+      });
+      
+      // Show score
+      document.getElementById('submit-button').classList.add('hidden');
+      document.getElementById('result-container').classList.remove('hidden');
+      
+      const scoreDisplay = document.getElementById('score-display');
+      scoreDisplay.textContent = `得分: ${score} / 100`;
+      
+      if (score >= 80) {
+        scoreDisplay.className = 'text-2xl font-bold text-center p-4 mb-4 bg-green-100 text-green-800 rounded-lg score-display';
+      } else if (score >= 60) {
+        scoreDisplay.className = 'text-2xl font-bold text-center p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-lg score-display';
+      } else {
+        scoreDisplay.className = 'text-2xl font-bold text-center p-4 mb-4 bg-red-100 text-red-800 rounded-lg score-display';
+      }
+      
+      submitted = true;
+    }
+
+    function resetTest() {
+      userAnswers = [];
+      submitted = false;
+      loadPassage();
+    }
+
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeTabs();
+      loadPassage();
+      
+      document.getElementById('submit-button').addEventListener('click', submitAnswers);
+      document.getElementById('retry-button').addEventListener('click', resetTest);
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94ac716170b24a90',t:'MTc0OTA5MjY2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

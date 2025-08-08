@@ -1,0 +1,1124 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taiwan Travel & Shopping English Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f0f7ff;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .highlight-1 { background-color: #ffcccc; }
+    .highlight-2 { background-color: #ccffcc; }
+    .highlight-3 { background-color: #ccccff; }
+    .highlight-4 { background-color: #ffffcc; }
+    .highlight-5 { background-color: #ffccff; }
+    .tab-active {
+      background-color: #3b82f6;
+      color: white;
+    }
+    .passage {
+      font-size: 1.2rem;
+      line-height: 1.8;
+    }
+    .passage-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .tabs-container {
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f0f7ff;
+    }
+    .tabs-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    .tabs-container::-webkit-scrollbar-track {
+      background: #f0f7ff;
+    }
+    .tabs-container::-webkit-scrollbar-thumb {
+      background-color: #cbd5e0;
+      border-radius: 4px;
+    }
+    .questions-scroll {
+      overflow-y: auto;
+      max-height: calc(100vh - 400px);
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f0f7ff;
+    }
+    .questions-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .questions-scroll::-webkit-scrollbar-track {
+      background: #f0f7ff;
+    }
+    .questions-scroll::-webkit-scrollbar-thumb {
+      background-color: #cbd5e0;
+      border-radius: 4px;
+    }
+    .correct-answer {
+      background-color: #d1fae5;
+      border-left: 4px solid #10b981;
+    }
+    .wrong-answer {
+      background-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+    }
+    .explanation-box {
+      background-color: #f3f4f6;
+      border-left: 4px solid #9ca3af;
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 4px;
+      display: none;
+    }
+    .user-answer {
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      .quiz-container {
+        flex-direction: column;
+      }
+      .questions-scroll {
+        max-height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto px-4 py-4 max-w-6xl h-full flex flex-col">
+    <!-- Fixed Header -->
+    <div class="fixed-header">
+      <h1 class="text-3xl font-bold text-center text-blue-600 mb-4">Taiwan Travel & Shopping English Quiz</h1>
+      
+      <!-- Tab Navigation with full titles -->
+      <div class="tabs-container mb-4">
+        <div class="flex gap-2 pb-2">
+          <!-- Tabs will be inserted here by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div class="quiz-container flex flex-col md:flex-row gap-6 mt-16">
+      <!-- Left side: Reading passage (fixed) -->
+      <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md">
+        <div id="passage-container" class="passage"></div>
+      </div>
+      
+      <!-- Right side: Questions (scrollable) -->
+      <div class="w-full md:w-1/2 bg-white p-6 rounded-lg shadow-md flex flex-col">
+        <!-- Scrollable questions area -->
+        <div class="questions-scroll mb-4">
+          <div id="questions-container"></div>
+        </div>
+        
+        <!-- Fixed buttons at bottom -->
+        <div class="mt-auto">
+          <button id="submit-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">Submit Answers</button>
+          
+          <!-- Results Section (initially hidden) -->
+          <div id="results" class="mt-4 hidden">
+            <div class="p-4 rounded-lg bg-blue-100 mb-4">
+              <h3 class="text-xl font-bold">Your Score: <span id="score">0</span>/100</h3>
+            </div>
+            <button id="retry-btn" class="w-full bg-green-600 text-white py-3 rounded-lg mt-2 font-bold hover:bg-green-700 transition">Try Again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        title: "Shopping at Night Markets in Taiwan",
+        passage: "Taiwan's night markets are famous places to shop. You can find many cheap things like clothes, toys, and gifts. The food is also very good. Many people go there at night to eat and buy things. Some sellers give discounts if you buy more than one item. Don't forget to try the local snacks when you visit!",
+        questions: [
+          {
+            question: "What can you find at Taiwan's night markets?",
+            options: ["Only food", "Only clothes", "Clothes, toys, and gifts", "Only expensive items"],
+            answer: 2,
+            explanation: "根據文章 'You can find many cheap things like clothes, toys, and gifts'，夜市可以買到衣服、玩具和禮品。"
+          },
+          {
+            question: "When do many people go to night markets?",
+            options: ["In the morning", "At night", "In the afternoon", "At noon"],
+            answer: 1,
+            explanation: "根據文章 'Many people go there at night to eat and buy things'，許多人晚上去夜市。"
+          },
+          {
+            question: "How can you get a discount at night markets?",
+            options: ["By speaking Chinese", "By visiting in the morning", "By buying more than one item", "By being a tourist"],
+            answer: 2,
+            explanation: "根據文章 'Some sellers give discounts if you buy more than one item'，買超過一件商品可以獲得折扣。"
+          },
+          {
+            question: "What does the passage suggest you should try?",
+            options: ["Local snacks", "Bargaining", "Speaking Chinese", "Taking photos"],
+            answer: 0,
+            explanation: "根據文章 'Don't forget to try the local snacks when you visit!'，建議遊客嘗試當地小吃。"
+          },
+          {
+            question: "According to the passage, Taiwan's night markets are:",
+            options: ["New places", "Famous places", "Small places", "Quiet places"],
+            answer: 1,
+            explanation: "根據文章開頭 'Taiwan's night markets are famous places to shop'，台灣的夜市是著名的購物地點。"
+          }
+        ]
+      },
+      {
+        title: "Convenience Stores in Taiwan",
+        passage: "Taiwan has many convenience stores that are open 24 hours. They sell many kinds of snacks and drinks. Popular items include tea eggs, rice balls, and sweet bread. Many stores have special deals like buy one get one free. New snacks often come out each month. Some items are only available for a short time. Convenience stores are good places to find cheap and quick food when traveling.",
+        questions: [
+          {
+            question: "How long are convenience stores open in Taiwan?",
+            options: ["Only during the day", "Only at night", "24 hours", "Only on weekends"],
+            answer: 2,
+            explanation: "根據文章 'Taiwan has many convenience stores that are open 24 hours'，台灣有許多24小時營業的便利商店。"
+          },
+          {
+            question: "What do convenience stores sell?",
+            options: ["Only drinks", "Only hot food", "Many kinds of snacks and drinks", "Only imported food"],
+            answer: 2,
+            explanation: "根據文章 'They sell many kinds of snacks and drinks'，便利商店銷售多種零食和飲料。"
+          },
+          {
+            question: "How often do many stores have special sales?",
+            options: ["Every day", "Every month", "Every week", "Every year"],
+            answer: 2,
+            explanation: "根據文章 'Many stores have special sales every week'，許多商店每週都有特價活動。"
+          },
+          {
+            question: "What kind of deal can you get during special sales?",
+            options: ["Free items", "Two items for the price of one", "Half price", "Buy three get one free"],
+            answer: 1,
+            explanation: "根據文章 'You can get two items for the price of one'，特價活動可以買一送一。"
+          },
+          {
+            question: "Why are convenience stores good for travelers?",
+            options: ["They have Wi-Fi", "They need things quickly", "They have cheap and quick food", "They have tour guides"],
+            answer: 2,
+            explanation: "根據文章 'Convenience stores are good places to find cheap and quick food when traveling'，便利商店是旅行時尋找便宜快餐的好地方。"
+          }
+        ]
+      },
+      {
+        title: "Taipei 101 Shopping Mall",
+        passage: "Taipei 101 is a famous tall building in Taiwan. Inside, there is a big shopping mall. You can find many expensive shops selling clothes and gifts. There are also places to eat good food. During special times like New Year, they have big sales. Many tourists visit this place to shop and take photos of the tall building.",
+        questions: [
+          {
+            question: "What is Taipei 101?",
+            options: ["A night market", "A tall building", "A restaurant", "A hotel"],
+            answer: 1,
+            explanation: "根據文章 'Taipei 101 is a famous tall building in Taiwan'，台北101是一座著名的高樓。"
+          },
+          {
+            question: "What can you find inside Taipei 101?",
+            options: ["Only restaurants", "Only hotels", "A big shopping mall", "Only offices"],
+            answer: 2,
+            explanation: "根據文章 'Inside, there is a big shopping mall'，台北101內有一個大型購物中心。"
+          },
+          {
+            question: "What kind of shops are in Taipei 101?",
+            options: ["Cheap shops", "Expensive shops", "Only toy shops", "Only food shops"],
+            answer: 1,
+            explanation: "根據文章 'You can find many expensive shops selling clothes and gifts'，台北101有許多高價商店。"
+          },
+          {
+            question: "When do they have big sales at Taipei 101?",
+            options: ["Every day", "Never", "During special times like New Year", "Only in summer"],
+            answer: 2,
+            explanation: "根據文章 'During special times like New Year, they have big sales'，在新年等特殊時期會有大型促銷活動。"
+          },
+          {
+            question: "Why do many tourists visit Taipei 101?",
+            options: ["To work", "To live there", "To shop and take photos", "To study"],
+            answer: 2,
+            explanation: "根據文章 'Many tourists visit this place to shop and take photos of the tall building'，遊客來購物和拍攝高樓照片。"
+          }
+        ]
+      },
+      {
+        title: "Taiwanese Toy Stores",
+        passage: "Taiwan has many fun toy stores. Some are small shops in the city. Others are big stores with many floors. You can find toys from Taiwan and other countries. Many toys are on sale during children's day. Parents often buy gifts for their kids. Some stores let children play with toys before buying them.",
+        questions: [
+          {
+            question: "What sizes of toy stores can you find in Taiwan?",
+            options: ["Only small shops", "Only big stores", "Both small shops and big stores", "Only medium-sized stores"],
+            answer: 2,
+            explanation: "根據文章 'Some are small shops in the city. Others are big stores with many floors'，台灣有小型商店和大型多層商店。"
+          },
+          {
+            question: "Where do the toys in Taiwanese toy stores come from?",
+            options: ["Only from Taiwan", "Only from other countries", "From Taiwan and other countries", "Only from China"],
+            answer: 2,
+            explanation: "根據文章 'You can find toys from Taiwan and other countries'，玩具來自台灣和其他國家。"
+          },
+          {
+            question: "When are many toys on sale?",
+            options: ["During Christmas", "During children's day", "During summer", "During winter"],
+            answer: 1,
+            explanation: "根據文章 'Many toys are on sale during children's day'，兒童節期間許多玩具特價。"
+          },
+          {
+            question: "Who often buys gifts at toy stores?",
+            options: ["Children", "Teachers", "Parents", "Tourists"],
+            answer: 2,
+            explanation: "根據文章 'Parents often buy gifts for their kids'，父母常為孩子購買禮物。"
+          },
+          {
+            question: "What do some stores allow children to do?",
+            options: ["Work there", "Sleep there", "Play with toys before buying", "Take toys for free"],
+            answer: 2,
+            explanation: "根據文章 'Some stores let children play with toys before buying them'，一些商店讓孩子在購買前試玩玩具。"
+          }
+        ]
+      },
+      {
+        title: "Souvenir Shopping in Jiufen",
+        passage: "Jiufen is an old town in Taiwan. Many tourists go there to buy special gifts. The small shops sell many traditional items. You can find tea, snacks, and handmade toys. Some items are on sale if you buy many. The best time to shop is in the morning when there are fewer people. Don't forget to try the local tea!",
+        questions: [
+          {
+            question: "What is Jiufen?",
+            options: ["A new city", "A shopping mall", "An old town", "A night market"],
+            answer: 2,
+            explanation: "根據文章 'Jiufen is an old town in Taiwan'，九份是台灣的一個老城鎮。"
+          },
+          {
+            question: "Why do many tourists go to Jiufen?",
+            options: ["To work", "To buy special gifts", "To live there", "To study"],
+            answer: 1,
+            explanation: "根據文章 'Many tourists go there to buy special gifts'，遊客去那裡購買特別的禮物。"
+          },
+          {
+            question: "What can you find in Jiufen's shops?",
+            options: ["Only modern items", "Only food", "Tea, snacks, and handmade toys", "Only clothes"],
+            answer: 2,
+            explanation: "根據文章 'You can find tea, snacks, and handmade toys'，商店有茶、小吃和手工玩具。"
+          },
+          {
+            question: "When can you get items on sale in Jiufen?",
+            options: ["If you buy many", "If you speak Chinese", "If you go at night", "If you are a local"],
+            answer: 0,
+            explanation: "根據文章 'Some items are on sale if you buy many'，購買多件商品可以獲得折扣。"
+          },
+          {
+            question: "When is the best time to shop in Jiufen?",
+            options: ["At night", "In the afternoon", "In the morning", "At noon"],
+            answer: 2,
+            explanation: "根據文章 'The best time to shop is in the morning when there are fewer people'，早上人較少是最佳購物時間。"
+          }
+        ]
+      },
+      {
+        title: "Department Stores in Taipei",
+        passage: "Taipei has many big department stores. They sell clothes, toys, and home items. Most stores have five or more floors. Each floor sells different things. The top floor often has restaurants. Many stores have special sales during holidays. You can get good deals if you have a store card. Shopping in these stores is fun but can be expensive.",
+        questions: [
+          {
+            question: "What do department stores in Taipei sell?",
+            options: ["Only food", "Only clothes", "Clothes, toys, and home items", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'They sell clothes, toys, and home items'，百貨公司銷售衣服、玩具和家居用品。"
+          },
+          {
+            question: "How many floors do most department stores have?",
+            options: ["One or two", "Three or four", "Five or more", "Ten or more"],
+            answer: 2,
+            explanation: "根據文章 'Most stores have five or more floors'，大多數百貨公司有五層或更多樓層。"
+          },
+          {
+            question: "What is often on the top floor of department stores?",
+            options: ["Toys", "Clothes", "Electronics", "Restaurants"],
+            answer: 3,
+            explanation: "根據文章 'The top floor often has restaurants'，頂層通常是餐廳。"
+          },
+          {
+            question: "When do many stores have special sales?",
+            options: ["Every day", "During holidays", "Only in summer", "Never"],
+            answer: 1,
+            explanation: "根據文章 'Many stores have special sales during holidays'，許多商店在假日期間有特價活動。"
+          },
+          {
+            question: "How can you get good deals at department stores?",
+            options: ["By speaking English", "By shopping at night", "By having a store card", "By being a tourist"],
+            answer: 2,
+            explanation: "根據文章 'You can get good deals if you have a store card'，擁有商店會員卡可以獲得優惠。"
+          }
+        ]
+      },
+      {
+        title: "Buying Fruit in Taiwan",
+        passage: "Taiwan has many kinds of delicious fruit. You can buy fruit at markets, stores, or fruit shops. Some fruits are cheap, but special fruits can be expensive. Many sellers will let you try the fruit before you buy. During summer, you can find mangoes and pineapples. In winter, you can buy oranges and apples. Fresh fruit makes a good gift for friends.",
+        questions: [
+          {
+            question: "Where can you buy fruit in Taiwan?",
+            options: ["Only at markets", "Only at fruit shops", "At markets, stores, or fruit shops", "Only at department stores"],
+            answer: 2,
+            explanation: "根據文章 'You can buy fruit at markets, stores, or fruit shops'，可以在市場、商店或水果店購買水果。"
+          },
+          {
+            question: "How are the prices of fruit in Taiwan?",
+            options: ["All fruits are cheap", "All fruits are expensive", "Some fruits are cheap, but special fruits can be expensive", "All fruits have the same price"],
+            answer: 2,
+            explanation: "根據文章 'Some fruits are cheap, but special fruits can be expensive'，一些水果便宜，但特殊水果可能很貴。"
+          },
+          {
+            question: "What will many sellers let you do before buying fruit?",
+            options: ["Take it home first", "Pay half price", "Try the fruit", "Choose the tree"],
+            answer: 2,
+            explanation: "根據文章 'Many sellers will let you try the fruit before you buy'，許多賣家會讓你在購買前試吃水果。"
+          },
+          {
+            question: "What fruits can you find during summer in Taiwan?",
+            options: ["Oranges and apples", "Mangoes and pineapples", "Grapes and peaches", "Strawberries and cherries"],
+            answer: 1,
+            explanation: "根據文章 'During summer, you can find mangoes and pineapples'，夏天可以找到芒果和鳳梨。"
+          },
+          {
+            question: "According to the passage, what makes a good gift for friends?",
+            options: ["Toys", "Clothes", "Fresh fruit", "Electronics"],
+            answer: 2,
+            explanation: "根據文章 'Fresh fruit makes a good gift for friends'，新鮮水果是送給朋友的好禮物。"
+          }
+        ]
+      },
+      {
+        title: "Discount Shopping in Taiwan",
+        passage: "Taiwan has many places to find good deals. Outlet stores sell brand items for less money. Many shops have sales at the end of each season. You can get 30% to 50% off regular prices. Some stores give extra discounts if you have their card. The best deals are often during Chinese New Year and other holidays. Shopping early in the morning helps you find the best items.",
+        questions: [
+          {
+            question: "What do outlet stores in Taiwan sell?",
+            options: ["Only local items", "Only food", "Brand items for less money", "Only toys"],
+            answer: 2,
+            explanation: "根據文章 'Outlet stores sell brand items for less money'，outlet商店以較低價格銷售品牌商品。"
+          },
+          {
+            question: "When do many shops have sales?",
+            options: ["Every day", "At the end of each season", "Only during summer", "Never"],
+            answer: 1,
+            explanation: "根據文章 'Many shops have sales at the end of each season'，許多商店在每個季節結束時有特價活動。"
+          },
+          {
+            question: "How much discount can you get during sales?",
+            options: ["10% to 20%", "30% to 50%", "60% to 70%", "80% to 90%"],
+            answer: 1,
+            explanation: "根據文章 'You can get 30% to 50% off regular prices'，可以獲得3至5折的折扣。"
+          },
+          {
+            question: "How can you get extra discounts at some stores?",
+            options: ["By speaking Chinese", "By shopping at night", "By having their card", "By being a tourist"],
+            answer: 2,
+            explanation: "根據文章 'Some stores give extra discounts if you have their card'，擁有會員卡可以獲得額外折扣。"
+          },
+          {
+            question: "When are the best deals often available?",
+            options: ["Only in summer", "During Chinese New Year and other holidays", "Only on weekends", "Every day"],
+            answer: 1,
+            explanation: "根據文章 'The best deals are often during Chinese New Year and other holidays'，農曆新年和其他假日期間通常有最好的優惠。"
+          }
+        ]
+      },
+      {
+        title: "Toy Shopping in Ximending",
+        passage: "Ximending is a popular shopping area in Taipei. It has many shops selling toys and gifts. You can find action figures, dolls, and games. Some shops sell special toys that you can only find in Taiwan. Prices are often lower than in department stores. During weekends, the area is very busy with young people. Many shops give small gifts if you spend enough money.",
+        questions: [
+          {
+            question: "What is Ximending?",
+            options: ["A department store", "A night market", "A popular shopping area in Taipei", "A restaurant"],
+            answer: 2,
+            explanation: "根據文章 'Ximending is a popular shopping area in Taipei'，西門町是台北的熱門購物區。"
+          },
+          {
+            question: "What can you find in Ximending's shops?",
+            options: ["Only clothes", "Only food", "Action figures, dolls, and games", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'You can find action figures, dolls, and games'，商店有動作人偶、娃娃和遊戲。"
+          },
+          {
+            question: "What special items do some shops sell?",
+            options: ["Toys that you can only find in Taiwan", "Only imported toys", "Only expensive toys", "Only old toys"],
+            answer: 0,
+            explanation: "根據文章 'Some shops sell special toys that you can only find in Taiwan'，一些商店銷售台灣獨有的特殊玩具。"
+          },
+          {
+            question: "How are the prices in Ximending compared to department stores?",
+            options: ["Higher", "Lower", "The same", "It depends on the season"],
+            answer: 1,
+            explanation: "根據文章 'Prices are often lower than in department stores'，價格通常比百貨公司低。"
+          },
+          {
+            question: "When do many shops give small gifts?",
+            options: ["To everyone", "If you speak Chinese", "If you spend enough money", "If you are a tourist"],
+            answer: 2,
+            explanation: "根據文章 'Many shops give small gifts if you spend enough money'，消費達到一定金額會贈送小禮物。"
+          }
+        ]
+      },
+      {
+        title: "Buying Snacks in Taiwan",
+        passage: "Taiwan is famous for its many delicious snacks. You can buy them at night markets, stores, or shops. Popular snacks include pineapple cakes and milk tea. Many shops offer special deals like buy one get one free. Some places let you try samples before buying. Snacks make good gifts to take home. The best shops often have long lines of people waiting to buy.",
+        questions: [
+          {
+            question: "What is Taiwan famous for?",
+            options: ["Its tall buildings", "Its many delicious snacks", "Its beaches", "Its cold weather"],
+            answer: 1,
+            explanation: "根據文章 'Taiwan is famous for its many delicious snacks'，台灣以美味小吃聞名。"
+          },
+          {
+            question: "Where can you buy snacks in Taiwan?",
+            options: ["Only at night markets", "Only at stores", "At night markets, stores, or shops", "Only at restaurants"],
+            answer: 2,
+            explanation: "根據文章 'You can buy them at night markets, stores, or shops'，可以在夜市、商店或專賣店購買小吃。"
+          },
+          {
+            question: "What are some popular snacks mentioned in the passage?",
+            options: ["Hamburgers and pizza", "Sushi and ramen", "Pineapple cakes and milk tea", "Ice cream and chocolate"],
+            answer: 2,
+            explanation: "根據文章 'Popular snacks include pineapple cakes and milk tea'，鳳梨酥和奶茶是受歡迎的小吃。"
+          },
+          {
+            question: "What special deals do many shops offer?",
+            options: ["Half price", "Buy one get one free", "Free delivery", "Discount for tourists"],
+            answer: 1,
+            explanation: "根據文章 'Many shops offer special deals like buy one get one free'，許多商店提供買一送一的優惠。"
+          },
+          {
+            question: "What do the best snack shops often have?",
+            options: ["High prices", "Few customers", "Long lines of people waiting", "Only local customers"],
+            answer: 2,
+            explanation: "根據文章 'The best shops often have long lines of people waiting to buy'，最好的商店通常有長隊等待購買。"
+          }
+        ]
+      },
+      {
+        title: "Souvenir Shopping in Tamsui",
+        passage: "Tamsui is a beautiful area near the sea in Taiwan. Many tourists visit to buy special souvenirs. The old street has many small shops selling gifts and toys. You can find handmade items and local art. Some shops offer discounts if you buy more than three items. The best time to shop is on weekdays when there are fewer people. Don't forget to watch the sunset while you're there!",
+        questions: [
+          {
+            question: "Where is Tamsui located?",
+            options: ["In the mountains", "Near the sea", "In the city center", "Near the airport"],
+            answer: 1,
+            explanation: "根據文章 'Tamsui is a beautiful area near the sea in Taiwan'，淡水是台灣靠海的美麗地區。"
+          },
+          {
+            question: "Why do many tourists visit Tamsui?",
+            options: ["To work", "To live there", "To buy special souvenirs", "To study"],
+            answer: 2,
+            explanation: "根據文章 'Many tourists visit to buy special souvenirs'，遊客去那裡購買特別的紀念品。"
+          },
+          {
+            question: "What can you find in the old street shops?",
+            options: ["Only food", "Only clothes", "Handmade items and local art", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'You can find handmade items and local art'，老街商店有手工製品和當地藝術品。"
+          },
+          {
+            question: "When can you get discounts at some shops in Tamsui?",
+            options: ["If you speak Chinese", "If you are a local", "If you buy more than three items", "If you visit in summer"],
+            answer: 2,
+            explanation: "根據文章 'Some shops offer discounts if you buy more than three items'，購買超過三件商品可以獲得折扣。"
+          },
+          {
+            question: "When is the best time to shop in Tamsui?",
+            options: ["On weekends", "On weekdays", "During holidays", "At night"],
+            answer: 1,
+            explanation: "根據文章 'The best time to shop is on weekdays when there are fewer people'，平日人較少是最佳購物時間。"
+          }
+        ]
+      },
+      {
+        title: "Gift Shopping in Taichung",
+        passage: "Taichung is a big city in central Taiwan. It has many places to buy nice gifts. The most famous area is called Yizhong Street. You can find cute toys, clothes, and local items there. Many shops have special sales on Tuesdays. Students get extra discounts if they show their school ID. The shops are open late, so you can go shopping after dinner.",
+        questions: [
+          {
+            question: "Where is Taichung located?",
+            options: ["In northern Taiwan", "In southern Taiwan", "In central Taiwan", "In eastern Taiwan"],
+            answer: 2,
+            explanation: "根據文章 'Taichung is a big city in central Taiwan'，台中是台灣中部的大城市。"
+          },
+          {
+            question: "What is the most famous shopping area mentioned?",
+            options: ["Night market", "Yizhong Street", "Department store", "Old street"],
+            answer: 1,
+            explanation: "根據文章 'The most famous area is called Yizhong Street'，最著名的區域是一中街。"
+          },
+          {
+            question: "What can you find at Yizhong Street?",
+            options: ["Only food", "Only electronics", "Cute toys, clothes, and local items", "Only books"],
+            answer: 2,
+            explanation: "根據文章 'You can find cute toys, clothes, and local items there'，一中街有可愛的玩具、衣服和當地商品。"
+          },
+          {
+            question: "When do many shops have special sales?",
+            options: ["On Mondays", "On Tuesdays", "On weekends", "Every day"],
+            answer: 1,
+            explanation: "根據文章 'Many shops have special sales on Tuesdays'，許多商店在星期二有特價活動。"
+          },
+          {
+            question: "Who can get extra discounts at shops?",
+            options: ["Tourists", "Elderly people", "Students with school ID", "Everyone"],
+            answer: 2,
+            explanation: "根據文章 'Students get extra discounts if they show their school ID'，學生出示學生證可以獲得額外折扣。"
+          }
+        ]
+      },
+      {
+        title: "Electronics Shopping in Taiwan",
+        passage: "Taiwan makes many electronics like computers and phones. There are special areas in big cities to buy these items. Prices are often lower than in other countries. Many shops give free gifts with big purchases. Some places let you try the items before buying. The best time to find deals is during technology fairs. Don't forget to ask about the warranty before you buy.",
+        questions: [
+          {
+            question: "What does Taiwan make?",
+            options: ["Only clothes", "Only food", "Many electronics like computers and phones", "Only toys"],
+            answer: 2,
+            explanation: "根據文章 'Taiwan makes many electronics like computers and phones'，台灣生產許多電子產品如電腦和手機。"
+          },
+          {
+            question: "Where can you buy electronics in Taiwan?",
+            options: ["Only in small shops", "In special areas in big cities", "Only online", "Only at night markets"],
+            answer: 1,
+            explanation: "根據文章 'There are special areas in big cities to buy these items'，大城市有專門區域銷售電子產品。"
+          },
+          {
+            question: "How are electronics prices in Taiwan compared to other countries?",
+            options: ["Higher", "Lower", "The same", "It depends on the season"],
+            answer: 1,
+            explanation: "根據文章 'Prices are often lower than in other countries'，價格通常比其他國家低。"
+          },
+          {
+            question: "What do many shops give with big purchases?",
+            options: ["Money back", "Free gifts", "Extra warranty", "Discount cards"],
+            answer: 1,
+            explanation: "根據文章 'Many shops give free gifts with big purchases'，大額購買會贈送免費禮品。"
+          },
+          {
+            question: "When is the best time to find deals on electronics?",
+            options: ["During weekends", "During summer", "During technology fairs", "During winter"],
+            answer: 2,
+            explanation: "根據文章 'The best time to find deals is during technology fairs'，科技展期間是找優惠的最佳時機。"
+          }
+        ]
+      },
+      {
+        title: "Traditional Markets in Taiwan",
+        passage: "Taiwan has many traditional markets. They open early in the morning. You can buy fresh food, clothes, and daily items there. Prices are lower than in regular stores. Many local people shop at these markets every day. You can often get a better price if you buy more. Some sellers will give you extra items for free if you are a regular customer.",
+        questions: [
+          {
+            question: "When do traditional markets in Taiwan open?",
+            options: ["Late at night", "In the afternoon", "Early in the morning", "Only on weekends"],
+            answer: 2,
+            explanation: "根據文章 'They open early in the morning'，傳統市場清晨開門。"
+          },
+          {
+            question: "What can you buy at traditional markets?",
+            options: ["Only food", "Only clothes", "Fresh food, clothes, and daily items", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'You can buy fresh food, clothes, and daily items there'，市場可以買到新鮮食品、衣服和日用品。"
+          },
+          {
+            question: "How are the prices at traditional markets compared to regular stores?",
+            options: ["Higher", "Lower", "The same", "It depends on the item"],
+            answer: 1,
+            explanation: "根據文章 'Prices are lower than in regular stores'，價格比一般商店低。"
+          },
+          {
+            question: "Who shops at these markets every day?",
+            options: ["Only tourists", "Only students", "Many local people", "Only elderly people"],
+            answer: 2,
+            explanation: "根據文章 'Many local people shop at these markets every day'，許多當地人每天在這些市場購物。"
+          },
+          {
+            question: "When might sellers give you extra items for free?",
+            options: ["If you are a tourist", "If you speak Chinese", "If you are a regular customer", "If you buy only one item"],
+            answer: 2,
+            explanation: "根據文章 'Some sellers will give you extra items for free if you are a regular customer'，常客可能會獲得免費贈品。"
+          }
+        ]
+      },
+      {
+        title: "Buying Tea in Taiwan",
+        passage: "Taiwan is famous for its good tea. You can buy tea at special tea shops or markets. There are many kinds of tea with different prices. Some tea is very expensive because it is rare. Many shops let you try the tea before buying. Tea makes a great gift to take home. The best tea shops can tell you how to make the tea correctly.",
+        questions: [
+          {
+            question: "What is Taiwan famous for?",
+            options: ["Its coffee", "Its good tea", "Its wine", "Its juice"],
+            answer: 1,
+            explanation: "根據文章 'Taiwan is famous for its good tea'，台灣以好茶聞名。"
+          },
+          {
+            question: "Where can you buy tea in Taiwan?",
+            options: ["Only at supermarkets", "Only at night markets", "At special tea shops or markets", "Only online"],
+            answer: 2,
+            explanation: "根據文章 'You can buy tea at special tea shops or markets'，可以在特殊茶葉店或市場購買茶葉。"
+          },
+          {
+            question: "Why is some tea very expensive?",
+            options: ["Because it is imported", "Because it is old", "Because it is rare", "Because it is new"],
+            answer: 2,
+            explanation: "根據文章 'Some tea is very expensive because it is rare'，一些茶很貴是因為它很稀有。"
+          },
+          {
+            question: "What do many shops let you do before buying tea?",
+            options: ["Take it home first", "Try the tea", "Pay half price", "Choose the tea plant"],
+            answer: 1,
+            explanation: "根據文章 'Many shops let you try the tea before buying'，許多商店讓你在購買前試喝茶。"
+          },
+          {
+            question: "What can the best tea shops tell you?",
+            options: ["How to grow tea", "How to sell tea", "How to make the tea correctly", "How to find rare tea"],
+            answer: 2,
+            explanation: "根據文章 'The best tea shops can tell you how to make the tea correctly'，最好的茶店可以告訴你如何正確沖泡茶。"
+          }
+        ]
+      },
+      {
+        title: "Shopping Malls in Kaohsiung",
+        passage: "Kaohsiung is a big city in southern Taiwan. It has several modern shopping malls. These malls have many stores selling clothes, toys, and gifts. Most malls have food courts with good local food. During summer, the malls have big sales with many items half price. Shopping malls are good places to visit when the weather is hot because they have air conditioning.",
+        questions: [
+          {
+            question: "Where is Kaohsiung located?",
+            options: ["In northern Taiwan", "In central Taiwan", "In southern Taiwan", "In eastern Taiwan"],
+            answer: 2,
+            explanation: "根據文章 'Kaohsiung is a big city in southern Taiwan'，高雄是台灣南部的大城市。"
+          },
+          {
+            question: "What kind of shopping places does Kaohsiung have?",
+            options: ["Only traditional markets", "Only night markets", "Several modern shopping malls", "Only small shops"],
+            answer: 2,
+            explanation: "根據文章 'It has several modern shopping malls'，高雄有幾個現代購物中心。"
+          },
+          {
+            question: "What can you find in these shopping malls?",
+            options: ["Only food", "Only clothes", "Clothes, toys, and gifts", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'These malls have many stores selling clothes, toys, and gifts'，這些購物中心有銷售衣服、玩具和禮品的商店。"
+          },
+          {
+            question: "What do most malls have for food?",
+            options: ["Only western restaurants", "Food courts with good local food", "No food options", "Only expensive restaurants"],
+            answer: 1,
+            explanation: "根據文章 'Most malls have food courts with good local food'，大多數購物中心有提供美味當地食物的美食廣場。"
+          },
+          {
+            question: "Why are shopping malls good places to visit when the weather is hot?",
+            options: ["Because they have sales", "Because they have fewer people", "Because they have air conditioning", "Because they open later"],
+            answer: 2,
+            explanation: "根據文章 'Shopping malls are good places to visit when the weather is hot because they have air conditioning'，購物中心有空調，適合在天氣熱時參觀。"
+          }
+        ]
+      },
+      {
+        title: "Buying Clothes in Taiwan",
+        passage: "Taiwan has many places to buy clothes. Night markets sell cheap and trendy items. Department stores have more expensive brands. Many small shops have unique designs you can't find elsewhere. During the change of seasons, most stores have big sales. You can often get 20% to 40% off. Some shops let you try on clothes before buying. It's a good idea to check the size carefully.",
+        questions: [
+          {
+            question: "Where can you buy cheap and trendy clothes in Taiwan?",
+            options: ["Department stores", "Night markets", "Online only", "Supermarkets"],
+            answer: 1,
+            explanation: "根據文章 'Night markets sell cheap and trendy items'，夜市銷售便宜且流行的服飾。"
+          },
+          {
+            question: "What kind of clothes do department stores have?",
+            options: ["Only cheap clothes", "More expensive brands", "Only traditional clothes", "Only children's clothes"],
+            answer: 1,
+            explanation: "根據文章 'Department stores have more expensive brands'，百貨公司有較昂貴的品牌。"
+          },
+          {
+            question: "What can you find in many small shops?",
+            options: ["Only imported clothes", "Only sports clothes", "Unique designs you can't find elsewhere", "Only winter clothes"],
+            answer: 2,
+            explanation: "根據文章 'Many small shops have unique designs you can't find elsewhere'，許多小商店有獨特的設計，在其他地方找不到。"
+          },
+          {
+            question: "When do most stores have big sales?",
+            options: ["Every weekend", "During the change of seasons", "Only in summer", "Every day"],
+            answer: 1,
+            explanation: "根據文章 'During the change of seasons, most stores have big sales'，季節交替時大多數商店有大型促銷活動。"
+          },
+          {
+            question: "What discount can you often get during sales?",
+            options: ["5% to 10%", "20% to 40%", "50% to 70%", "80% to 90%"],
+            answer: 1,
+            explanation: "根據文章 'You can often get 20% to 40% off'，通常可以獲得2至4折的折扣。"
+          }
+        ]
+      },
+      {
+        title: "Buying Local Crafts in Taiwan",
+        passage: "Taiwan has many beautiful handmade crafts. You can buy them at special craft shops or markets. Popular items include pottery, wood carvings, and paper art. These make unique gifts to take home. Prices depend on how difficult they are to make. Some shops offer classes where you can learn to make crafts yourself. The best places to find crafts are in small towns and villages.",
+        questions: [
+          {
+            question: "What kind of crafts does Taiwan have?",
+            options: ["Only modern crafts", "Only imported crafts", "Many beautiful handmade crafts", "Only plastic crafts"],
+            answer: 2,
+            explanation: "根據文章 'Taiwan has many beautiful handmade crafts'，台灣有許多美麗的手工藝品。"
+          },
+          {
+            question: "Where can you buy crafts in Taiwan?",
+            options: ["Only online", "Only at department stores", "At special craft shops or markets", "Only at airports"],
+            answer: 2,
+            explanation: "根據文章 'You can buy them at special craft shops or markets'，可以在特殊工藝品商店或市場購買。"
+          },
+          {
+            question: "What are some popular craft items mentioned?",
+            options: ["Cars and bikes", "Computers and phones", "Pottery, wood carvings, and paper art", "Only metal crafts"],
+            answer: 2,
+            explanation: "根據文章 'Popular items include pottery, wood carvings, and paper art'，受歡迎的物品包括陶器、木雕和紙藝。"
+          },
+          {
+            question: "What determines the prices of crafts?",
+            options: ["Their size", "Their age", "How difficult they are to make", "Their color"],
+            answer: 2,
+            explanation: "根據文章 'Prices depend on how difficult they are to make'，價格取決於製作難度。"
+          },
+          {
+            question: "What do some craft shops offer?",
+            options: ["Free crafts", "Classes where you can learn to make crafts", "Only expensive crafts", "Only imported crafts"],
+            answer: 1,
+            explanation: "根據文章 'Some shops offer classes where you can learn to make crafts yourself'，一些商店提供教你自己製作工藝品的課程。"
+          }
+        ]
+      },
+      {
+        title: "Buying Stationery in Taiwan",
+        passage: "Taiwan has many cute stationery items. You can find them in bookstores and special stationery shops. Popular items include notebooks, pens, and stickers with cute designs. Many students collect these items. Some shops have sales at the start of school terms. You can often find special items that are only sold in Taiwan. These make good small gifts for friends back home.",
+        questions: [
+          {
+            question: "What kind of stationery does Taiwan have?",
+            options: ["Only expensive stationery", "Only plain stationery", "Many cute stationery items", "Only imported stationery"],
+            answer: 2,
+            explanation: "根據文章 'Taiwan has many cute stationery items'，台灣有許多可愛的文具用品。"
+          },
+          {
+            question: "Where can you find stationery in Taiwan?",
+            options: ["Only at night markets", "In bookstores and special stationery shops", "Only at department stores", "Only online"],
+            answer: 1,
+            explanation: "根據文章 'You can find them in bookstores and special stationery shops'，可以在書店和特殊文具店找到文具。"
+          },
+          {
+            question: "What are some popular stationery items mentioned?",
+            options: ["Only books", "Only calendars", "Notebooks, pens, and stickers with cute designs", "Only paper"],
+            answer: 2,
+            explanation: "根據文章 'Popular items include notebooks, pens, and stickers with cute designs'，受歡迎的物品包括筆記本、筆和有可愛設計的貼紙。"
+          },
+          {
+            question: "When do some shops have sales on stationery?",
+            options: ["Every day", "At the start of school terms", "Only in summer", "Only on weekends"],
+            answer: 1,
+            explanation: "根據文章 'Some shops have sales at the start of school terms'，一些商店在學期開始時有特價活動。"
+          },
+          {
+            question: "What is special about some stationery items in Taiwan?",
+            options: ["They are very expensive", "They are very old", "They are only sold in Taiwan", "They are all imported"],
+            answer: 2,
+            explanation: "根據文章 'You can often find special items that are only sold in Taiwan'，可以找到只在台灣銷售的特殊物品。"
+          }
+        ]
+      },
+      {
+        title: "Shopping for Souvenirs in Alishan",
+        passage: "Alishan is a famous mountain area in Taiwan. Many tourists go there to buy special souvenirs. The shops sell items made from local wood and tea grown in the mountains. Prices are higher than in cities because items must be brought up the mountain. The best time to shop is early morning when tour buses haven't arrived yet. Don't forget to try the famous Alishan tea while you're there.",
+        questions: [
+          {
+            question: "What is Alishan?",
+            options: ["A city", "A famous mountain area", "A night market", "A department store"],
+            answer: 1,
+            explanation: "根據文章 'Alishan is a famous mountain area in Taiwan'，阿里山是台灣著名的山區。"
+          },
+          {
+            question: "What do shops in Alishan sell?",
+            options: ["Only imported items", "Only clothes", "Items made from local wood and tea grown in the mountains", "Only electronics"],
+            answer: 2,
+            explanation: "根據文章 'The shops sell items made from local wood and tea grown in the mountains'，商店銷售由當地木材製成的物品和山上種植的茶葉。"
+          },
+          {
+            question: "How are prices in Alishan compared to cities?",
+            options: ["Lower", "Higher", "The same", "It depends on the season"],
+            answer: 1,
+            explanation: "根據文章 'Prices are higher than in cities because items must be brought up the mountain'，價格比城市高，因為物品必須運上山。"
+          },
+          {
+            question: "When is the best time to shop in Alishan?",
+            options: ["At night", "In the afternoon", "Early morning", "During lunch time"],
+            answer: 2,
+            explanation: "根據文章 'The best time to shop is early morning when tour buses haven't arrived yet'，最佳購物時間是清晨，當旅遊巴士尚未抵達時。"
+          },
+          {
+            question: "What should you try while in Alishan?",
+            options: ["The famous Alishan tea", "The local wine", "The special coffee", "The mountain water"],
+            answer: 0,
+            explanation: "根據文章 'Don't forget to try the famous Alishan tea while you're there'，建議嘗試著名的阿里山茶。"
+          }
+        ]
+      },
+      {
+        title: "Buying Snacks at Convenience Stores",
+        passage: "Taiwan has many convenience stores that are open 24 hours. They sell many kinds of snacks and drinks. Popular items include tea eggs, rice balls, and sweet bread. Many stores have special deals like buy one get one free. New snacks often come out each month. Some items are only available for a short time. Convenience stores are good places to find cheap and quick food when traveling.",
+        questions: [
+          {
+            question: "How long are convenience stores open in Taiwan?",
+            options: ["Only during the day", "Only at night", "24 hours", "Only on weekends"],
+            answer: 2,
+            explanation: "根據文章 'Taiwan has many convenience stores that are open 24 hours'，台灣有許多24小時營業的便利商店。"
+          },
+          {
+            question: "What do convenience stores sell?",
+            options: ["Only drinks", "Only hot food", "Many kinds of snacks and drinks", "Only imported food"],
+            answer: 2,
+            explanation: "根據文章 'They sell many kinds of snacks and drinks'，便利商店銷售多種零食和飲料。"
+          },
+          {
+            question: "What are some popular items mentioned?",
+            options: ["Pizza and hamburgers", "Sushi and ramen", "Tea eggs, rice balls, and sweet bread", "Only chocolate"],
+            answer: 2,
+            explanation: "根據文章 'Popular items include tea eggs, rice balls, and sweet bread'，受歡迎的物品包括茶葉蛋、飯糰和甜麵包。"
+          },
+          {
+            question: "How often do new snacks come out?",
+            options: ["Every day", "Every week", "Each month", "Every year"],
+            answer: 2,
+            explanation: "根據文章 'New snacks often come out each month'，新零食通常每月推出。"
+          },
+          {
+            question: "Why are convenience stores good for travelers?",
+            options: ["They have Wi-Fi", "They have places to sleep", "They have cheap and quick food", "They have tour guides"],
+            answer: 2,
+            explanation: "根據文章 'Convenience stores are good places to find cheap and quick food when traveling'，便利商店是旅行時尋找便宜快餐的好地方。"
+          }
+        ]
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let userAnswers = [];
+    let quizSubmitted = false;
+
+    function renderQuiz(index) {
+      const quiz = quizData[index];
+      userAnswers = [];
+      quizSubmitted = false;
+      
+      // Render passage
+      const passageContainer = document.getElementById('passage-container');
+      passageContainer.innerHTML = `
+        <h2 class="passage-title mb-4">${quiz.title}</h2>
+        <p class="passage">${quiz.passage}</p>
+      `;
+      
+      // Render questions
+      const questionsContainer = document.getElementById('questions-container');
+      questionsContainer.innerHTML = '';
+      
+      quiz.questions.forEach((q, qIndex) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'mb-6 p-4 bg-gray-50 rounded-lg question-item';
+        questionDiv.dataset.questionIndex = qIndex;
+        
+        const questionTitle = document.createElement('h3');
+        questionTitle.className = 'text-lg font-semibold mb-3';
+        questionTitle.textContent = `${qIndex + 1}. ${q.question}`;
+        questionDiv.appendChild(questionTitle);
+        
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'mb-3';
+        
+        q.options.forEach((option, oIndex) => {
+          const optionLabel = document.createElement('label');
+          optionLabel.className = 'block mb-2 p-2 hover:bg-gray-100 rounded cursor-pointer';
+          
+          const optionInput = document.createElement('input');
+          optionInput.type = 'radio';
+          optionInput.name = `question-${qIndex}`;
+          optionInput.value = oIndex;
+          optionInput.className = 'mr-2';
+          optionInput.addEventListener('change', () => {
+            userAnswers[qIndex] = oIndex;
+          });
+          
+          optionLabel.appendChild(optionInput);
+          optionLabel.appendChild(document.createTextNode(option));
+          optionsDiv.appendChild(optionLabel);
+        });
+        
+        questionDiv.appendChild(optionsDiv);
+        
+        // Add explanation box (initially hidden)
+        const explanationBox = document.createElement('div');
+        explanationBox.className = 'explanation-box';
+        explanationBox.id = `explanation-${qIndex}`;
+        explanationBox.innerHTML = `<p>${q.explanation}</p>`;
+        questionDiv.appendChild(explanationBox);
+        
+        questionsContainer.appendChild(questionDiv);
+      });
+      
+      // Reset results section
+      document.getElementById('results').classList.add('hidden');
+      document.getElementById('submit-btn').style.display = 'block';
+      
+      // Add hover effect for highlighting text
+      setupHighlighting();
+    }
+    
+    function setupHighlighting() {
+      const questionItems = document.querySelectorAll('.question-item');
+      const passageText = document.querySelector('.passage');
+      const passageContent = passageText.textContent;
+      
+      questionItems.forEach((item, index) => {
+        item.addEventListener('mouseenter', () => {
+          if (quizSubmitted) {
+            const highlightClass = `highlight-${index + 1}`;
+            passageText.innerHTML = passageContent.replace(/(<([^>]+)>)/gi, ""); // Remove any existing highlights
+            
+            // Find relevant text to highlight based on the question and answer
+            const quiz = quizData[currentQuizIndex];
+            const question = quiz.questions[index];
+            const answerText = question.options[question.answer];
+            
+            // Try to find this text in the passage
+            let textToHighlight = findRelevantTextInPassage(passageContent, answerText, question.question);
+            
+            if (textToHighlight) {
+              passageText.innerHTML = passageContent.replace(
+                new RegExp(`(${escapeRegExp(textToHighlight)})`, 'gi'),
+                `<span class="${highlightClass}">$1</span>`
+              );
+            }
+          }
+        });
+        
+        item.addEventListener('mouseleave', () => {
+          if (quizSubmitted) {
+            passageText.innerHTML = passageContent;
+          }
+        });
+      });
+    }
+    
+    function findRelevantTextInPassage(passage, answer, question) {
+      // This is a simple implementation - in a real app, you might use more sophisticated NLP
+      const keywords = answer.split(' ').filter(word => word.length > 3);
+      
+      for (const keyword of keywords) {
+        const regex = new RegExp(`[^.!?]*${keyword}[^.!?]*[.!?]`, 'i');
+        const match = passage.match(regex);
+        if (match) return match[0].trim();
+      }
+      
+      // If no match with answer, try with question
+      const questionKeywords = question.split(' ').filter(word => word.length > 3);
+      
+      for (const keyword of questionKeywords) {
+        const regex = new RegExp(`[^.!?]*${keyword}[^.!?]*[.!?]`, 'i');
+        const match = passage.match(regex);
+        if (match) return match[0].trim();
+      }
+      
+      return null;
+    }
+    
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    function submitQuiz() {
+      const quiz = quizData[currentQuizIndex];
+      let score = 0;
+      
+      quiz.questions.forEach((q, qIndex) => {
+        const userAnswer = userAnswers[qIndex] !== undefined ? userAnswers[qIndex] : -1;
+        const isCorrect = userAnswer === q.answer;
+        
+        if (isCorrect) {
+          score += 20;
+        }
+        
+        // Get the question div
+        const questionDiv = document.querySelector(`.question-item[data-question-index="${qIndex}"]`);
+        
+        // Create result display
+        const resultDiv = document.createElement('div');
+        resultDiv.className = `p-3 my-2 rounded ${isCorrect ? 'correct-answer' : 'wrong-answer'}`;
+        
+        resultDiv.innerHTML = `
+          <p class="mb-1"><span class="user-answer">Your answer:</span> ${userAnswer >= 0 ? q.options[userAnswer] : 'No answer'} ${isCorrect ? '✓' : '✗'}</p>
+          <p><span class="font-bold">Correct answer:</span> ${q.options[q.answer]}</p>
+        `;
+        
+        // Insert result after options but before explanation
+        const explanationBox = document.getElementById(`explanation-${qIndex}`);
+        questionDiv.insertBefore(resultDiv, explanationBox);
+        
+        // Show explanation
+        explanationBox.style.display = 'block';
+      });
+      
+      document.getElementById('score').textContent = score;
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('submit-btn').style.display = 'none';
+      
+      quizSubmitted = true;
+      setupHighlighting();
+    }
+    
+    // Initialize tabs with full titles
+    function initializeTabs() {
+      const tabsContainer = document.querySelector('.tabs-container > div');
+      tabsContainer.innerHTML = '';
+      
+      quizData.forEach((quiz, index) => {
+        const tabButton = document.createElement('button');
+        tabButton.className = `tab-btn px-3 py-2 rounded-lg text-sm ${index === currentQuizIndex ? 'tab-active' : 'bg-gray-200'}`;
+        tabButton.dataset.index = index;
+        tabButton.textContent = quiz.title;
+        
+        tabButton.addEventListener('click', () => {
+          currentQuizIndex = index;
+          
+          // Update active tab
+          document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('bg-gray-200');
+          });
+          tabButton.classList.add('tab-active');
+          tabButton.classList.remove('bg-gray-200');
+          
+          renderQuiz(index);
+        });
+        
+        tabsContainer.appendChild(tabButton);
+      });
+    }
+    
+    // Initialize the quiz
+    initializeTabs();
+    renderQuiz(0);
+    
+    // Set up event listeners
+    document.getElementById('submit-btn').addEventListener('click', submitQuiz);
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      renderQuiz(currentQuizIndex);
+    });
+
+    // Adjust height on window resize
+    function adjustHeight() {
+      const windowHeight = window.innerHeight;
+      const headerHeight = document.querySelector('.fixed-header').offsetHeight;
+      document.querySelector('.questions-scroll').style.maxHeight = `calc(${windowHeight}px - ${headerHeight + 200}px)`;
+    }
+    
+    window.addEventListener('resize', adjustHeight);
+    // Initial height adjustment
+    setTimeout(adjustHeight, 100);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'949d7b4fc0e14a8b',t:'MTc0ODkzNTc5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

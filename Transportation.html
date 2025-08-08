@@ -1,0 +1,1286 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英語閱讀測驗：生活場所與交通工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .option:hover {
+            background-color: #e0f2fe;
+        }
+        .selected {
+            background-color: #bae6fd;
+            border-color: #0284c7;
+        }
+        .correct {
+            background-color: #bbf7d0;
+            border-color: #16a34a;
+        }
+        .incorrect {
+            background-color: #fecaca;
+            border-color: #dc2626;
+        }
+        .tab {
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: fit-content;
+            padding: 0.5rem 1rem;
+        }
+        .tab.active {
+            background-color: #0284c7;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+        .reading-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            position: relative;
+        }
+        .reading-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #0c4a6e;
+        }
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            -ms-overflow-style: none;
+            padding-bottom: 5px;
+        }
+        .tabs-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .tabs-container::-webkit-scrollbar-thumb {
+            background-color: #94a3b8;
+            border-radius: 3px;
+        }
+        .tabs-container::-webkit-scrollbar-track {
+            background-color: #e2e8f0;
+            border-radius: 3px;
+        }
+        .highlight-1 {
+            background-color: rgba(255, 99, 132, 0.3);
+        }
+        .highlight-2 {
+            background-color: rgba(54, 162, 235, 0.3);
+        }
+        .highlight-3 {
+            background-color: rgba(255, 206, 86, 0.3);
+        }
+        .highlight-4 {
+            background-color: rgba(75, 192, 192, 0.3);
+        }
+        .highlight-5 {
+            background-color: rgba(153, 102, 255, 0.3);
+        }
+        .explanation {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .explanation-1 {
+            border-left: 4px solid rgb(255, 99, 132);
+            background-color: rgba(255, 99, 132, 0.1);
+        }
+        .explanation-2 {
+            border-left: 4px solid rgb(54, 162, 235);
+            background-color: rgba(54, 162, 235, 0.1);
+        }
+        .explanation-3 {
+            border-left: 4px solid rgb(255, 206, 86);
+            background-color: rgba(255, 206, 86, 0.1);
+        }
+        .explanation-4 {
+            border-left: 4px solid rgb(75, 192, 192);
+            background-color: rgba(75, 192, 192, 0.1);
+        }
+        .explanation-5 {
+            border-left: 4px solid rgb(153, 102, 255);
+            background-color: rgba(153, 102, 255, 0.1);
+        }
+        .question-wrapper {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        .question-wrapper:hover {
+            background-color: rgba(226, 232, 240, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-sky-800 mb-2">英語閱讀測驗：生活場所與交通工具</h1>
+            <p class="text-gray-600">測試您對日常生活場所和交通工具相關英文的理解能力</p>
+        </header>
+
+        <div class="mb-4 border-b border-gray-200">
+            <div class="tabs-container" id="tabs-container">
+                <!-- Tabs will be generated here -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Reading Section (Fixed) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-4">
+                    <h2 class="reading-title mb-4" id="article-title">My Daily Routine</h2>
+                    <div class="reading-text mb-6 text-gray-800" id="article-content">
+                        I wake up at 6:30 every morning. After breakfast, I walk to the bus stop near my house. I take the bus to school. It takes about twenty minutes. After school, I often go to the library to study. Sometimes I go to the park with my friends. We like to play basketball there. On weekends, I go to the shopping mall with my family. We buy food at the supermarket. Then we eat dinner at a restaurant. I usually get home by bus or by train.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section (Scrollable) -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-sky-700 mb-6">測驗題目</h2>
+                    
+                    <div class="questions-container overflow-y-auto max-h-[600px] pr-2" id="questions-container">
+                        <!-- Questions will be generated here -->
+                    </div>
+                    
+                    <div class="mt-8">
+                        <button id="submit-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-6 rounded-md transition duration-300">提交答案</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Score Display -->
+    <div id="score-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold text-sky-700 mb-4" id="modal-title">測驗結果</h2>
+            <div id="score-display" class="text-center mb-6">
+                <p class="text-2xl font-bold text-sky-800">您的得分：<span id="score">0</span> / 100</p>
+                <p class="mt-2 text-lg" id="topic-display">主題：我的日常生活</p>
+            </div>
+            <div class="flex justify-center">
+                <button id="close-modal" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-6 rounded-md transition duration-300">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Articles data
+            const articles = [
+                {
+                    title: "My Daily Routine",
+                    content: "I wake up at 6:30 every morning. After breakfast, I walk to the bus stop near my house. I take the bus to school. It takes about twenty minutes. After school, I often go to the library to study. Sometimes I go to the park with my friends. We like to play basketball there. On weekends, I go to the shopping mall with my family. We buy food at the supermarket. Then we eat dinner at a restaurant. I usually get home by bus or by train.",
+                    questions: [
+                        {
+                            question: "How does the person go to school?",
+                            options: ["By bus", "By train", "By car", "By bicycle"],
+                            correct: 0,
+                            explanation: "文章中提到「I take the bus to school」，表示作者搭乘公車上學。",
+                            highlight: "I take the bus to school."
+                        },
+                        {
+                            question: "Where does the person often go after school?",
+                            options: ["The library", "The shopping mall", "The restaurant", "The supermarket"],
+                            correct: 0,
+                            explanation: "文章中提到「After school, I often go to the library to study」，表示作者放學後經常去圖書館讀書。",
+                            highlight: "After school, I often go to the library to study."
+                        },
+                        {
+                            question: "What do the person and friends do at the park?",
+                            options: ["Study together", "Play basketball", "Eat dinner", "Buy food"],
+                            correct: 1,
+                            explanation: "文章中提到「Sometimes I go to the park with my friends. We like to play basketball there」，表示作者和朋友在公園打籃球。",
+                            highlight: "Sometimes I go to the park with my friends. We like to play basketball there."
+                        },
+                        {
+                            question: "When does the person go to the shopping mall?",
+                            options: ["Every morning", "After school", "On weekends", "In the evening"],
+                            correct: 2,
+                            explanation: "文章中提到「On weekends, I go to the shopping mall with my family」，表示作者在週末和家人去購物中心。",
+                            highlight: "On weekends, I go to the shopping mall with my family."
+                        },
+                        {
+                            question: "How does the person usually get home?",
+                            options: ["By walking", "By car", "By bus or train", "By bicycle"],
+                            correct: 2,
+                            explanation: "文章中提到「I usually get home by bus or by train」，表示作者通常搭乘公車或火車回家。",
+                            highlight: "I usually get home by bus or by train."
+                        }
+                    ]
+                },
+                {
+                    title: "My Neighborhood",
+                    content: "I live in a small town. There is a park near my house. Many people go there to walk or run. There is also a library where I borrow books. The supermarket is across from the library. I buy food there every week. Next to the supermarket is a small restaurant. They have good food at low prices. The bus stop is in front of the restaurant. I take the bus to go to school. My school is about ten minutes away by bus.",
+                    questions: [
+                        {
+                            question: "What do people do at the park?",
+                            options: ["Play music", "Walk or run", "Read books", "Buy food"],
+                            correct: 1,
+                            explanation: "文章中提到「Many people go there to walk or run」，表示許多人去公園散步或跑步。",
+                            highlight: "Many people go there to walk or run."
+                        },
+                        {
+                            question: "Where is the supermarket located?",
+                            options: ["Next to the restaurant", "In front of the bus stop", "Across from the library", "Near the person's house"],
+                            correct: 2,
+                            explanation: "文章中提到「The supermarket is across from the library」，表示超市位於圖書館對面。",
+                            highlight: "The supermarket is across from the library."
+                        },
+                        {
+                            question: "What does the person do at the library?",
+                            options: ["Eat food", "Meet friends", "Study", "Borrow books"],
+                            correct: 3,
+                            explanation: "文章中提到「There is also a library where I borrow books」，表示作者在圖書館借書。",
+                            highlight: "There is also a library where I borrow books."
+                        },
+                        {
+                            question: "How is the restaurant described?",
+                            options: ["Large with many tables", "Expensive but good", "Small with good food at low prices", "Far from the bus stop"],
+                            correct: 2,
+                            explanation: "文章中提到「Next to the supermarket is a small restaurant. They have good food at low prices」，表示餐廳很小，但食物好吃且價格便宜。",
+                            highlight: "Next to the supermarket is a small restaurant. They have good food at low prices."
+                        },
+                        {
+                            question: "How long does it take to get to school by bus?",
+                            options: ["Five minutes", "Ten minutes", "Twenty minutes", "Thirty minutes"],
+                            correct: 1,
+                            explanation: "文章中提到「My school is about ten minutes away by bus」，表示搭公車到學校大約需要十分鐘。",
+                            highlight: "My school is about ten minutes away by bus."
+                        }
+                    ]
+                },
+                {
+                    title: "The City Bus",
+                    content: "I take the city bus every day. The bus is a good way to travel in the city. It is cheaper than a taxi. The bus stops are all over the city. I have a bus card that I use to pay. I put money on my card once a month. The buses run from 5:00 in the morning until midnight. During busy times, buses come every ten minutes. At night, they come every thirty minutes. Some buses are very crowded in the morning and evening.",
+                    questions: [
+                        {
+                            question: "Why does the person think the bus is a good way to travel?",
+                            options: ["It is faster than other transportation", "It is cheaper than a taxi", "It is more comfortable", "It runs all day and night"],
+                            correct: 1,
+                            explanation: "文章中提到「The bus is a good way to travel in the city. It is cheaper than a taxi」，表示公車是城市中良好的交通方式，因為它比計程車便宜。",
+                            highlight: "The bus is a good way to travel in the city. It is cheaper than a taxi."
+                        },
+                        {
+                            question: "How does the person pay for the bus?",
+                            options: ["With cash", "With a bus card", "With a credit card", "The bus is free"],
+                            correct: 1,
+                            explanation: "文章中提到「I have a bus card that I use to pay」，表示作者使用公車卡付費。",
+                            highlight: "I have a bus card that I use to pay."
+                        },
+                        {
+                            question: "How often does the person put money on their bus card?",
+                            options: ["Every day", "Every week", "Once a month", "Every ten minutes"],
+                            correct: 2,
+                            explanation: "文章中提到「I put money on my card once a month」，表示作者每個月儲值一次公車卡。",
+                            highlight: "I put money on my card once a month."
+                        },
+                        {
+                            question: "When do buses come every ten minutes?",
+                            options: ["At night", "During busy times", "In the morning only", "All day long"],
+                            correct: 1,
+                            explanation: "文章中提到「During busy times, buses come every ten minutes」，表示在繁忙時段，公車每十分鐘一班。",
+                            highlight: "During busy times, buses come every ten minutes."
+                        },
+                        {
+                            question: "When are the buses very crowded?",
+                            options: ["In the morning and evening", "At midnight", "During the afternoon", "On weekends"],
+                            correct: 0,
+                            explanation: "文章中提到「Some buses are very crowded in the morning and evening」，表示有些公車在早晨和晚上非常擁擠。",
+                            highlight: "Some buses are very crowded in the morning and evening."
+                        }
+                    ]
+                },
+                {
+                    title: "The Public Library",
+                    content: "I go to the public library twice a week. It is a big building with many books. There are books for children and adults. You can borrow books for two weeks. If you need more time, you can renew them online. The library also has computers that people can use. Many students go there to study. It is quiet and has free Wi-Fi. The library is open from Monday to Saturday. It closes at 8:00 PM on weekdays and at 5:00 PM on Saturday.",
+                    questions: [
+                        {
+                            question: "How often does the person go to the library?",
+                            options: ["Once a week", "Twice a week", "Every day", "On weekends only"],
+                            correct: 1,
+                            explanation: "文章中提到「I go to the public library twice a week」，表示作者每週去公共圖書館兩次。",
+                            highlight: "I go to the public library twice a week."
+                        },
+                        {
+                            question: "How long can you borrow books from the library?",
+                            options: ["One week", "Two weeks", "One month", "As long as you want"],
+                            correct: 1,
+                            explanation: "文章中提到「You can borrow books for two weeks」，表示你可以借書兩週的時間。",
+                            highlight: "You can borrow books for two weeks."
+                        },
+                        {
+                            question: "What can you do if you need more time with a book?",
+                            options: ["Pay a fee", "Return it and borrow it again", "Renew it online", "Ask the librarian"],
+                            correct: 2,
+                            explanation: "文章中提到「If you need more time, you can renew them online」，表示如果你需要更多時間，可以在線上續借。",
+                            highlight: "If you need more time, you can renew them online."
+                        },
+                        {
+                            question: "Why do many students go to the library?",
+                            options: ["To meet friends", "To use computers and study", "To sleep", "To borrow movies"],
+                            correct: 1,
+                            explanation: "文章中提到「The library also has computers that people can use. Many students go there to study」，表示許多學生去圖書館使用電腦和讀書。",
+                            highlight: "The library also has computers that people can use. Many students go there to study."
+                        },
+                        {
+                            question: "When does the library close on Saturday?",
+                            options: ["At noon", "At 5:00 PM", "At 8:00 PM", "It is closed on Saturday"],
+                            correct: 1,
+                            explanation: "文章中提到「It closes at 8:00 PM on weekdays and at 5:00 PM on Saturday」，表示圖書館在週六下午5點關門。",
+                            highlight: "It closes at 8:00 PM on weekdays and at 5:00 PM on Saturday."
+                        }
+                    ]
+                },
+                {
+                    title: "The Shopping Mall",
+                    content: "The new shopping mall opened last month. It has four floors with many stores. On the first floor, there are food shops and a supermarket. The second floor has clothing stores. The third floor has electronics and books. The top floor has restaurants and a movie theater. There is a parking lot under the building. You can also get there by bus. Many people go there on weekends. It is open from 10:00 AM to 9:00 PM every day.",
+                    questions: [
+                        {
+                            question: "When did the shopping mall open?",
+                            options: ["Last week", "Last month", "Last year", "Yesterday"],
+                            correct: 1,
+                            explanation: "文章中提到「The new shopping mall opened last month」，表示新的購物中心上個月開幕。",
+                            highlight: "The new shopping mall opened last month."
+                        },
+                        {
+                            question: "What can you find on the second floor?",
+                            options: ["Food shops", "Clothing stores", "Electronics", "Restaurants"],
+                            correct: 1,
+                            explanation: "文章中提到「The second floor has clothing stores」，表示二樓有服飾店。",
+                            highlight: "The second floor has clothing stores."
+                        },
+                        {
+                            question: "Where is the movie theater located?",
+                            options: ["On the first floor", "On the second floor", "On the third floor", "On the top floor"],
+                            correct: 3,
+                            explanation: "文章中提到「The top floor has restaurants and a movie theater」，表示頂樓有餐廳和電影院。",
+                            highlight: "The top floor has restaurants and a movie theater."
+                        },
+                        {
+                            question: "How can people get to the shopping mall?",
+                            options: ["Only by car", "Only by bus", "By car or bus", "By train"],
+                            correct: 2,
+                            explanation: "文章中提到「There is a parking lot under the building. You can also get there by bus」，表示人們可以開車或搭公車到購物中心。",
+                            highlight: "There is a parking lot under the building. You can also get there by bus."
+                        },
+                        {
+                            question: "What time does the shopping mall close?",
+                            options: ["7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM"],
+                            correct: 2,
+                            explanation: "文章中提到「It is open from 10:00 AM to 9:00 PM every day」，表示購物中心每天晚上9點關門。",
+                            highlight: "It is open from 10:00 AM to 9:00 PM every day."
+                        }
+                    ]
+                },
+                {
+                    title: "The Train Station",
+                    content: "The train station is in the center of the city. It is a big, old building. Inside, there are twelve platforms. Trains go to many cities from here. You can buy tickets at the counter or from machines. There is a waiting room with chairs. There are also shops and cafes inside the station. Many people use the train to go to work. The first train leaves at 5:30 AM. The last train is at 11:45 PM. The station is always busy during rush hour.",
+                    questions: [
+                        {
+                            question: "Where is the train station located?",
+                            options: ["Outside the city", "In the center of the city", "Near the airport", "Next to the bus station"],
+                            correct: 1,
+                            explanation: "文章中提到「The train station is in the center of the city」，表示火車站位於城市中心。",
+                            highlight: "The train station is in the center of the city."
+                        },
+                        {
+                            question: "How many platforms are there in the station?",
+                            options: ["Ten", "Eleven", "Twelve", "Fifteen"],
+                            correct: 2,
+                            explanation: "文章中提到「Inside, there are twelve platforms」，表示站內有12個月台。",
+                            highlight: "Inside, there are twelve platforms."
+                        },
+                        {
+                            question: "Where can you buy train tickets?",
+                            options: ["Only at the counter", "Only from machines", "At the counter or from machines", "Online only"],
+                            correct: 2,
+                            explanation: "文章中提到「You can buy tickets at the counter or from machines」，表示你可以在櫃檯或自動售票機購買車票。",
+                            highlight: "You can buy tickets at the counter or from machines."
+                        },
+                        {
+                            question: "What time does the first train leave?",
+                            options: ["5:00 AM", "5:30 AM", "6:00 AM", "6:30 AM"],
+                            correct: 1,
+                            explanation: "文章中提到「The first train leaves at 5:30 AM」，表示第一班火車在早上5:30發車。",
+                            highlight: "The first train leaves at 5:30 AM."
+                        },
+                        {
+                            question: "When is the station always busy?",
+                            options: ["In the morning", "At night", "During rush hour", "On weekends"],
+                            correct: 2,
+                            explanation: "文章中提到「The station is always busy during rush hour」，表示車站在尖峰時段總是很忙碌。",
+                            highlight: "The station is always busy during rush hour."
+                        }
+                    ]
+                },
+                {
+                    title: "The Hospital",
+                    content: "The city hospital is on Hill Street. It is a large, white building with ten floors. The emergency room is on the first floor. It is open 24 hours a day. There are many doctors and nurses who work there. Patients stay in rooms on floors three to eight. The ninth floor has offices. The tenth floor is for surgery. There is a cafeteria on the second floor. Visitors can park their cars in the parking lot next to the hospital.",
+                    questions: [
+                        {
+                            question: "Where is the city hospital located?",
+                            options: ["On Main Street", "On Hill Street", "In the city center", "Near the train station"],
+                            correct: 1,
+                            explanation: "文章中提到「The city hospital is on Hill Street」，表示市立醫院位於希爾街。",
+                            highlight: "The city hospital is on Hill Street."
+                        },
+                        {
+                            question: "How many floors does the hospital have?",
+                            options: ["Eight", "Nine", "Ten", "Twelve"],
+                            correct: 2,
+                            explanation: "文章中提到「It is a large, white building with ten floors」，表示醫院是一棟有10層樓的大型白色建築。",
+                            highlight: "It is a large, white building with ten floors."
+                        },
+                        {
+                            question: "Where is the emergency room?",
+                            options: ["On the first floor", "On the second floor", "On the ninth floor", "On the tenth floor"],
+                            correct: 0,
+                            explanation: "文章中提到「The emergency room is on the first floor」，表示急診室在一樓。",
+                            highlight: "The emergency room is on the first floor."
+                        },
+                        {
+                            question: "What is on the tenth floor?",
+                            options: ["Patient rooms", "The cafeteria", "Offices", "Surgery rooms"],
+                            correct: 3,
+                            explanation: "文章中提到「The tenth floor is for surgery」，表示十樓是手術室。",
+                            highlight: "The tenth floor is for surgery."
+                        },
+                        {
+                            question: "Where can visitors park their cars?",
+                            options: ["On the street", "In the parking lot next to the hospital", "Inside the hospital", "There is no parking available"],
+                            correct: 1,
+                            explanation: "文章中提到「Visitors can park their cars in the parking lot next to the hospital」，表示訪客可以將車停在醫院旁邊的停車場。",
+                            highlight: "Visitors can park their cars in the parking lot next to the hospital."
+                        }
+                    ]
+                },
+                {
+                    title: "The School",
+                    content: "I go to Oak Hill School. It is a big school with many classrooms. There are about five hundred students. School starts at 8:30 AM and ends at 3:15 PM. We have six classes each day. My favorite class is science. The science lab is on the second floor. The cafeteria is on the first floor. We eat lunch there at noon. There is a large playground behind the school. We play sports there during PE class. The library is next to the main office.",
+                    questions: [
+                        {
+                            question: "What is the name of the school?",
+                            options: ["Hill School", "Oak School", "Oak Hill School", "Hill Oak School"],
+                            correct: 2,
+                            explanation: "文章中提到「I go to Oak Hill School」，表示學校名稱是Oak Hill School。",
+                            highlight: "I go to Oak Hill School."
+                        },
+                        {
+                            question: "What time does school start?",
+                            options: ["8:00 AM", "8:15 AM", "8:30 AM", "9:00 AM"],
+                            correct: 2,
+                            explanation: "文章中提到「School starts at 8:30 AM and ends at 3:15 PM」，表示學校早上8:30開始上課。",
+                            highlight: "School starts at 8:30 AM and ends at 3:15 PM."
+                        },
+                        {
+                            question: "How many classes do students have each day?",
+                            options: ["Five", "Six", "Seven", "Eight"],
+                            correct: 1,
+                            explanation: "文章中提到「We have six classes each day」，表示學生每天有六堂課。",
+                            highlight: "We have six classes each day."
+                        },
+                        {
+                            question: "Where is the science lab located?",
+                            options: ["On the first floor", "On the second floor", "Next to the main office", "Behind the school"],
+                            correct: 1,
+                            explanation: "文章中提到「The science lab is on the second floor」，表示科學實驗室在二樓。",
+                            highlight: "The science lab is on the second floor."
+                        },
+                        {
+                            question: "What is behind the school?",
+                            options: ["The cafeteria", "The library", "A playground", "The science lab"],
+                            correct: 2,
+                            explanation: "文章中提到「There is a large playground behind the school」，表示學校後面有一個大操場。",
+                            highlight: "There is a large playground behind the school."
+                        }
+                    ]
+                },
+                {
+                    title: "The Post Office",
+                    content: "The post office is on Main Street. It is open from Monday to Friday. The hours are 9:00 AM to 5:00 PM. On Saturday, it is open from 9:00 AM to noon. It is closed on Sunday. You can buy stamps there. You can also send letters and packages. There are forms you need to fill out for packages. The workers weigh your package and tell you the cost. You can pay with cash or card. There are mailboxes outside the post office.",
+                    questions: [
+                        {
+                            question: "Where is the post office located?",
+                            options: ["On Hill Street", "On Main Street", "In the shopping mall", "Next to the hospital"],
+                            correct: 1,
+                            explanation: "文章中提到「The post office is on Main Street」，表示郵局位於主街上。",
+                            highlight: "The post office is on Main Street."
+                        },
+                        {
+                            question: "What time does the post office close on weekdays?",
+                            options: ["3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"],
+                            correct: 2,
+                            explanation: "文章中提到「The hours are 9:00 AM to 5:00 PM」，表示郵局在平日下午5點關門。",
+                            highlight: "The hours are 9:00 AM to 5:00 PM."
+                        },
+                        {
+                            question: "When is the post office closed?",
+                            options: ["Monday", "Saturday afternoon", "Sunday", "Friday"],
+                            correct: 2,
+                            explanation: "文章中提到「It is closed on Sunday」，表示郵局在星期日休息。",
+                            highlight: "It is closed on Sunday."
+                        },
+                        {
+                            question: "What do you need to fill out for packages?",
+                            options: ["A letter", "A form", "A check", "An application"],
+                            correct: 1,
+                            explanation: "文章中提到「There are forms you need to fill out for packages」，表示寄包裹需要填寫表格。",
+                            highlight: "There are forms you need to fill out for packages."
+                        },
+                        {
+                            question: "How can you pay at the post office?",
+                            options: ["Only with cash", "Only with card", "With cash or card", "With stamps"],
+                            correct: 2,
+                            explanation: "文章中提到「You can pay with cash or card」，表示你可以用現金或卡片付款。",
+                            highlight: "You can pay with cash or card."
+                        }
+                    ]
+                },
+                {
+                    title: "The Airport",
+                    content: "The international airport is outside the city. It takes about 30 minutes to get there by car. There are two terminals. Terminal 1 is for domestic flights. Terminal 2 is for international flights. You need to arrive at least two hours before your flight. First, you check in and get your boarding pass. Then you go through security. After that, you find your gate. There are shops and restaurants in the waiting area. You can watch the planes take off and land from the windows.",
+                    questions: [
+                        {
+                            question: "Where is the airport located?",
+                            options: ["In the city center", "Outside the city", "Next to the train station", "Near the shopping mall"],
+                            correct: 1,
+                            explanation: "文章中提到「The international airport is outside the city」，表示國際機場位於城市外。",
+                            highlight: "The international airport is outside the city."
+                        },
+                        {
+                            question: "How many terminals does the airport have?",
+                            options: ["One", "Two", "Three", "Four"],
+                            correct: 1,
+                            explanation: "文章中提到「There are two terminals」，表示機場有兩個航廈。",
+                            highlight: "There are two terminals."
+                        },
+                        {
+                            question: "Which terminal is for international flights?",
+                            options: ["Terminal 1", "Terminal 2", "Both terminals", "Neither terminal"],
+                            correct: 1,
+                            explanation: "文章中提到「Terminal 2 is for international flights」，表示第2航廈是國際航班使用的。",
+                            highlight: "Terminal 2 is for international flights."
+                        },
+                        {
+                            question: "How early should you arrive before your flight?",
+                            options: ["30 minutes", "One hour", "Two hours", "Three hours"],
+                            correct: 2,
+                            explanation: "文章中提到「You need to arrive at least two hours before your flight」，表示你需要在航班起飛前至少兩小時到達。",
+                            highlight: "You need to arrive at least two hours before your flight."
+                        },
+                        {
+                            question: "What can you do in the waiting area?",
+                            options: ["Check in", "Go through security", "Shop and eat", "Drive your car"],
+                            correct: 2,
+                            explanation: "文章中提到「There are shops and restaurants in the waiting area」，表示在候機區可以購物和用餐。",
+                            highlight: "There are shops and restaurants in the waiting area."
+                        }
+                    ]
+                },
+                {
+                    title: "The Subway System",
+                    content: "Our city has a good subway system. There are five lines: red, blue, green, yellow, and purple. The red line goes from north to south. The blue line goes from east to west. The green line goes around the city center. The yellow and purple lines go to the suburbs. Trains come every five minutes during the day. You need a subway card to ride. You can buy cards at any station. The subway runs from 5:00 AM to 1:00 AM. Many people use it to go to work or school.",
+                    questions: [
+                        {
+                            question: "How many subway lines are there in the city?",
+                            options: ["Three", "Four", "Five", "Six"],
+                            correct: 2,
+                            explanation: "文章中提到「There are five lines: red, blue, green, yellow, and purple」，表示城市有五條地鐵線路。",
+                            highlight: "There are five lines: red, blue, green, yellow, and purple."
+                        },
+                        {
+                            question: "Which line goes from north to south?",
+                            options: ["Red line", "Blue line", "Green line", "Yellow line"],
+                            correct: 0,
+                            explanation: "文章中提到「The red line goes from north to south」，表示紅線是從北到南。",
+                            highlight: "The red line goes from north to south."
+                        },
+                        {
+                            question: "What does the green line do?",
+                            options: ["Goes from north to south", "Goes from east to west", "Goes around the city center", "Goes to the suburbs"],
+                            correct: 2,
+                            explanation: "文章中提到「The green line goes around the city center」，表示綠線環繞市中心。",
+                            highlight: "The green line goes around the city center."
+                        },
+                        {
+                            question: "How often do trains come during the day?",
+                            options: ["Every three minutes", "Every five minutes", "Every ten minutes", "Every fifteen minutes"],
+                            correct: 1,
+                            explanation: "文章中提到「Trains come every five minutes during the day」，表示白天列車每五分鐘一班。",
+                            highlight: "Trains come every five minutes during the day."
+                        },
+                        {
+                            question: "What time does the subway stop running?",
+                            options: ["Midnight", "1:00 AM", "5:00 AM", "It runs 24 hours"],
+                            correct: 1,
+                            explanation: "文章中提到「The subway runs from 5:00 AM to 1:00 AM」，表示地鐵運行到凌晨1點。",
+                            highlight: "The subway runs from 5:00 AM to 1:00 AM."
+                        }
+                    ]
+                },
+                {
+                    title: "The Bank",
+                    content: "The bank is on the corner of Main Street and First Avenue. It is open from 9:00 AM to 5:00 PM on weekdays. On Saturday, it is open from 9:00 AM to noon. Inside, there are six tellers who help customers. There are also ATMs outside that you can use anytime. You can deposit money, withdraw cash, or check your balance at the ATMs. Many people use online banking now. You can pay bills and transfer money on the bank's website or app. The bank also has a night deposit box.",
+                    questions: [
+                        {
+                            question: "Where is the bank located?",
+                            options: ["On Main Street", "On First Avenue", "On the corner of Main Street and First Avenue", "Next to the post office"],
+                            correct: 2,
+                            explanation: "文章中提到「The bank is on the corner of Main Street and First Avenue」，表示銀行位於主街和第一大道的轉角處。",
+                            highlight: "The bank is on the corner of Main Street and First Avenue."
+                        },
+                        {
+                            question: "What time does the bank close on weekdays?",
+                            options: ["3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM"],
+                            correct: 2,
+                            explanation: "文章中提到「It is open from 9:00 AM to 5:00 PM on weekdays」，表示銀行在平日下午5點關門。",
+                            highlight: "It is open from 9:00 AM to 5:00 PM on weekdays."
+                        },
+                        {
+                            question: "How many tellers work in the bank?",
+                            options: ["Four", "Five", "Six", "Seven"],
+                            correct: 2,
+                            explanation: "文章中提到「Inside, there are six tellers who help customers」，表示銀行內有六位櫃員服務客戶。",
+                            highlight: "Inside, there are six tellers who help customers."
+                        },
+                        {
+                            question: "When can you use the ATMs?",
+                            options: ["Only during bank hours", "Only on weekdays", "Only during the day", "Anytime"],
+                            correct: 3,
+                            explanation: "文章中提到「There are also ATMs outside that you can use anytime」，表示你可以隨時使用銀行外的ATM。",
+                            highlight: "There are also ATMs outside that you can use anytime."
+                        },
+                        {
+                            question: "What can you do with online banking?",
+                            options: ["Talk to tellers", "Use ATMs", "Pay bills and transfer money", "Deposit cash"],
+                            correct: 2,
+                            explanation: "文章中提到「You can pay bills and transfer money on the bank's website or app」，表示你可以在銀行網站或應用程式上支付帳單和轉帳。",
+                            highlight: "You can pay bills and transfer money on the bank's website or app."
+                        }
+                    ]
+                },
+                {
+                    title: "The Restaurant",
+                    content: "My favorite restaurant is on Oak Street. It is a small place with about fifteen tables. They serve Italian food. The pasta is very good. They make their own bread too. The restaurant opens at 11:00 AM for lunch. Dinner starts at 5:00 PM. They close at 10:00 PM. On Friday and Saturday, they stay open until 11:00 PM. The restaurant is closed on Monday. It is often crowded on weekends, so I call to make a reservation. The prices are reasonable.",
+                    questions: [
+                        {
+                            question: "What kind of food does the restaurant serve?",
+                            options: ["Chinese food", "Italian food", "Mexican food", "American food"],
+                            correct: 1,
+                            explanation: "文章中提到「They serve Italian food」，表示餐廳供應義大利料理。",
+                            highlight: "They serve Italian food."
+                        },
+                        {
+                            question: "About how many tables are in the restaurant?",
+                            options: ["Ten", "Fifteen", "Twenty", "Twenty-five"],
+                            correct: 1,
+                            explanation: "文章中提到「It is a small place with about fifteen tables」，表示餐廳是個小地方，大約有15張桌子。",
+                            highlight: "It is a small place with about fifteen tables."
+                        },
+                        {
+                            question: "What time does the restaurant open for lunch?",
+                            options: ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM"],
+                            correct: 1,
+                            explanation: "文章中提到「The restaurant opens at 11:00 AM for lunch」，表示餐廳上午11點開始供應午餐。",
+                            highlight: "The restaurant opens at 11:00 AM for lunch."
+                        },
+                        {
+                            question: "When is the restaurant closed?",
+                            options: ["Sunday", "Monday", "Tuesday", "Wednesday"],
+                            correct: 1,
+                            explanation: "文章中提到「The restaurant is closed on Monday」，表示餐廳在星期一休息。",
+                            highlight: "The restaurant is closed on Monday."
+                        },
+                        {
+                            question: "Why does the person call the restaurant on weekends?",
+                            options: ["To ask about prices", "To order takeout", "To make a reservation", "To ask about the menu"],
+                            correct: 2,
+                            explanation: "文章中提到「It is often crowded on weekends, so I call to make a reservation」，表示作者在週末打電話是為了預約座位，因為餐廳通常很擁擠。",
+                            highlight: "It is often crowded on weekends, so I call to make a reservation."
+                        }
+                    ]
+                },
+                {
+                    title: "The Gym",
+                    content: "I go to the gym three times a week. It is a large fitness center with many machines. There is a weight room and a cardio area. They also have classes like yoga and spinning. The gym opens at 6:00 AM and closes at 10:00 PM. It is less crowded in the morning. After work, it gets very busy. You need a membership card to enter. The monthly fee is $45. You can also pay for a day pass if you are not a member. There are showers and lockers in the changing rooms.",
+                    questions: [
+                        {
+                            question: "How often does the person go to the gym?",
+                            options: ["Once a week", "Twice a week", "Three times a week", "Every day"],
+                            correct: 2,
+                            explanation: "文章中提到「I go to the gym three times a week」，表示作者每週去健身房三次。",
+                            highlight: "I go to the gym three times a week."
+                        },
+                        {
+                            question: "What classes are mentioned in the passage?",
+                            options: ["Swimming and tennis", "Boxing and karate", "Yoga and spinning", "Dance and aerobics"],
+                            correct: 2,
+                            explanation: "文章中提到「They also have classes like yoga and spinning」，表示健身房提供瑜伽和飛輪等課程。",
+                            highlight: "They also have classes like yoga and spinning."
+                        },
+                        {
+                            question: "When is the gym less crowded?",
+                            options: ["In the morning", "During lunch", "After work", "At night"],
+                            correct: 0,
+                            explanation: "文章中提到「It is less crowded in the morning」，表示健身房在早上人較少。",
+                            highlight: "It is less crowded in the morning."
+                        },
+                        {
+                            question: "How much is the monthly fee?",
+                            options: ["$35", "$40", "$45", "$50"],
+                            correct: 2,
+                            explanation: "文章中提到「The monthly fee is $45」，表示月費是45美元。",
+                            highlight: "The monthly fee is $45."
+                        },
+                        {
+                            question: "What do you need to enter the gym?",
+                            options: ["A driver's license", "A membership card", "A student ID", "A reservation"],
+                            correct: 1,
+                            explanation: "文章中提到「You need a membership card to enter」，表示你需要會員卡才能進入健身房。",
+                            highlight: "You need a membership card to enter."
+                        }
+                    ]
+                },
+                {
+                    title: "The Coffee Shop",
+                    content: "There is a nice coffee shop near my office. It opens at 7:00 AM and closes at 8:00 PM. They have different kinds of coffee and tea. They also sell pastries and sandwiches. Many people go there to work on their laptops. The coffee shop has free Wi-Fi. There are comfortable chairs and small tables. The music is not too loud. I often go there during my lunch break. Sometimes I meet friends there after work. The prices are a bit high, but the coffee is very good.",
+                    questions: [
+                        {
+                            question: "What time does the coffee shop open?",
+                            options: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM"],
+                            correct: 1,
+                            explanation: "文章中提到「It opens at 7:00 AM and closes at 8:00 PM」，表示咖啡店早上7點開門。",
+                            highlight: "It opens at 7:00 AM and closes at 8:00 PM."
+                        },
+                        {
+                            question: "What do they sell besides coffee and tea?",
+                            options: ["Books and magazines", "Fruits and vegetables", "Pastries and sandwiches", "Computers and phones"],
+                            correct: 2,
+                            explanation: "文章中提到「They also sell pastries and sandwiches」，表示除了咖啡和茶外，他們還賣糕點和三明治。",
+                            highlight: "They also sell pastries and sandwiches."
+                        },
+                        {
+                            question: "Why do many people go to the coffee shop with laptops?",
+                            options: ["To repair them", "To sell them", "To work using the free Wi-Fi", "To charge them"],
+                            correct: 2,
+                            explanation: "文章中提到「Many people go there to work on their laptops. The coffee shop has free Wi-Fi」，表示許多人帶筆電去咖啡店是為了使用免費Wi-Fi工作。",
+                            highlight: "Many people go there to work on their laptops. The coffee shop has free Wi-Fi."
+                        },
+                        {
+                            question: "When does the person often go to the coffee shop?",
+                            options: ["Before work", "During lunch break", "In the morning", "On weekends"],
+                            correct: 1,
+                            explanation: "文章中提到「I often go there during my lunch break」，表示作者經常在午休時間去咖啡店。",
+                            highlight: "I often go there during my lunch break."
+                        },
+                        {
+                            question: "How are the prices described?",
+                            options: ["Very cheap", "Average", "A bit high", "Extremely expensive"],
+                            correct: 2,
+                            explanation: "文章中提到「The prices are a bit high, but the coffee is very good」，表示價格有點高，但咖啡很好喝。",
+                            highlight: "The prices are a bit high, but the coffee is very good."
+                        }
+                    ]
+                },
+                {
+                    title: "The Park",
+                    content: "Central Park is in the middle of the city. It is a large green space with many trees. There is a lake where people can rent boats. There are also walking paths and bicycle lanes. Many people go jogging in the morning. Families have picnics on the grass. There is a playground for children. In summer, there are free concerts in the park. In winter, there is an ice skating rink. The park is open from 6:00 AM to 10:00 PM every day.",
+                    questions: [
+                        {
+                            question: "Where is Central Park located?",
+                            options: ["Outside the city", "In the middle of the city", "Near the airport", "Next to the river"],
+                            correct: 1,
+                            explanation: "文章中提到「Central Park is in the middle of the city」，表示中央公園位於城市中心。",
+                            highlight: "Central Park is in the middle of the city."
+                        },
+                        {
+                            question: "What can people do at the lake?",
+                            options: ["Swim", "Fish", "Rent boats", "Feed ducks"],
+                            correct: 2,
+                            explanation: "文章中提到「There is a lake where people can rent boats」，表示人們可以在湖上租船。",
+                            highlight: "There is a lake where people can rent boats."
+                        },
+                        {
+                            question: "When do many people go jogging in the park?",
+                            options: ["In the morning", "At noon", "In the afternoon", "At night"],
+                            correct: 0,
+                            explanation: "文章中提到「Many people go jogging in the morning」，表示許多人在早上去公園慢跑。",
+                            highlight: "Many people go jogging in the morning."
+                        },
+                        {
+                            question: "What happens in the park during summer?",
+                            options: ["Free movies", "Free concerts", "Free food", "Free classes"],
+                            correct: 1,
+                            explanation: "文章中提到「In summer, there are free concerts in the park」，表示夏天公園有免費音樂會。",
+                            highlight: "In summer, there are free concerts in the park."
+                        },
+                        {
+                            question: "What time does the park close?",
+                            options: ["8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM"],
+                            correct: 2,
+                            explanation: "文章中提到「The park is open from 6:00 AM to 10:00 PM every day」，表示公園每天晚上10點關閉。",
+                            highlight: "The park is open from 6:00 AM to 10:00 PM every day."
+                        }
+                    ]
+                },
+                {
+                    title: "The Supermarket",
+                    content: "The supermarket is open seven days a week. It opens at 8:00 AM and closes at 10:00 PM. It has everything you need. Fresh fruits and vegetables are near the entrance. Meat and fish are at the back of the store. There are ten checkout lanes. The supermarket is very busy on Saturday morning. Many people do their weekly shopping then. There is a bakery inside that makes fresh bread. There is also a pharmacy where you can get medicine. The supermarket has a large parking lot.",
+                    questions: [
+                        {
+                            question: "What time does the supermarket open?",
+                            options: ["7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM"],
+                            correct: 1,
+                            explanation: "文章中提到「It opens at 8:00 AM and closes at 10:00 PM」，表示超市早上8點開門。",
+                            highlight: "It opens at 8:00 AM and closes at 10:00 PM."
+                        },
+                        {
+                            question: "Where are the fresh fruits and vegetables located?",
+                            options: ["Near the entrance", "At the back of the store", "Near the checkout lanes", "Next to the bakery"],
+                            correct: 0,
+                            explanation: "文章中提到「Fresh fruits and vegetables are near the entrance」，表示新鮮水果和蔬菜位於入口附近。",
+                            highlight: "Fresh fruits and vegetables are near the entrance."
+                        },
+                        {
+                            question: "When is the supermarket very busy?",
+                            options: ["Monday morning", "Friday evening", "Saturday morning", "Sunday afternoon"],
+                            correct: 2,
+                            explanation: "文章中提到「The supermarket is very busy on Saturday morning」，表示超市在星期六早上非常忙碌。",
+                            highlight: "The supermarket is very busy on Saturday morning."
+                        },
+                        {
+                            question: "What does the bakery make?",
+                            options: ["Cakes only", "Cookies only", "Fresh bread", "Sandwiches"],
+                            correct: 2,
+                            explanation: "文章中提到「There is a bakery inside that makes fresh bread」，表示超市內的麵包店製作新鮮麵包。",
+                            highlight: "There is a bakery inside that makes fresh bread."
+                        },
+                        {
+                            question: "What else is inside the supermarket?",
+                            options: ["A restaurant", "A pharmacy", "A gym", "A bank"],
+                            correct: 1,
+                            explanation: "文章中提到「There is also a pharmacy where you can get medicine」，表示超市內還有一家藥局，你可以在那裡買藥。",
+                            highlight: "There is also a pharmacy where you can get medicine."
+                        }
+                    ]
+                },
+                {
+                    title: "The Movie Theater",
+                    content: "The movie theater is in the shopping mall. It has eight screens. They show new movies every week. Tickets cost $12 for adults and $8 for children. On Tuesday, all tickets are $6. The first show starts at 11:00 AM. The last show is at 10:30 PM. You can buy tickets online or at the theater. There is a concession stand that sells popcorn, candy, and drinks. The seats are comfortable and have cup holders. Some screens have 3D movies that cost extra.",
+                    questions: [
+                        {
+                            question: "Where is the movie theater located?",
+                            options: ["Downtown", "In the shopping mall", "Next to the supermarket", "Near the park"],
+                            correct: 1,
+                            explanation: "文章中提到「The movie theater is in the shopping mall」，表示電影院位於購物中心內。",
+                            highlight: "The movie theater is in the shopping mall."
+                        },
+                        {
+                            question: "How many screens does the theater have?",
+                            options: ["Six", "Seven", "Eight", "Nine"],
+                            correct: 2,
+                            explanation: "文章中提到「It has eight screens」，表示電影院有八個銀幕。",
+                            highlight: "It has eight screens."
+                        },
+                        {
+                            question: "How much do adult tickets cost normally?",
+                            options: ["$6", "$8", "$10", "$12"],
+                            correct: 3,
+                            explanation: "文章中提到「Tickets cost $12 for adults and $8 for children」，表示成人票價通常是12美元。",
+                            highlight: "Tickets cost $12 for adults and $8 for children."
+                        },
+                        {
+                            question: "When are all tickets $6?",
+                            options: ["Monday", "Tuesday", "Wednesday", "Thursday"],
+                            correct: 1,
+                            explanation: "文章中提到「On Tuesday, all tickets are $6」，表示星期二所有票價都是6美元。",
+                            highlight: "On Tuesday, all tickets are $6."
+                        },
+                        {
+                            question: "What does the concession stand sell?",
+                            options: ["Tickets", "Popcorn, candy, and drinks", "3D glasses", "Movie posters"],
+                            correct: 1,
+                            explanation: "文章中提到「There is a concession stand that sells popcorn, candy, and drinks」，表示小賣部販售爆米花、糖果和飲料。",
+                            highlight: "There is a concession stand that sells popcorn, candy, and drinks."
+                        }
+                    ]
+                },
+                {
+                    title: "The Taxi Service",
+                    content: "Taxis are a convenient way to travel in the city. You can call for a taxi or use a mobile app. You can also find taxis at taxi stands or flag one down on the street. The fare starts at $3.50. Then it's $2.50 per mile. There is also a waiting fee if the taxi is stuck in traffic. Most taxis accept credit cards now. Some taxis are yellow, and some are black. All taxi drivers know the city very well. They can take you to your destination quickly.",
+                    questions: [
+                        {
+                            question: "How can you get a taxi?",
+                            options: ["Only by calling", "Only by using an app", "Only at taxi stands", "Multiple ways including calling, app, taxi stands, or flagging one down"],
+                            correct: 3,
+                            explanation: "文章中提到「You can call for a taxi or use a mobile app. You can also find taxis at taxi stands or flag one down on the street」，表示你可以通過多種方式叫計程車，包括打電話、使用應用程式、在計程車站等候或在街上招手攔車。",
+                            highlight: "You can call for a taxi or use a mobile app. You can also find taxis at taxi stands or flag one down on the street."
+                        },
+                        {
+                            question: "What is the starting fare for a taxi?",
+                            options: ["$2.50", "$3.00", "$3.50", "$4.00"],
+                            correct: 2,
+                            explanation: "文章中提到「The fare starts at $3.50」，表示計程車的起步價是3.50美元。",
+                            highlight: "The fare starts at $3.50."
+                        },
+                        {
+                            question: "How much does the taxi charge per mile?",
+                            options: ["$1.50", "$2.00", "$2.50", "$3.00"],
+                            correct: 2,
+                            explanation: "文章中提到「Then it's $2.50 per mile」，表示計程車每英里收費2.50美元。",
+                            highlight: "Then it's $2.50 per mile."
+                        },
+                        {
+                            question: "When is there a waiting fee?",
+                            options: ["When you make the taxi wait before your trip", "When the taxi is stuck in traffic", "When you pay with a credit card", "When you go to the airport"],
+                            correct: 1,
+                            explanation: "文章中提到「There is also a waiting fee if the taxi is stuck in traffic」，表示當計程車堵在交通中時會收取等候費。",
+                            highlight: "There is also a waiting fee if the taxi is stuck in traffic."
+                        },
+                        {
+                            question: "What colors are the taxis?",
+                            options: ["Only yellow", "Only black", "Yellow or black", "Red and white"],
+                            correct: 2,
+                            explanation: "文章中提到「Some taxis are yellow, and some are black」，表示有些計程車是黃色的，有些是黑色的。",
+                            highlight: "Some taxis are yellow, and some are black."
+                        }
+                    ]
+                },
+                {
+                    title: "The Bicycle Lanes",
+                    content: "Our city has many bicycle lanes. They are separate from the car lanes. This makes cycling safer. The bicycle lanes are marked with white lines and bicycle symbols. Some roads have green bicycle lanes. More people are using bicycles now. It is good exercise and does not pollute the air. You can rent bicycles at stations around the city. You need a credit card to rent one. The first 30 minutes are free. After that, it costs $2 per half hour. Remember to wear a helmet when you ride.",
+                    questions: [
+                        {
+                            question: "Why are bicycle lanes separate from car lanes?",
+                            options: ["To make roads wider", "To make cycling safer", "To reduce traffic", "To save money"],
+                            correct: 1,
+                            explanation: "文章中提到「They are separate from the car lanes. This makes cycling safer」，表示自行車道與車道分開是為了讓騎車更安全。",
+                            highlight: "They are separate from the car lanes. This makes cycling safer."
+                        },
+                        {
+                            question: "How are bicycle lanes marked?",
+                            options: ["With red lines", "With yellow lines", "With white lines and bicycle symbols", "With traffic lights"],
+                            correct: 2,
+                            explanation: "文章中提到「The bicycle lanes are marked with white lines and bicycle symbols」，表示自行車道用白線和自行車符號標記。",
+                            highlight: "The bicycle lanes are marked with white lines and bicycle symbols."
+                        },
+                        {
+                            question: "Why are more people using bicycles according to the passage?",
+                            options: ["It is cheaper than cars", "It is faster than walking", "It is good exercise and does not pollute", "The government pays people to cycle"],
+                            correct: 2,
+                            explanation: "文章中提到「More people are using bicycles now. It is good exercise and does not pollute the air」，表示更多人使用自行車是因為它是良好的運動且不會污染空氣。",
+                            highlight: "More people are using bicycles now. It is good exercise and does not pollute the air."
+                        },
+                        {
+                            question: "What do you need to rent a bicycle?",
+                            options: ["A driver's license", "A credit card", "A passport", "A bicycle helmet"],
+                            correct: 1,
+                            explanation: "文章中提到「You need a credit card to rent one」，表示你需要信用卡才能租自行車。",
+                            highlight: "You need a credit card to rent one."
+                        },
+                        {
+                            question: "How long can you use a rental bicycle for free?",
+                            options: ["15 minutes", "30 minutes", "One hour", "Two hours"],
+                            correct: 1,
+                            explanation: "文章中提到「The first 30 minutes are free」，表示前30分鐘是免費的。",
+                            highlight: "The first 30 minutes are free."
+                        }
+                    ]
+                },
+                {
+                    title: "The Museum",
+                    content: "The city museum is on Fifth Avenue. It is a beautiful old building. The museum has three floors. On the first floor, there are ancient artifacts. The second floor has paintings and sculptures. The third floor has modern art. The museum is open from Tuesday to Sunday. It is closed on Monday. Admission is $10 for adults. Students and seniors pay $5. Children under 12 can enter for free. On Wednesday evening, admission is free for everyone. There is a gift shop and a cafe inside.",
+                    questions: [
+                        {
+                            question: "Where is the city museum located?",
+                            options: ["On Main Street", "On Fifth Avenue", "In the shopping mall", "Near the park"],
+                            correct: 1,
+                            explanation: "文章中提到「The city museum is on Fifth Avenue」，表示市立博物館位於第五大道。",
+                            highlight: "The city museum is on Fifth Avenue."
+                        },
+                        {
+                            question: "What can you find on the second floor?",
+                            options: ["Ancient artifacts", "Modern art", "Paintings and sculptures", "A gift shop and cafe"],
+                            correct: 2,
+                            explanation: "文章中提到「The second floor has paintings and sculptures」，表示二樓有繪畫和雕塑作品。",
+                            highlight: "The second floor has paintings and sculptures."
+                        },
+                        {
+                            question: "When is the museum closed?",
+                            options: ["Sunday", "Monday", "Tuesday", "Wednesday"],
+                            correct: 1,
+                            explanation: "文章中提到「The museum is open from Tuesday to Sunday. It is closed on Monday」，表示博物館在星期一休息。",
+                            highlight: "The museum is open from Tuesday to Sunday. It is closed on Monday."
+                        },
+                        {
+                            question: "How much is admission for students?",
+                            options: ["Free", "$5", "$10", "$15"],
+                            correct: 1,
+                            explanation: "文章中提到「Students and seniors pay $5」，表示學生和老人的入場費是5美元。",
+                            highlight: "Students and seniors pay $5."
+                        },
+                        {
+                            question: "When is admission free for everyone?",
+                            options: ["Monday morning", "Tuesday afternoon", "Wednesday evening", "Sunday"],
+                            correct: 2,
+                            explanation: "文章中提到「On Wednesday evening, admission is free for everyone」，表示星期三晚上對所有人免費開放。",
+                            highlight: "On Wednesday evening, admission is free for everyone."
+                        }
+                    ]
+                }
+            ];
+
+            // DOM elements
+            const tabsContainer = document.getElementById('tabs-container');
+            const articleTitle = document.getElementById('article-title');
+            const articleContent = document.getElementById('article-content');
+            const questionsContainer = document.getElementById('questions-container');
+            const submitBtn = document.getElementById('submit-btn');
+            const scoreModal = document.getElementById('score-modal');
+            const scoreDisplay = document.getElementById('score');
+            const topicDisplay = document.getElementById('topic-display');
+            const closeModalBtn = document.getElementById('close-modal');
+            const modalTitle = document.getElementById('modal-title');
+
+            // Current article index
+            let currentArticleIndex = 0;
+            let isSubmitted = false;
+
+            // Generate tabs
+            function generateTabs() {
+                let tabsHTML = '';
+                articles.forEach((article, index) => {
+                    tabsHTML += `
+                        <div class="tab rounded-t-lg text-center ${index === 0 ? 'active' : ''}" data-index="${index}">
+                            ${article.title}
+                        </div>
+                    `;
+                });
+                tabsContainer.innerHTML = tabsHTML;
+
+                // Add event listeners to tabs
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        
+                        // Update active tab
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Update current article index
+                        currentArticleIndex = index;
+                        
+                        // Reset submission state
+                        isSubmitted = false;
+                        
+                        // Load article and questions
+                        loadArticle(index);
+                    });
+                });
+            }
+
+            // Load article and questions
+            function loadArticle(index) {
+                // Update article content
+                articleTitle.textContent = articles[index].title;
+                articleContent.innerHTML = articles[index].content;
+
+                // Generate questions
+                let questionsHTML = '';
+                articles[index].questions.forEach((q, qIndex) => {
+                    questionsHTML += `
+                        <div class="question-wrapper mb-8" data-question="${qIndex}">
+                            <div class="question">
+                                <h3 class="font-semibold text-lg mb-2">${qIndex + 1}. ${q.question}</h3>
+                                <div class="options space-y-2">
+                    `;
+
+                    q.options.forEach((option, oIndex) => {
+                        const isCorrect = oIndex === q.correct;
+                        questionsHTML += `
+                            <div class="option border rounded-md p-3 cursor-pointer" ${isCorrect ? 'data-correct="true"' : ''}>
+                                <span class="option-letter font-semibold">${String.fromCharCode(65 + oIndex)}.</span> ${option}
+                            </div>
+                        `;
+                    });
+
+                    questionsHTML += `
+                                </div>
+                                <div class="explanation explanation-${qIndex + 1} mt-3" style="display: none;">
+                                    ${q.explanation}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Update questions container
+                questionsContainer.innerHTML = questionsHTML;
+
+                // Add event listeners to options
+                const options = document.querySelectorAll('.option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        if (isSubmitted) return; // Prevent selection after submission
+                        
+                        // Remove selected class from siblings
+                        const parentQuestion = this.closest('.question');
+                        const siblingOptions = parentQuestion.querySelectorAll('.option');
+                        siblingOptions.forEach(sib => sib.classList.remove('selected'));
+                        
+                        // Add selected class to this option
+                        this.classList.add('selected');
+                    });
+                });
+
+                // Add hover event listeners to question wrappers
+                const questionWrappers = document.querySelectorAll('.question-wrapper');
+                questionWrappers.forEach(wrapper => {
+                    wrapper.addEventListener('mouseenter', function() {
+                        if (!isSubmitted) return; // Only highlight after submission
+                        
+                        const qIndex = parseInt(this.getAttribute('data-question'));
+                        const highlightText = articles[currentArticleIndex].questions[qIndex].highlight;
+                        
+                        // Highlight text in article content
+                        const contentElement = document.getElementById('article-content');
+                        const originalContent = articles[currentArticleIndex].content;
+                        const highlightedContent = originalContent.replace(
+                            highlightText, 
+                            `<span class="highlight-${qIndex + 1}">${highlightText}</span>`
+                        );
+                        contentElement.innerHTML = highlightedContent;
+                        
+                        // Show explanation
+                        const explanation = document.querySelector(`.explanation-${qIndex + 1}`);
+                        if (explanation) {
+                            explanation.style.display = 'block';
+                        }
+                    });
+                    
+                    wrapper.addEventListener('mouseleave', function() {
+                        if (!isSubmitted) return; // Only relevant after submission
+                        
+                        // Reset article content without highlights when not hovering
+                        const contentElement = document.getElementById('article-content');
+                        
+                        // Check if any question is being hovered
+                        const hoveredQuestion = document.querySelector('.question-wrapper:hover');
+                        if (!hoveredQuestion) {
+                            // If no question is hovered, restore original content
+                            contentElement.innerHTML = articles[currentArticleIndex].content;
+                        }
+                        
+                        // Hide explanation
+                        const qIndex = parseInt(this.getAttribute('data-question'));
+                        const explanation = document.querySelector(`.explanation-${qIndex + 1}`);
+                        if (explanation) {
+                            explanation.style.display = 'none';
+                        }
+                    });
+                });
+            }
+
+            // Submit answers
+            function submitAnswers() {
+                isSubmitted = true;
+                const questions = document.querySelectorAll('.question');
+                let score = 0;
+                
+                questions.forEach((question, qIndex) => {
+                    const selectedOption = question.querySelector('.option.selected');
+                    const options = question.querySelectorAll('.option');
+                    
+                    options.forEach(option => {
+                        option.classList.remove('correct', 'incorrect');
+                        option.style.pointerEvents = 'none'; // Disable clicking
+                    });
+                    
+                    // Mark correct answer
+                    const correctOption = question.querySelector('.option[data-correct="true"]');
+                    correctOption.classList.add('correct');
+                    
+                    // Check selected answer
+                    if (selectedOption) {
+                        if (selectedOption.hasAttribute('data-correct')) {
+                            score += 20;
+                        } else {
+                            selectedOption.classList.add('incorrect');
+                        }
+                    }
+                    
+                    // Show explanation
+                    const explanation = question.querySelector('.explanation');
+                    if (explanation) {
+                        explanation.style.display = 'block';
+                    }
+                });
+                
+                // Show score in modal
+                scoreDisplay.textContent = score;
+                topicDisplay.textContent = `主題：${articles[currentArticleIndex].title}`;
+                modalTitle.textContent = `測驗結果 - ${articles[currentArticleIndex].title}`;
+                
+                // Show modal
+                scoreModal.classList.add('show');
+                
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50');
+                submitBtn.textContent = '已提交答案';
+            }
+
+            // Close modal
+            closeModalBtn.addEventListener('click', function() {
+                scoreModal.classList.remove('show');
+            });
+
+            // Add event listener to submit button
+            submitBtn.addEventListener('click', submitAnswers);
+
+            // Initialize tabs and first article
+            generateTabs();
+            loadArticle(0);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'94ac9d4166a88442',t:'MTc0OTA5NDQ2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
