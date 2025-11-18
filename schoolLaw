@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校園法律風險互動測驗</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+        .quiz-container { max-width: 768px; margin: 0 auto; }
+        .question-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .option-button { width: 100%; text-align: left; padding: 0.75rem 1rem; margin-bottom: 0.5rem; border-radius: 0.375rem; border: 1px solid #e5e7eb; transition: all 0.2s; cursor: pointer; }
+        .option-button:hover:not(.disabled) { background-color: #f3f4f6; }
+        .correct { background-color: #d1fae5; border-color: #34d399; }
+        .incorrect { background-color: #fee2e2; border-color: #f87171; }
+        .disabled { cursor: default; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8">
+
+    <div class="quiz-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">校園法律風險測驗 (10題, 100分)</h1>
+        
+        <div id="quiz-app" class="space-y-6">
+            <!-- Quiz content will be rendered here by JavaScript -->
+        </div>
+
+        <div id="results" class="hidden mt-8 text-center bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-blue-600 mb-4">測驗結果</h2>
+            <p id="score-display" class="text-4xl font-extrabold text-gray-900 mb-4"></p>
+            <p id="feedback-message" class="text-lg text-gray-700 mb-6"></p>
+            <button id="restart-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">重新開始</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = {
+            "questions": [
+                {
+                    "question": "小華在校園走廊撿到一台平板電腦，明知可以交給學務處招領，卻決定帶回家自行使用。根據文章內容，這個行為最可能構成什麼法律風險？",
+                    "answerOptions": [
+                        {
+                            "text": "竊盜罪",
+                            "rationale": "竊盜罪是「趁他人不知情時偷偷取走」，而此行為是將自己「拾得（持有）」的遺失物據為己有，應屬侵占。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "公然侮辱",
+                            "rationale": "公然侮辱是侵害名譽，與佔有財物無關。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "侵占罪 (侵占遺失物)",
+                            "rationale": "文章實例說明，將自己「持有」（包含拾得）的他人所有物據為己有，即是侵占罪。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "誹謗罪",
+                            "rationale": "誹謗罪是散布不實事實侵害名譽，與佔有財物無關。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "這個行為的關鍵在於將「拾得」的他人財物「惡意拒絕歸還」，而非偷偷摸摸地取走。"
+                },
+                {
+                    "question": "學生甲在體育課時，趁同學小華不在意，打開未上鎖的置物櫃，將小華的耳機拿走。這個行為最可能構成什麼法律問題？",
+                    "answerOptions": [
+                        {
+                            "text": "侵占罪",
+                            "rationale": "侵占罪的前提是行為人原本就持有該物品，而這裡的行為是主動「竊取」他人保管的財物。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "傷害罪",
+                            "rationale": "傷害罪是針對人身的侵害，這是一個財產犯罪。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "竊盜罪",
+                            "rationale": "文章實例指出，趁他人不知情或不注意時，偷偷將他人財物取走，屬於竊盜罪。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "校園霸凌",
+                            "rationale": "雖然可能是霸凌行為之一，但在法律定性上，更明確地構成竊盜罪。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "判斷的重點是行為人是否以「偷偷將財物取走」的方式取得該物品。"
+                },
+                {
+                    "question": "學生甲在籃球場推倒學生乙導致其骨折，除了可能面臨刑事上的傷害罪起訴外，被害人學生乙的家長還可以對學生甲主張什麼法律權利？",
+                    "answerOptions": [
+                        {
+                            "text": "主張侵占罪的刑事責任",
+                            "rationale": "侵占是財產犯罪，與人身傷害無關。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "主張民事損害賠償（如醫藥費、精神慰撫金）",
+                            "rationale": "文章提到，除了刑事責任外，被害人還可以請求民事上的醫藥費和精神撫慰金賠償。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "主張誹謗罪的刑事責任",
+                            "rationale": "誹謗是針對名譽的侵害，與人身傷害無關。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "要求學校對學生甲處以退學處分",
+                            "rationale": "處罰是學校行政裁量權，而非被害人直接主張的法律權利。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "身體受傷除了要追究行為人的刑責，還能要求賠償實際損失和精神痛苦，這屬於哪一類法律責任？"
+                },
+                {
+                    "question": "某學生在社群媒體上散布「某老師收受賄賂」的**虛假消息**，企圖損害老師名譽。此行為最可能構成文章中提到的哪一項法律風險？",
+                    "answerOptions": [
+                        {
+                            "text": "公然侮辱",
+                            "rationale": "公然侮辱是使用抽象的粗鄙言語，而此行為是散布具體的虛假事實。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "誹謗罪",
+                            "rationale": "文章實例指出，散布不實的具體事實足以損害他人名譽者，構成誹謗罪。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "竊盜罪",
+                            "rationale": "竊盜罪是財產犯罪，與名譽權無關。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "傷害罪",
+                            "rationale": "傷害罪是人身侵害，與名譽權無關。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "當言論涉及「不實的具體事實」且損害他人名譽時，應屬於哪一種罪名？"
+                },
+                {
+                    "question": "文章中指出，某學生在班級群組使用「白痴」等詞彙直接攻擊同學。此種**抽象的謾罵**行為最可能構成什麼？",
+                    "answerOptions": [
+                        {
+                            "text": "誹謗罪",
+                            "rationale": "誹謗罪需要散布具體且不實的事實，抽象謾罵應屬於公然侮辱。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "公然侮辱",
+                            "rationale": "文章實例說明，使用粗鄙言語（抽象的謾罵）使他人難堪或名譽受損，屬於公然侮辱。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "校園霸凌",
+                            "rationale": "雖然是霸凌手段，但法律上直接定性為公然侮辱。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "行政違規",
+                            "rationale": "此行為已涉及刑法罪名，不只是單純的行政違規。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "針對抽象的、侮辱性的語言攻擊，是侵害名譽罪中的哪一種？"
+                },
+                {
+                    "question": "根據文章對性騷擾／性侵害的論述，校園必須教育學生建立哪一項核心觀念，以作為判斷行為界線的基礎？",
+                    "answerOptions": [
+                        {
+                            "text": "隱私權",
+                            "rationale": "雖然相關，但文章強調的是在互動中必須遵守的核心準則。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "同理心",
+                            "rationale": "同理心是道德要求，但文章明確指出了一個法律上的關鍵概念。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "權力不對等",
+                            "rationale": "這是霸凌的關鍵，而非性平事件的核心行為準則。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "同意權",
+                            "rationale": "文章明確指出，任何涉及身體接觸或性相關行為，都必須建立在明確、積極、且可隨時撤回的「同意權」之上。",
+                            "isCorrect": true
+                        }
+                    ],
+                    "hint": "這個概念是指在身體接觸或性相關的行為中，雙方都必須基於什麼原則？"
+                },
+                {
+                    "question": "學生未經同學明確同意，在網路上傳送或分享帶有性暗示的圖片。這個行為在法律風險分類上屬於？",
+                    "answerOptions": [
+                        {
+                            "text": "性侵害",
+                            "rationale": "性侵害涉及強制猥褻或性交，此行為屬性平法規範的性騷擾。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "性騷擾",
+                            "rationale": "文章實例指出，未經同意傳送或分享帶有性暗示的圖片，屬於性騷擾。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "公然侮辱",
+                            "rationale": "公然侮辱是抽象謾罵，此行為涉及性別議題和隱私。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "著作權爭議",
+                            "rationale": "雖然可能同時有著作權問題，但其主要法律風險在於對他人的性別尊重和性自主權的侵害。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "這個行為是性平事件，但尚未達到涉及身體強制接觸的程度。"
+                },
+                {
+                    "question": "校園霸凌的關鍵在於其行為同時具備哪兩個特徵？",
+                    "answerOptions": [
+                        {
+                            "text": "肢體衝突與單次發生",
+                            "rationale": "霸凌不限於肢體衝突，且通常是「重複性」的行為。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "網路傳播與匿名行為",
+                            "rationale": "網路傳播是霸凌的一種形式，但並非霸凌定義的兩個關鍵特徵。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "權力不對等與重複性",
+                            "rationale": "文章明確指出，霸凌的關鍵在於「權力不對等」和「重複性」。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "竊盜行為與金錢勒索",
+                            "rationale": "這可能屬於霸凌手段，但並非霸凌的定義性特徵。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "回想一下，霸凌與一般單次衝突的根本區別，以及行為人與被害人之間的關係特點。"
+                },
+                {
+                    "question": "根據文章結語，對同學們來說，「覺察」的其中一項要點是「覺察環境的聲音」，請問這是指什麼？",
+                    "answerOptions": [
+                        {
+                            "text": "勇於發聲或向師長求助，不成為沉默的幫兇。",
+                            "rationale": "文章提到，遇到不公不義或霸凌事件時，勇於發聲或求助，就是覺察環境的聲音。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "注意聽老師上課的內容，以免錯過考試重點。",
+                            "rationale": "這是學習要求，不是文章中提到的「覺察」法律風險的含義。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "觀察周遭環境，尋找可以下手竊取的財物。",
+                            "rationale": "這與覺察的目標（建立界線與尊重）完全相反。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "當別人攻擊自己時，大聲回擊以保護自己。",
+                            "rationale": "雖然自我保護重要，但覺察強調的是在看到不法時，尋求正當途徑介入。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "這個覺察是針對「公共環境」中的不當行為，強調的是個人的社會責任。"
+                },
+                {
+                    "question": "文章在結語中強調親職教育的重要性，並提醒家長應關注哪些重點？",
+                    "answerOptions": [
+                        {
+                            "text": "只關注學業成績的提升。",
+                            "rationale": "文章明確提醒家長「別只關注孩子的成績」，應更關注品格教育。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "同理心教育、尊重與界線、法治觀念的建立。",
+                            "rationale": "文章明確將這三項列為親職教育在法治議題上的核心重點。",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "鼓勵孩子以暴力解決問題，以便保護自己。",
+                            "rationale": "這與文章強調的「法治觀念」和「尊重與界線」相悖。",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "只教導孩子如何規避校規的懲處。",
+                            "rationale": "親職教育的目標是建立正確的價值觀，而非規避責任。",
+                            "isCorrect": false
+                        }
+                    ],
+                    "hint": "思考文章在呼籲家長時，除了成績以外，還有哪些重要的「品格教育」要素。"
+                }
+            ]
+        };
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizCompleted = false;
+
+        const quizApp = document.getElementById('quiz-app');
+        const resultsDiv = document.getElementById('results');
+        const scoreDisplay = document.getElementById('score-display');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        function renderQuestion(index) {
+            if (index >= quizData.questions.length) {
+                showResults();
+                return;
+            }
+
+            const q = quizData.questions[index];
+            const qNum = index + 1;
+            
+            const questionHtml = `
+                <div id="q-${index}" class="question-card">
+                    <div class="text-sm font-semibold text-blue-600 mb-2">問題 ${qNum} / ${quizData.questions.length} (10 分)</div>
+                    <p class="text-lg font-bold text-gray-800 mb-4">${q.question}</p>
+                    <div class="space-y-2">
+                        ${q.answerOptions.map((option, optIndex) => `
+                            <button class="option-button" data-index="${optIndex}" data-q-index="${index}">${option.text}</button>
+                        `).join('')}
+                    </div>
+                    <div id="rationale-${index}" class="hidden mt-4 p-3 rounded-md bg-gray-50 border border-gray-200 text-gray-700 text-sm">
+                        <strong class="text-gray-800">提示：</strong> ${q.hint}
+                    </div>
+                </div>
+            `;
+            quizApp.innerHTML = questionHtml;
+            
+            // Re-attach event listeners after rendering
+            document.querySelectorAll(`#q-${index} .option-button`).forEach(button => {
+                button.addEventListener('click', handleAnswer);
+            });
+        }
+
+        function handleAnswer(event) {
+            if (quizCompleted) return;
+
+            const selectedButton = event.target;
+            const qIndex = parseInt(selectedButton.dataset.qIndex);
+            const optIndex = parseInt(selectedButton.dataset.index);
+            const question = quizData.questions[qIndex];
+            const selectedOption = question.answerOptions[optIndex];
+            const allButtons = document.querySelectorAll(`#q-${qIndex} .option-button`);
+            const rationaleDiv = document.getElementById(`rationale-${qIndex}`);
+
+            // Disable all buttons and show rationale
+            allButtons.forEach(btn => {
+                btn.classList.add('disabled');
+                btn.removeEventListener('click', handleAnswer);
+            });
+
+            // Update button color and score
+            if (selectedOption.isCorrect) {
+                selectedButton.classList.add('correct');
+                score += 10;
+            } else {
+                selectedButton.classList.add('incorrect');
+                // Highlight the correct answer
+                question.answerOptions.forEach((opt, index) => {
+                    if (opt.isCorrect) {
+                        document.querySelector(`#q-${qIndex} .option-button[data-index="${index}"]`).classList.add('correct');
+                    }
+                });
+            }
+
+            // Show Rationale/Hint
+            rationaleDiv.innerHTML = `<strong class="text-gray-800">${selectedOption.isCorrect ? '✔ 正確解析' : '❌ 錯誤解析'}：</strong> ${selectedOption.rationale} <br><strong class="text-gray-800">提示：</strong> ${question.hint}`;
+            rationaleDiv.classList.remove('hidden');
+
+            // Add Next Button
+            const nextButton = document.createElement('button');
+            nextButton.textContent = (qIndex < quizData.questions.length - 1) ? '下一題' : '查看結果';
+            nextButton.className = 'mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition';
+            nextButton.addEventListener('click', () => {
+                currentQuestionIndex++;
+                renderQuestion(currentQuestionIndex);
+            });
+            document.getElementById(`q-${qIndex}`).appendChild(nextButton);
+        }
+
+        function showResults() {
+            quizCompleted = true;
+            quizApp.classList.add('hidden');
+            resultsDiv.classList.remove('hidden');
+            
+            scoreDisplay.textContent = `得分：${score} / 100`;
+
+            if (score === 100) {
+                feedbackMessage.textContent = '太棒了！您對校園法律風險有全面的了解！';
+                scoreDisplay.classList.add('text-green-600');
+            } else if (score >= 70) {
+                feedbackMessage.textContent = '表現良好！對大部分觀念都掌握了，再複習一下錯題會更完美！';
+                scoreDisplay.classList.add('text-yellow-600');
+            } else {
+                feedbackMessage.textContent = '需要加強！建議仔細閱讀文章，特別是法律行為的定義與實例。';
+                scoreDisplay.classList.add('text-red-600');
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            quizCompleted = false;
+            resultsDiv.classList.add('hidden');
+            quizApp.classList.remove('hidden');
+            scoreDisplay.classList.remove('text-green-600', 'text-yellow-600', 'text-red-600');
+            renderQuestion(currentQuestionIndex);
+        }
+
+        restartBtn.addEventListener('click', restartQuiz);
+
+        // Initial render
+        renderQuestion(currentQuestionIndex);
+    </script>
+
+</body>
+</html>
