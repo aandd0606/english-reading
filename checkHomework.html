@@ -3,17 +3,34 @@ import { Plus, Trash2, User, CheckCircle, XCircle, FileText, Users } from 'lucid
 
 export default function App() {
   // --- 狀態管理 ---
-  // 學生列表：每個學生有 id 和 name
-  const [students, setStudents] = useState([
-    { id: 1, name: '王小明' },
-    { id: 2, name: '陳小美' },
-    { id: 3, name: '李大華' },
-  ]);
+  // 學生列表：初始化時嘗試從 localStorage 讀取，若無則使用預設值
+  const [students, setStudents] = useState(() => {
+    const saved = localStorage.getItem('ht_students');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, name: '王小明' },
+      { id: 2, name: '陳小美' },
+      { id: 3, name: '李大華' },
+    ];
+  });
   
-  // 作業列表：每個作業有 id, title, 和 completedStudentIds (已繳交的學生ID陣列)
-  const [assignments, setAssignments] = useState([
-    { id: 1, title: '數學習作 P.10-12', completedStudentIds: [] }
-  ]);
+  // 作業列表：初始化時嘗試從 localStorage 讀取
+  const [assignments, setAssignments] = useState(() => {
+    const saved = localStorage.getItem('ht_assignments');
+    return saved ? JSON.parse(saved) : [
+      { id: 1, title: '數學習作 P.10-12', completedStudentIds: [] }
+    ];
+  });
+
+  // --- 自動儲存機制 (Auto-save) ---
+  // 當 students 變動時，寫入 localStorage
+  useEffect(() => {
+    localStorage.setItem('ht_students', JSON.stringify(students));
+  }, [students]);
+
+  // 當 assignments 變動時，寫入 localStorage
+  useEffect(() => {
+    localStorage.setItem('ht_assignments', JSON.stringify(assignments));
+  }, [assignments]);
 
   // 輸入框狀態
   const [studentInput, setStudentInput] = useState('');
