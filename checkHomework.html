@@ -18,14 +18,26 @@
     <style>
         /* 自定義捲軸樣式 */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(203, 213, 225, 0.3);
+            border-radius: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
             border-radius: 20px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+        /* 點擊動畫效果 */
+        .scale-up {
+            animation: scaleUp 0.2s ease-out;
+        }
+        @keyframes scaleUp {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
@@ -54,11 +66,13 @@
         const XCircle = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         );
+        const Hand = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+        );
 
         // --- 主應用程式 ---
         function App() {
             // --- 狀態管理 ---
-            // 學生列表：初始化時嘗試從 localStorage 讀取
             const [students, setStudents] = useState(() => {
                 const saved = localStorage.getItem('ht_students');
                 return saved ? JSON.parse(saved) : [
@@ -68,13 +82,15 @@
                 ];
             });
             
-            // 作業列表：初始化時嘗試從 localStorage 讀取
             const [assignments, setAssignments] = useState(() => {
                 const saved = localStorage.getItem('ht_assignments');
                 return saved ? JSON.parse(saved) : [
                     { id: 1, title: '數學習作 P.10-12', completedStudentIds: [] }
                 ];
             });
+
+            // 新增：目前選取的學生 ID
+            const [selectedStudentId, setSelectedStudentId] = useState(null);
 
             // --- 自動儲存機制 ---
             useEffect(() => {
@@ -85,13 +101,11 @@
                 localStorage.setItem('ht_assignments', JSON.stringify(assignments));
             }, [assignments]);
 
-            // 輸入框狀態
             const [studentInput, setStudentInput] = useState('');
             const [assignmentInput, setAssignmentInput] = useState('');
 
             // --- 功能函數 ---
 
-            // 新增學生
             const addStudent = (e) => {
                 e.preventDefault();
                 if (!studentInput.trim()) return;
@@ -103,9 +117,9 @@
                 setStudentInput('');
             };
 
-            // 刪除學生
             const removeStudent = (id) => {
                 if(confirm('確定要刪除這位學生嗎？')) {
+                    if (selectedStudentId === id) setSelectedStudentId(null);
                     setStudents(students.filter(s => s.id !== id));
                     setAssignments(assignments.map(a => ({
                         ...a,
@@ -114,7 +128,6 @@
                 }
             };
 
-            // 新增作業
             const addAssignment = (e) => {
                 e.preventDefault();
                 if (!assignmentInput.trim()) return;
@@ -127,42 +140,46 @@
                 setAssignmentInput('');
             };
 
-            // 刪除作業
             const removeAssignment = (id) => {
                 if(confirm('確定要刪除這個作業區塊嗎？')) {
                     setAssignments(assignments.filter(a => a.id !== id));
                 }
             };
 
-            // --- 拖放邏輯 ---
+            // --- 點選互動邏輯 (Click Logic) ---
 
-            const handleDragStart = (e, studentId) => {
-                e.dataTransfer.setData("studentId", studentId);
-                e.dataTransfer.effectAllowed = "copy";
-            };
-
-            const handleDragOver = (e) => {
-                e.preventDefault(); 
-                e.dataTransfer.dropEffect = "copy";
-            };
-
-            const handleDrop = (e, assignmentId) => {
-                e.preventDefault();
-                const studentId = parseInt(e.dataTransfer.getData("studentId"));
-                
-                const targetAssignment = assignments.find(a => a.id === assignmentId);
-                if (!targetAssignment) return;
-
-                if (!targetAssignment.completedStudentIds.includes(studentId)) {
-                    setAssignments(assignments.map(a => {
-                        if (a.id === assignmentId) {
-                            return { ...a, completedStudentIds: [...a.completedStudentIds, studentId] };
-                        }
-                        return a;
-                    }));
+            // 1. 點選學生
+            const handleStudentClick = (studentId) => {
+                if (selectedStudentId === studentId) {
+                    setSelectedStudentId(null);
+                } else {
+                    setSelectedStudentId(studentId);
                 }
             };
 
+            // 2. 點選作業區塊 (將已選取的學生加入)
+            const handleAssignmentClick = (assignmentId) => {
+                if (!selectedStudentId) return; // 沒選學生不做事
+
+                const targetAssignment = assignments.find(a => a.id === assignmentId);
+                if (!targetAssignment) return;
+
+                // 檢查是否已經繳交過
+                if (!targetAssignment.completedStudentIds.includes(selectedStudentId)) {
+                    setAssignments(assignments.map(a => {
+                        if (a.id === assignmentId) {
+                            return { ...a, completedStudentIds: [...a.completedStudentIds, selectedStudentId] };
+                        }
+                        return a;
+                    }));
+                    setSelectedStudentId(null);
+                } else {
+                    alert('該學生已在此作業完成名單中');
+                    setSelectedStudentId(null);
+                }
+            };
+
+            // 從作業中移除學生
             const removeStudentFromAssignment = (assignmentId, studentId) => {
                 setAssignments(assignments.map(a => {
                     if (a.id === assignmentId) {
@@ -182,7 +199,10 @@
                             <FileText className="w-8 h-8 text-blue-600" />
                             課堂作業繳交追蹤系統
                         </h1>
-                        <p className="text-slate-500 mt-2">拖曳左側學生姓名至右側作業區塊即可完成繳交登記</p>
+                        <p className="text-slate-500 mt-2 flex items-center justify-center gap-2">
+                            <Hand className="w-4 h-4" />
+                            操作說明：先<span className="font-bold text-blue-600">點選左側學生</span>，再<span className="font-bold text-emerald-600">點擊右側作業區塊</span>
+                        </p>
                     </header>
 
                     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
@@ -214,28 +234,44 @@
                                 </form>
 
                                 <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
-                                    {students.map(student => (
-                                        <div
-                                            key={student.id}
-                                            draggable
-                                            onDragStart={(e) => handleDragStart(e, student.id)}
-                                            className="group relative bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md p-3 rounded-lg cursor-grab active:cursor-grabbing transition-all select-none flex items-center justify-between"
-                                        >
-                                            <div className="flex items-center gap-2 overflow-hidden">
-                                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                                    {student.name.charAt(0)}
-                                                </div>
-                                                <span className="truncate font-medium">{student.name}</span>
-                                            </div>
-                                            <button 
-                                                onClick={() => removeStudent(student.id)}
-                                                className="text-slate-300 hover:text-red-500 transition-colors p-1"
-                                                title="刪除學生"
+                                    {students.map(student => {
+                                        const isSelected = selectedStudentId === student.id;
+                                        return (
+                                            <div
+                                                key={student.id}
+                                                onClick={() => handleStudentClick(student.id)}
+                                                className={`
+                                                    group relative p-3 rounded-lg cursor-pointer transition-all select-none flex items-center justify-between
+                                                    ${isSelected 
+                                                        ? 'bg-blue-50 border-2 border-blue-500 shadow-md scale-up' 
+                                                        : 'bg-white border border-slate-200 hover:border-blue-300 hover:shadow-sm'
+                                                    }
+                                                `}
                                             >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    ))}
+                                                <div className="flex items-center gap-2 overflow-hidden">
+                                                    <div className={`
+                                                        w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-colors
+                                                        ${isSelected ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}
+                                                    `}>
+                                                        {isSelected ? <CheckCircle className="w-5 h-5"/> : student.name.charAt(0)}
+                                                    </div>
+                                                    <span className={`truncate font-medium ${isSelected ? 'text-blue-700 font-bold' : ''}`}>
+                                                        {student.name}
+                                                    </span>
+                                                </div>
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeStudent(student.id);
+                                                    }}
+                                                    className="text-slate-300 hover:text-red-500 transition-colors p-1 hover:bg-slate-100 rounded"
+                                                    title="刪除學生"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
                                     {students.length === 0 && (
                                         <div className="col-span-2 text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg">
                                             尚無學生資料
@@ -267,7 +303,8 @@
                                 </form>
                             </div>
 
-                            <div className="space-y-6">
+                            {/* 右側列表容器：增加固定高度與捲軸 (max-h-[75vh] + overflow-y-auto) */}
+                            <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar pb-10">
                                 {assignments.map(assignment => {
                                     const completedStudents = students.filter(s => assignment.completedStudentIds.includes(s.id));
                                     const uncompletedStudents = students.filter(s => !assignment.completedStudentIds.includes(s.id));
@@ -278,14 +315,32 @@
                                     return (
                                         <div 
                                             key={assignment.id}
-                                            onDragOver={handleDragOver}
-                                            onDrop={(e) => handleDrop(e, assignment.id)}
-                                            className="bg-white rounded-xl shadow-sm border-2 border-slate-200 transition-colors overflow-hidden"
+                                            onClick={() => handleAssignmentClick(assignment.id)}
+                                            className={`
+                                                bg-white rounded-xl shadow-sm border-2 transition-all overflow-hidden
+                                                ${selectedStudentId 
+                                                    ? 'border-emerald-200 cursor-pointer hover:border-emerald-500 hover:ring-2 hover:ring-emerald-100 hover:shadow-lg' 
+                                                    : 'border-slate-200'
+                                                }
+                                            `}
                                         >
-                                            <div className="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-start">
-                                                <div>
+                                            {/* 提示層 */}
+                                            {selectedStudentId && (
+                                                <div className="bg-emerald-50 text-emerald-700 text-center py-1 text-xs font-bold border-b border-emerald-100 animate-pulse">
+                                                    點擊此處以繳交作業
+                                                </div>
+                                            )}
+
+                                            {/* 作業標題列 (版面更新：標題與統計資訊同一排) */}
+                                            <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                                                <div className="flex flex-wrap items-center gap-3 flex-1">
                                                     <h3 className="text-xl font-bold text-slate-800">{assignment.title}</h3>
-                                                    <div className="mt-2 flex items-center gap-4 text-sm">
+                                                    
+                                                    {/* 分隔線 (大螢幕顯示) */}
+                                                    <div className="hidden md:block w-px h-5 bg-slate-300 mx-1"></div>
+                                                    
+                                                    {/* 統計資訊 */}
+                                                    <div className="flex items-center gap-4 text-sm">
                                                         <span className="flex items-center gap-1 text-emerald-600 font-bold">
                                                             <CheckCircle className="w-4 h-4" /> 已繳交: {completedStudents.length}
                                                         </span>
@@ -294,9 +349,14 @@
                                                         </span>
                                                     </div>
                                                 </div>
+                                                
                                                 <button 
-                                                    onClick={() => removeAssignment(assignment.id)}
-                                                    className="text-slate-400 hover:text-red-500 p-2 transition-colors"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); 
+                                                        removeAssignment(assignment.id);
+                                                    }}
+                                                    className="text-slate-400 hover:text-red-500 p-2 transition-colors hover:bg-slate-100 rounded-full self-end md:self-auto"
+                                                    title="刪除作業"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
                                                 </button>
@@ -315,16 +375,16 @@
                                                 <div className="bg-emerald-50/50 rounded-lg p-3 border border-emerald-100 min-h-[150px]">
                                                     <h4 className="text-sm font-bold text-emerald-800 mb-3 flex justify-between items-center">
                                                         已完成名單
-                                                        <span className="bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full text-xs">
-                                                            {completedStudents.length} 人
-                                                        </span>
                                                     </h4>
                                                     {completedStudents.length > 0 ? (
                                                         <div className="flex flex-wrap gap-2">
                                                             {completedStudents.map(s => (
                                                                 <button
                                                                     key={s.id}
-                                                                    onClick={() => removeStudentFromAssignment(assignment.id, s.id)}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        removeStudentFromAssignment(assignment.id, s.id);
+                                                                    }}
                                                                     className="group flex items-center gap-1 bg-white text-emerald-700 border border-emerald-200 px-2 py-1 rounded shadow-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all text-sm"
                                                                     title="點擊以撤銷繳交"
                                                                 >
@@ -335,7 +395,7 @@
                                                         </div>
                                                     ) : (
                                                         <div className="h-full flex items-center justify-center text-emerald-800/30 text-sm italic pb-8">
-                                                            請將左側學生拖曳至此
+                                                            {selectedStudentId ? '點擊此區塊加入學生' : '尚未有學生繳交'}
                                                         </div>
                                                     )}
                                                 </div>
@@ -344,9 +404,6 @@
                                                 <div className="bg-amber-50/50 rounded-lg p-3 border border-amber-100 min-h-[150px]">
                                                     <h4 className="text-sm font-bold text-amber-800 mb-3 flex justify-between items-center">
                                                         未完成名單
-                                                        <span className="bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full text-xs">
-                                                            {uncompletedStudents.length} 人
-                                                        </span>
                                                     </h4>
                                                     <div className="flex flex-wrap gap-2">
                                                         {uncompletedStudents.map(s => (
