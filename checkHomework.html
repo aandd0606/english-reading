@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>課堂作業繳交追蹤系統</title>
+    <title>課堂作業繳交追蹤系統 (匯入/匯出版)</title>
     
     <!-- 引入 React 和 ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -69,6 +69,15 @@
         const Hand = ({ className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
         );
+        const Download = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        );
+        const Upload = ({ className }) => (
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        );
+        const UsersThree = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        );
 
         // --- 主應用程式 ---
         function App() {
@@ -89,8 +98,12 @@
                 ];
             });
 
-            // 新增：目前選取的學生 ID
+            // 新增：目前選取的學生 ID (如果是 'ALL' 代表選取全班)
             const [selectedStudentId, setSelectedStudentId] = useState(null);
+            
+            // 新增：是否顯示匯入區域
+            const [showImport, setShowImport] = useState(false);
+            const [importText, setImportText] = useState('');
 
             // --- 自動儲存機制 ---
             useEffect(() => {
@@ -115,6 +128,25 @@
                 };
                 setStudents([...students, newStudent]);
                 setStudentInput('');
+            };
+
+            // 批量匯入學生
+            const handleBatchImport = () => {
+                if (!importText.trim()) return;
+                
+                const names = importText.split(/\n|,|、/).map(n => n.trim()).filter(n => n);
+                if (names.length === 0) return;
+
+                const newStudents = names.map((name, index) => ({
+                    id: Date.now() + index, // 確保 ID 唯一
+                    name: name
+                }));
+
+                if (confirm(`確定要匯入 ${newStudents.length} 位學生嗎？`)) {
+                    setStudents([...students, ...newStudents]);
+                    setImportText('');
+                    setShowImport(false);
+                }
             };
 
             const removeStudent = (id) => {
@@ -146,36 +178,96 @@
                 }
             };
 
+            // 匯出 CSV 功能
+            const exportToCSV = () => {
+                // BOM for Excel to read UTF-8
+                let csvContent = "\uFEFF"; 
+                csvContent += "作業名稱,已繳交人數,未繳交人數,已繳交名單,未繳交名單\n";
+
+                assignments.forEach(assignment => {
+                    const completed = students.filter(s => assignment.completedStudentIds.includes(s.id));
+                    const uncompleted = students.filter(s => !assignment.completedStudentIds.includes(s.id));
+                    
+                    // 用分號隔開名字，避免 CSV 格式錯亂
+                    const completedNames = completed.map(s => s.name).join('; ');
+                    const uncompletedNames = uncompleted.map(s => s.name).join('; ');
+
+                    // 處理內容若有逗號需加引號 (雖然我們用分號隔開名字，但作業標題可能有逗號)
+                    const row = [
+                        `"${assignment.title}"`,
+                        completed.length,
+                        uncompleted.length,
+                        `"${completedNames}"`,
+                        `"${uncompletedNames}"`
+                    ].join(",");
+                    
+                    csvContent += row + "\n";
+                });
+
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                const date = new Date().toISOString().split('T')[0];
+                link.setAttribute("download", `作業繳交紀錄_${date}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
             // --- 點選互動邏輯 (Click Logic) ---
 
-            // 1. 點選學生
-            const handleStudentClick = (studentId) => {
-                if (selectedStudentId === studentId) {
-                    setSelectedStudentId(null);
+            // 1. 點選學生 (或全班)
+            const handleStudentClick = (id) => {
+                if (selectedStudentId === id) {
+                    setSelectedStudentId(null); // 取消選取
                 } else {
-                    setSelectedStudentId(studentId);
+                    setSelectedStudentId(id);
                 }
             };
 
-            // 2. 點選作業區塊 (將已選取的學生加入)
+            // 2. 點選作業區塊
             const handleAssignmentClick = (assignmentId) => {
-                if (!selectedStudentId) return; // 沒選學生不做事
+                if (!selectedStudentId) return; // 沒選不做事
 
                 const targetAssignment = assignments.find(a => a.id === assignmentId);
                 if (!targetAssignment) return;
 
-                // 檢查是否已經繳交過
-                if (!targetAssignment.completedStudentIds.includes(selectedStudentId)) {
-                    setAssignments(assignments.map(a => {
-                        if (a.id === assignmentId) {
-                            return { ...a, completedStudentIds: [...a.completedStudentIds, selectedStudentId] };
-                        }
-                        return a;
-                    }));
-                    setSelectedStudentId(null);
+                // 邏輯分支：全班 vs 單人
+                if (selectedStudentId === 'ALL') {
+                    // 全班模式
+                    const allStudentIds = students.map(s => s.id);
+                    // 找出還沒交作業的學生 ID
+                    const newIds = allStudentIds.filter(id => !targetAssignment.completedStudentIds.includes(id));
+                    
+                    if (newIds.length > 0) {
+                        setAssignments(assignments.map(a => {
+                            if (a.id === assignmentId) {
+                                return { ...a, completedStudentIds: [...a.completedStudentIds, ...newIds] };
+                            }
+                            return a;
+                        }));
+                        // 全班加完後可以考慮是否取消選取，這裡設定為取消以免誤觸
+                        setSelectedStudentId(null);
+                    } else {
+                        alert('全班都已經在此作業完成名單中');
+                        setSelectedStudentId(null);
+                    }
+
                 } else {
-                    alert('該學生已在此作業完成名單中');
-                    setSelectedStudentId(null);
+                    // 單人模式
+                    if (!targetAssignment.completedStudentIds.includes(selectedStudentId)) {
+                        setAssignments(assignments.map(a => {
+                            if (a.id === assignmentId) {
+                                return { ...a, completedStudentIds: [...a.completedStudentIds, selectedStudentId] };
+                            }
+                            return a;
+                        }));
+                        setSelectedStudentId(null);
+                    } else {
+                        alert('該學生已在此作業完成名單中');
+                        setSelectedStudentId(null);
+                    }
                 }
             };
 
@@ -194,15 +286,28 @@
 
             return (
                 <div className="min-h-screen bg-slate-100 font-sans text-slate-800 p-4 md:p-8">
-                    <header className="mb-8 text-center">
-                        <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
-                            <FileText className="w-8 h-8 text-blue-600" />
-                            課堂作業繳交追蹤系統
-                        </h1>
-                        <p className="text-slate-500 mt-2 flex items-center justify-center gap-2">
-                            <Hand className="w-4 h-4" />
-                            操作說明：先<span className="font-bold text-blue-600">點選左側學生</span>，再<span className="font-bold text-emerald-600">點擊右側作業區塊</span>
-                        </p>
+                    <header className="mb-8 relative">
+                        <div className="text-center">
+                            <h1 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-2">
+                                <FileText className="w-8 h-8 text-blue-600" />
+                                課堂作業繳交追蹤系統
+                            </h1>
+                            <p className="text-slate-500 mt-2 flex items-center justify-center gap-2">
+                                <Hand className="w-4 h-4" />
+                                操作說明：先<span className="font-bold text-blue-600">點選左側學生(或全班)</span>，再<span className="font-bold text-emerald-600">點擊右側作業區塊</span>
+                            </p>
+                        </div>
+                        {/* 匯出按鈕 - 放在右上角 */}
+                        <div className="absolute top-0 right-0 md:top-2 md:right-4">
+                            <button 
+                                onClick={exportToCSV}
+                                className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-sm transition-colors shadow-sm"
+                                title="匯出為 CSV 檔案"
+                            >
+                                <Download className="w-4 h-4" />
+                                <span className="hidden md:inline">匯出紀錄</span>
+                            </button>
+                        </div>
                     </header>
 
                     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
@@ -215,12 +320,38 @@
                                         <Users className="w-5 h-5 text-blue-500" />
                                         學生名單 ({students.length})
                                     </h2>
+                                    <button 
+                                        onClick={() => setShowImport(!showImport)}
+                                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                    >
+                                        <Upload className="w-3 h-3" />
+                                        {showImport ? '收起匯入' : '大量匯入'}
+                                    </button>
                                 </div>
 
-                                <form onSubmit={addStudent} className="flex gap-2 mb-6">
+                                {/* 匯入區域 */}
+                                {showImport && (
+                                    <div className="mb-4 bg-slate-50 p-3 rounded-lg border border-slate-200 animate-fade-in">
+                                        <label className="block text-xs text-slate-500 mb-2">請輸入學生姓名，一行一個，或用逗號分隔</label>
+                                        <textarea 
+                                            value={importText}
+                                            onChange={(e) => setImportText(e.target.value)}
+                                            className="w-full p-2 border border-slate-300 rounded text-sm h-24 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="王小明&#10;陳大文&#10;林小美"
+                                        ></textarea>
+                                        <button 
+                                            onClick={handleBatchImport}
+                                            className="w-full bg-blue-100 text-blue-700 hover:bg-blue-200 py-1.5 rounded text-sm font-medium transition-colors"
+                                        >
+                                            確認匯入
+                                        </button>
+                                    </div>
+                                )}
+
+                                <form onSubmit={addStudent} className="flex gap-2 mb-4">
                                     <input
                                         type="text"
-                                        placeholder="輸入學生姓名..."
+                                        placeholder="輸入單一學生姓名..."
                                         value={studentInput}
                                         onChange={(e) => setStudentInput(e.target.value)}
                                         className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -234,6 +365,29 @@
                                 </form>
 
                                 <div className="grid grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                                    {/* 全班按鈕 */}
+                                    {students.length > 0 && (
+                                        <div
+                                            onClick={() => handleStudentClick('ALL')}
+                                            className={`
+                                                col-span-2 group relative p-3 rounded-lg cursor-pointer transition-all select-none flex items-center justify-center gap-3
+                                                ${selectedStudentId === 'ALL'
+                                                    ? 'bg-violet-600 text-white shadow-md scale-up ring-2 ring-violet-300' 
+                                                    : 'bg-violet-50 border-2 border-dashed border-violet-200 text-violet-700 hover:bg-violet-100 hover:border-violet-400'
+                                                }
+                                            `}
+                                        >
+                                            <div className={`
+                                                w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                                                ${selectedStudentId === 'ALL' ? 'bg-white text-violet-600' : 'bg-violet-200 text-violet-700'}
+                                            `}>
+                                                <UsersThree className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-bold text-lg">全班皆完成</span>
+                                        </div>
+                                    )}
+
+                                    {/* 學生列表 */}
                                     {students.map(student => {
                                         const isSelected = selectedStudentId === student.id;
                                         return (
@@ -303,7 +457,7 @@
                                 </form>
                             </div>
 
-                            {/* 右側列表容器：增加固定高度與捲軸 (max-h-[75vh] + overflow-y-auto) */}
+                            {/* 右側列表容器 */}
                             <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar pb-10">
                                 {assignments.map(assignment => {
                                     const completedStudents = students.filter(s => assignment.completedStudentIds.includes(s.id));
@@ -327,19 +481,19 @@
                                             {/* 提示層 */}
                                             {selectedStudentId && (
                                                 <div className="bg-emerald-50 text-emerald-700 text-center py-1 text-xs font-bold border-b border-emerald-100 animate-pulse">
-                                                    點擊此處以繳交作業
+                                                    {selectedStudentId === 'ALL' 
+                                                        ? '點擊此處將「全班」標記為已繳交' 
+                                                        : '點擊此處標記學生為已繳交'}
                                                 </div>
                                             )}
 
-                                            {/* 作業標題列 (版面更新：標題與統計資訊同一排) */}
+                                            {/* 作業標題列 */}
                                             <div className="bg-slate-50 p-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                                                 <div className="flex flex-wrap items-center gap-3 flex-1">
                                                     <h3 className="text-xl font-bold text-slate-800">{assignment.title}</h3>
                                                     
-                                                    {/* 分隔線 (大螢幕顯示) */}
                                                     <div className="hidden md:block w-px h-5 bg-slate-300 mx-1"></div>
                                                     
-                                                    {/* 統計資訊 */}
                                                     <div className="flex items-center gap-4 text-sm">
                                                         <span className="flex items-center gap-1 text-emerald-600 font-bold">
                                                             <CheckCircle className="w-4 h-4" /> 已繳交: {completedStudents.length}
@@ -395,7 +549,9 @@
                                                         </div>
                                                     ) : (
                                                         <div className="h-full flex items-center justify-center text-emerald-800/30 text-sm italic pb-8">
-                                                            {selectedStudentId ? '點擊此區塊加入學生' : '尚未有學生繳交'}
+                                                            {selectedStudentId 
+                                                                ? (selectedStudentId === 'ALL' ? '點擊加入全班' : '點擊此區塊加入學生') 
+                                                                : '尚未有學生繳交'}
                                                         </div>
                                                     )}
                                                 </div>
